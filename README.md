@@ -1,0 +1,1 @@
+Inspired of nicknisi/dotfiles

@@ -1,0 +1,66 @@
+# TMUX plugins
+set -g @plugin 'tmux-plugins/tpm'
+set -g @plugin 'tmux-plugins/tmux-sensible'
+set -g @plugin 'seebi/tmux-colors-solarized'
+set -g @plugin 'tmux-plugins/tmux-resurrect'
+set -g @plugin 'tmux-plugins/tmux-continuum'
+set -g @plugin 'tmux-plugins/tmux-pain-control'
+
+set -g @continuum-restore 'on'
+
+set -g @colors-solarized '256'
+
+# Bind Ctrl-A to PREFIX, instead of Ctrl-B.
+set -g prefix C-a
+
+# automatically renumber tmux windows
+set -g renumber-windows on
+
+# make window/pane index start with 1
+set -g base-index 1
+setw -g pane-base-index 1
+
+set-option -g set-titles on
+set-option -g set-titles-string "#T - #W"
+
+# Original new window binding on $HOME
+bind-key C new-window
+
+# pane movement shortcuts
+unbind %
+unbind '"'
+unbind Left
+unbind Down
+unbind Up
+unbind Right
+
+# enable mouse support for switching panes/windows and text selection
+setw -g mouse on
+
+bind-key -T root PPage if-shell -F "#{alternate_on}" "send-keys PPage" "copy-mode -e; send-keys PPage"
+bind-key -t vi-copy PPage page-up
+bind-key -t vi-copy NPage page-down
+
+bind -T root WheelUpPane if-shell -F -t = "#{alternate_on}" "select-pane -t =; send-keys -M" "select-pane -t =; copy-mode -e; send-keys -M"
+bind -T root WheelDownPane if-shell -F -t = "#{alternate_on}" "select-pane -t =; send-keys -M" "select-pane -t =; send-keys -M"
+bind-key -t vi-copy WheelUpPane halfpage-up
+bind-key -t vi-copy WheelDownPane halfpage-down
+
+# set vi mode for copy mode
+setw -g mode-keys vi
+# more settings to make copy-mode more vim-like
+unbind [
+bind Escape copy-mode
+bind -t vi-copy 'v' begin-selection
+bind -t vi-copy 'y' copy-selection
+
+# Buffers to/from Mac clipboard, yay tmux book from pragprog
+#if is_osx && command_exists "reattach-to-user-namespace"; then
+  bind C-c run "tmux save-buffer - | reattach-to-user-namespace pbcopy"
+  bind C-v run "tmux set-buffer $(reattach-to-user-namespace pbpaste); tmux paste-buffer"
+#end
+
+source-file ~/.dotfiles/tmux/status_line.conf
+
+# Initialize TMUX plugin manager (keep this line at the very bottom of tmux.conf)
+run '~/.tmux/plugins/tpm/tpm'

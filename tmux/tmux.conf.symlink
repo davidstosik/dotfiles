@@ -56,13 +56,9 @@ bind Escape copy-mode
 bind -t vi-copy 'v' begin-selection
 bind -t vi-copy 'y' copy-selection
 
-# Buffers to/from Mac clipboard, yay tmux book from pragprog
-#if is_osx && command_exists "reattach-to-user-namespace"; then
-  bind C-c run "tmux save-buffer - | reattach-to-user-namespace pbcopy"
-  bind C-v run "tmux set-buffer $(reattach-to-user-namespace pbpaste); tmux paste-buffer"
-#end
-
 source-file ~/.dotfiles/tmux/status_line.conf
+
+run '~/.dotfiles/tmux/macosx.tmux'
 
 # Initialize TMUX plugin manager (keep this line at the very bottom of tmux.conf)
 run '~/.tmux/plugins/tpm/tpm'

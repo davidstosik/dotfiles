@@ -1,0 +1,18 @@
+# Eclipse IDE
+.settings
+.buildpath
+.project
+
+*.DS_Store
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+*.swp
+*.swo
+
+/local
+
+*~

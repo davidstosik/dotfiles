@@ -1,0 +1,64 @@
+[user]
+  name = David Stosik
+  email = david.stosik+git-noreply@gmail.com
+[core]
+  autocrlf = input
+  safecrlf = false
+  whitespace = -indent-with-non-tab,trailing-space,cr-at-eol
+  excludesfile = ~/.gitignore
+[apply]
+  whitespace = fix
+[push]
+  default = simple
+[pager]
+  status = true
+[rerere]
+  enabled = true
+  autoupdate = true
+
+[color]
+  diff = auto
+  status = auto
+  branch = auto
+  ui = auto
+[color "branch"]
+#  current = yellow reverse
+#  local = yellow
+#  remote = green
+[color "diff"]
+  meta = yellow 
+#  frag = magenta bold
+#  old = red bold
+#  new = green bold
+#  whitespace = red reverse
+[color "status"]
+#  added = yellow
+  changed = red
+  untracked = cyan
+[alias]
+  co = checkout
+  ci = commit
+  st = status
+  br = branch
+  up = pull
+  cp = cherry-pick
+  hist = log --pretty=format:\"%h %ad | %s%d [%an]\" --graph --date=short
+  type = cat-file -t
+  dump = cat-file -p
+  df = diff
+  dc = diff --cached
+  lg = log -p
+  pr = pull --rebase
+  lol = log --graph --decorate --pretty=oneline --abbrev-commit
+  lola = log --graph --decorate --pretty=oneline --abbrev-commit --all
+  diffc = diff --cached
+  addp = add --patch
+  sstash = stash save -u
+[url "https://github.com/"]
+  insteadOf = github:
+[url "ssh://davidstosik@git.drupal.org/"]
+  insteadOf = drupal:
+[advice]
+	statusHints = false
+[diff]
+	mnemonicprefix = true

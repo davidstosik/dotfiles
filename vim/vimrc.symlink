@@ -1,0 +1,15 @@
+" Allow vim to break compatibility with vi
+set nocompatible " This must be first, because it changes other options
+
+" Installing the Plug plugin manager, and all the plugins are included in this
+" other file.
+source $HOME/.dotfiles/vim/plug.vim
+
+"" Autoreload
+augroup reload_vimrc " {
+    autocmd!
+    autocmd BufWritePost $MYVIMRC source $MYVIMRC
+augroup END " }
+
+set background=dark
+colorscheme solarized

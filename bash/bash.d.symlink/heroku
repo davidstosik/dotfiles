@@ -1,0 +1,11 @@
+# Heroku Toolbelt
+herokubin=/usr/local/heroku/bin 
+if [ -d $herokubin ]; then
+  export PATH="$herokubin:$PATH"
+
+  function hrk()  { heroku $@             ;}
+  function hrkp() { hrk $@ -r production  ;}
+  function hrks() { hrk $@ -r staging     ;}
+  function hrki() { hrk $@ -r integration ;}
+
+fi

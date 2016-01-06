@@ -1,0 +1,31 @@
+# Alias definitions.
+# See /usr/share/doc/bash-doc/examples in the bash-doc package
+
+# ls aliases
+ls_alias=`alias ls 2>/dev/null | grep -Po "(?<=alias ls=').*(?='$)" || echo ls`
+alias ls="$ls_alias -h -F -G"
+alias l='ls'
+alias ll='l -al'
+alias la='l -A'
+
+alias rm='rm -i'
+alias cp='cp -i'
+alias mv='mv -i'
+
+alias g='grep -i'  # Faire un grep non sensible à la casse
+alias gr='g -r'
+
+alias f='find . -iname' # Faire une recherche non sensible à la casse dans le répertoire courant
+alias ducks='du -cks * | sort -rn|head -11' # Renvoie la liste des répertoires avec leur taille
+alias top='top -o cpu'
+alias systail='tail -f /var/log/system.log'
+
+alias h='history'
+alias hg='history | grep' # Rechercher dans l'historique
+
+# Add an "alert" alias for long running commands.  Use like so:
+#   sleep 10; alert
+alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
+
+# https://twitter.com/jpmens/status/557872979091415041
+alias please='sudo $(history -p \!\!)'

@@ -1,0 +1,7 @@
+# Rbenv
+rbenvbin=$HOME/.rbenv/bin
+if [ -d $rbenvbin ]; then
+  export PATH="$rbenvbin:$PATH"
+fi
+cmd_exists rbenv && eval "$(rbenv init -)"
+

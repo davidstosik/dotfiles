@@ -1,0 +1,5 @@
+! `which brew >> /dev/null` && return 0
+
+export BREW_PREFIX=`which -s brew && brew --prefix`
+
+export HOMEBREW_GITHUB_API_TOKEN=73e1925b709ae1a2ad7f69c49815660cae483ff6

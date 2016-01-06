@@ -1,0 +1,54 @@
+# ~/.bashrc: executed by bash(1) for non-login shells.
+# see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
+# for examples
+
+# If not running interactively, don't do anything
+#case $- in
+    #*i*) ;;
+      #*) return;;
+#esac
+
+# check the window size after each command and, if necessary,
+# update the values of LINES and COLUMNS.
+shopt -s checkwinsize
+
+# If set, the pattern "**" used in a pathname expansion context will
+# match all files and zero or more directories and subdirectories.
+[ "${BASH_VERSION%.*}" \> "4" ] && shopt -s globstar
+
+# make less more friendly for non-text input files, see lesspipe(1)
+[ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
+
+# Split .bashrc file and load files in .sh.d and .bash.d.
+# Inspired of https://github.com/rmeritz/dotfiles/commit/e3ee86cfa388f052d1b011f1ce5323b88b73bf44
+
+# Ignore any empty directories below.
+shopt -s nullglob
+# Load all POSIX settings.
+if [ -d $HOME/.sh.d ]; then
+  for config in $HOME/.sh.d/*; do
+    . $config
+  done
+fi
+# Load all bash-specific settings. First load pre-settings from
+# ~/.bash.d/pre, then normal settings from ~/.bash.d, then post-settings
+# from ~/.bash.d/post .
+if [ -d $HOME/.bash.d ]; then
+  for config in $HOME/.bash.d/pre/*; do
+    . $config
+  done
+
+  for config in $HOME/.bash.d/*; do
+    if [ -f $config ]; then
+      source $config
+    fi
+  done
+
+  for config in $HOME/.bash.d/post/*; do
+    source $config
+  done
+fi
+# Don't ignore non-matching globs interactively; turn off nullglob.
+shopt -u nullglob
+# End of code that allows splitting .bashrc file.
+

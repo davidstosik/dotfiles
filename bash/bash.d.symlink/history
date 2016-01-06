@@ -1,0 +1,35 @@
+# don't put duplicate lines or lines starting with space in the history.
+# See bash(1) for more options
+HISTCONTROL=ignoreboth
+
+# Prepend date and time to history lines.
+HISTTIMEFORMAT='%F %T '
+
+# for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
+HISTSIZE=9999
+HISTFILESIZE=$HISTSIZE
+
+# remove certain commands from history.
+HISTIGNORE='bg:fg:history'
+
+# append to the history file, don't overwrite it
+shopt -s histappend
+
+# One command per line of history 
+shopt -s cmdhist
+
+history() {
+  _bash_history_sync
+  builtin history "$@"
+}
+
+_bash_history_sync() {
+  builtin history -a
+  HISTFILESIZE=$HISTSIZE
+  builtin history -c
+  builtin history -r
+}
+
+# Immediately append lines to history file.
+PROMPT_COMMAND="_bash_history_sync; $PROMPT_COMMAND"
+

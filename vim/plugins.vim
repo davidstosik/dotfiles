@@ -8,9 +8,18 @@ endif
 call plug#begin('~/.vim/plugged')
 Plug 'tpope/vim-sensible'
 Plug 'tpope/vim-fugitive'
+Plug 'airblade/vim-gitgutter'
 Plug 'tpope/vim-rails'
+Plug 'slim-template/vim-slim'
 Plug 'ctrlpvim/ctrlp.vim'
-Plug 'altercation/vim-colors-solarized'
-Plug 'tpope/vim-sleuth'
+"Plug 'altercation/vim-colors-solarized'
+Plug 'chriskempson/base16-vim'
+"Plug 'tpope/vim-sleuth'
+Plug 'scrooloose/nerdcommenter'
 "Plug 'rstacruz/sparkup', {'rtp': 'vim/'}
+Plug 'scrooloose/nerdtree'
+Plug 'mbbill/undotree'
+
+
+
 call plug#end()

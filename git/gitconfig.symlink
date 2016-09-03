@@ -15,7 +15,6 @@
 [rerere]
   enabled = true
   autoupdate = true
-
 [color]
   diff = auto
   status = auto
@@ -26,7 +25,7 @@
 #  local = yellow
 #  remote = green
 [color "diff"]
-  meta = yellow 
+  meta = yellow
 #  frag = magenta bold
 #  old = red bold
 #  new = green bold
@@ -59,6 +58,6 @@
 [url "ssh://davidstosik@git.drupal.org/"]
   insteadOf = drupal:
 [advice]
-	statusHints = false
+  statusHints = false
 [diff]
-	mnemonicprefix = true
+  mnemonicprefix = true

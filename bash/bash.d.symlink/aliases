@@ -13,7 +13,7 @@ alias cp='cp -i'
 alias mv='mv -i'
 
 alias g='grep -i'  # Faire un grep non sensible à la casse
-alias gr='g -r'
+alias gr='g -rn'
 
 alias f='find . -iname' # Faire une recherche non sensible à la casse dans le répertoire courant
 alias ducks='du -cks * | sort -rn|head -11' # Renvoie la liste des répertoires avec leur taille

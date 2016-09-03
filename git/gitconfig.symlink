@@ -41,18 +41,23 @@
   br = branch
   up = pull
   cp = cherry-pick
-  hist = log --pretty=format:\"%h %ad | %s%d [%an]\" --graph --date=short
   type = cat-file -t
   dump = cat-file -p
   df = diff
   dc = diff --cached
-  lg = log -p
   pr = pull --rebase
-  lol = log --graph --decorate --pretty=oneline --abbrev-commit
-  lola = log --graph --decorate --pretty=oneline --abbrev-commit --all
+  lg = log -p
+  ;hist = log --pretty=format:\"%h %ad | %s%d [%an]\" --graph --date=short
+  ;lol = log --graph --decorate --pretty=oneline --abbrev-commit
+  ;lola = log --graph --decorate --pretty=oneline --abbrev-commit --all
+  lol = log --graph --decorate --pretty=format:'%C(yellow)%h%Creset -%C(auto)%d%Creset %s %Cgreen(%cd) %C(bold blue)<%an>%Creset' --abbrev-commit --date=local
+  lola = lol --all
   diffc = diff --cached
   addp = add --patch
+  addu = add -u
   sstash = stash save -u
+  copr = "!copr() { git fetch origin pull/$1/head:$2 && git checkout $2 && git push -u origin $2; }; copr"
+  dc = "!dc() { git diff $1^1 $1; }; dc"
 [url "https://github.com/"]
   insteadOf = github:
 [url "ssh://davidstosik@git.drupal.org/"]
@@ -61,3 +66,14 @@
   statusHints = false
 [diff]
   mnemonicprefix = true
+  ;compactionHeuristic = true
+[filter "lfs"]
+  clean = git-lfs clean %f
+  smudge = git-lfs smudge %f
+  required = true
+[difftool "sourcetree"]
+  cmd = /Applications/DiffMerge.app/Contents/MacOS/DiffMerge --nosplash \"$LOCAL\" \"$REMOTE\"
+  path =
+[mergetool "sourcetree"]
+  cmd = /Applications/DiffMerge.app/Contents/MacOS/DiffMerge --merge --result=\"$MERGED\" \"$LOCAL\" \"$BASE\" \"$REMOTE\"
+  trustExitCode = true

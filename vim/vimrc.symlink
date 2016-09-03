@@ -3,7 +3,7 @@ set nocompatible " This must be first, because it changes other options
 
 " Installing the Plug plugin manager, and all the plugins are included in this
 " other file.
-source $HOME/.dotfiles/vim/plug.vim
+source $HOME/.dotfiles/vim/plugins.vim
 
 "" Autoreload
 augroup reload_vimrc " {

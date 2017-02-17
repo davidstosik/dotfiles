@@ -4,7 +4,7 @@ echo "Installing dotfiles"
 
 DOTFILES=$HOME/.dotfiles
 
-cd $DOTFILES && git submodule update
+cd $DOTFILES && git submodule update --init
 
 source $DOTFILES/install/brew.sh
 

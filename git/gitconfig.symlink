@@ -68,12 +68,14 @@
   mnemonicprefix = true
   ;compactionHeuristic = true
 [filter "lfs"]
-  clean = git-lfs clean %f
-  smudge = git-lfs smudge %f
   required = true
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
 [difftool "sourcetree"]
   cmd = /Applications/DiffMerge.app/Contents/MacOS/DiffMerge --nosplash \"$LOCAL\" \"$REMOTE\"
   path =
 [mergetool "sourcetree"]
   cmd = /Applications/DiffMerge.app/Contents/MacOS/DiffMerge --merge --result=\"$MERGED\" \"$LOCAL\" \"$BASE\" \"$REMOTE\"
   trustExitCode = true
+[credential]
+	helper = osxkeychain

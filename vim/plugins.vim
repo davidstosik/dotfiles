@@ -19,6 +19,7 @@ Plug 'scrooloose/nerdcommenter'
 "Plug 'rstacruz/sparkup', {'rtp': 'vim/'}
 Plug 'scrooloose/nerdtree'
 Plug 'mbbill/undotree'
+Plug 'kchmck/vim-coffee-script'
 
 
 

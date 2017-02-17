@@ -2,11 +2,15 @@
 
 echo "Installing dotfiles"
 
-source install/brew.sh
+DOTFILES=$HOME/.dotfiles
 
-source install/backup.sh
+cd $DOTFILES && git submodule update
 
-source install/link.sh
+source $DOTFILES/install/brew.sh
 
-source install/tmux.sh
-source install/vim.sh
+source $DOTFILES/install/backup.sh
+
+source $DOTFILES/install/link.sh
+
+source $DOTFILES/install/tmux.sh
+source $DOTFILES/install/vim.sh

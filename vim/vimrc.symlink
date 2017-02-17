@@ -13,9 +13,10 @@ augroup reload_vimrc " {
     autocmd BufWritePost $MYVIMRC source $MYVIMRC
 augroup END " }
 
-let base16colorspace=256
-set background=dark
-silent! colorscheme base16-solarized-dark
+if filereadable(expand("~/.vimrc_background"))
+  let base16colorspace=256
+  source ~/.vimrc_background
+endif
 
 set showcmd
 set nomodeline

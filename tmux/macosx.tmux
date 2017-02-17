@@ -20,6 +20,20 @@ main() {
       tmux bind C-c run "tmux save-buffer - | reattach-to-user-namespace pbcopy"
       tmux bind C-v run "tmux set-buffer '$(reattach-to-user-namespace pbpaste)'; tmux paste-buffer"
 
+
+      # FIXME: works onmy on tmux 2.1
+      # enable mouse support for switching panes/windows and text selection
+      setw -g mouse on
+
+      bind-key -T root PPage if-shell -F "#{alternate_on}" "send-keys PPage" "copy-mode -e; send-keys PPage"
+      bind-key -t vi-copy PPage page-up
+      bind-key -t vi-copy NPage page-down
+
+      bind -T root WheelUpPane if-shell -F -t = "#{alternate_on}" "select-pane -t =; send-keys -M" "select-pane -t =; copy-mode -e; send-keys -M"
+      bind -T root WheelDownPane if-shell -F -t = "#{alternate_on}" "select-pane -t =; send-keys -M" "select-pane -t =; send-keys -M"
+      bind-key -t vi-copy WheelUpPane halfpage-up
+      bind-key -t vi-copy WheelDownPane halfpage-down
+
     fi
 
   fi

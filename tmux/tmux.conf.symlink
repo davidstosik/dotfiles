@@ -1,20 +1,26 @@
 # TMUX plugins
 set -g @plugin 'tmux-plugins/tpm'
 set -g @plugin 'tmux-plugins/tmux-sensible'
-set -g @plugin 'seebi/tmux-colors-solarized'
 set -g @plugin 'tmux-plugins/tmux-resurrect'
 set -g @plugin 'tmux-plugins/tmux-continuum'
 set -g @plugin 'tmux-plugins/tmux-pain-control'
 
 set -g @continuum-restore 'on'
 
-set -g @colors-solarized '256'
-
 # Bind Ctrl-A to PREFIX, instead of Ctrl-B.
+unbind C-b
 set -g prefix C-a
+
+# send the prefix to client inside window
+bind-key -n C-t send-prefix
+#test
+bind-key a send-prefix
 
 # automatically renumber tmux windows
 set -g renumber-windows on
+#
+# tmux messages are displayed for 1.5 seconds (override tmux-sensible)
+set -g display-time 1500
 
 # make window/pane index start with 1
 set -g base-index 1
@@ -36,18 +42,6 @@ unbind Down
 unbind Up
 unbind Right
 
-# enable mouse support for switching panes/windows and text selection
-setw -g mouse on
-
-bind-key -T root PPage if-shell -F "#{alternate_on}" "send-keys PPage" "copy-mode -e; send-keys PPage"
-bind-key -t vi-copy PPage page-up
-bind-key -t vi-copy NPage page-down
-
-bind -T root WheelUpPane if-shell -F -t = "#{alternate_on}" "select-pane -t =; send-keys -M" "select-pane -t =; copy-mode -e; send-keys -M"
-bind -T root WheelDownPane if-shell -F -t = "#{alternate_on}" "select-pane -t =; send-keys -M" "select-pane -t =; send-keys -M"
-bind-key -t vi-copy WheelUpPane halfpage-up
-bind-key -t vi-copy WheelDownPane halfpage-down
-
 # set vi mode for copy mode
 setw -g mode-keys vi
 # more settings to make copy-mode more vim-like
@@ -57,6 +51,7 @@ bind -t vi-copy 'v' begin-selection
 bind -t vi-copy 'y' copy-selection
 
 source-file ~/.dotfiles/tmux/status_line.conf
+source-file ~/.dotfiles/tmux/base16-solarized-dark.tmux
 
 run '~/.dotfiles/tmux/macosx.tmux'
 

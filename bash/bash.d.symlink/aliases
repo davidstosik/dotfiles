@@ -15,7 +15,8 @@ alias mv='mv -i'
 alias g='grep -i'  # Faire un grep non sensible à la casse
 alias gr='g -rn'
 
-alias f='find . -iname' # Faire une recherche non sensible à la casse dans le répertoire courant
+#alias f='find . -iname' # Faire une recherche non sensible à la casse dans le répertoire courant
+f() { find . -iregex ".*$1.*"; }
 alias ducks='du -cks * | sort -rn|head -11' # Renvoie la liste des répertoires avec leur taille
 alias top='top -o cpu'
 alias systail='tail -f /var/log/system.log'

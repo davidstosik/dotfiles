@@ -12,6 +12,7 @@ source $DOTFILES/install/backup.sh
 
 source $DOTFILES/install/link.sh
 
-source $DOTFILES/install/base16.sh
 source $DOTFILES/install/tmux.sh
 source $DOTFILES/install/vim.sh
+
+source $HOME/.bashrc

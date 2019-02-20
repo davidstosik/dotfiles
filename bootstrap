@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+
+set -e
+
+# Install Homebrew and Git on Mac
+if [ "`uname`" == "Darwin" ]
+then
+
+  /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)" < /dev/null
+
+  brew install git
+
+fi
+
+
+# Install SSH and Git on Termux
+if [ `which termux-info` ]
+then
+
+  pkg install ssh git
+
+fi
+
+
+# Setup SSH key and Github known host
+
+mkdir -p ~/.ssh
+
+SSH_KEY_FILE=~/.ssh/id_rsa
+if [ ! -e $SSH_KEY_FILE ]
+then
+  ssh-keygen -q -t rsa -b 4096 -C "`whoami`@`hostname`" -N "" -f $SSH_KEY_FILE
+fi
+
+echo "Please make sure the following public key is registered in your GitHub account."
+echo "URL: https://github.com/settings/keys"
+echo "Fingerprint: `ssh-keygen -lf ~/.ssh/id_rsa -E md5`"
+echo "Key:"
+echo "====="
+cat "${SSH_KEY_FILE}.pub"
+echo "====="
+read -n 1 -s -r -p "Press any key to continue"
+echo ""
+
+ssh-keyscan github.com >> ~/.ssh/known_hosts
+git clone git@github.com:davidstosik/dotfiles.git

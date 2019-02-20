@@ -6,7 +6,12 @@ set -e
 if [ "`uname`" == "Darwin" ]
 then
 
-  /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)" < /dev/null
+  if command -v brew >/dev/null 2>&1
+  then
+    brew update
+  else
+    /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)" < /dev/null
+  fi
 
   brew install git
 
@@ -14,7 +19,7 @@ fi
 
 
 # Install SSH and Git on Termux
-if [ `which termux-info` ]
+if command -v termux-info
 then
 
   pkg install ssh git

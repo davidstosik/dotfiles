@@ -22,7 +22,8 @@ fi
 if command -v termux-info
 then
 
-  pkg install ssh git
+  apt update && apt upgrade -y
+  pkg install -y openssh git
 
 fi
 

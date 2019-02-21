@@ -1,6 +1,6 @@
 [user]
-  name = David Stosik
-  email = david.stosik+git-noreply@gmail.com
+	name = David Stosik
+	email = david.stosik+git-noreply@gmail.com
 [core]
   autocrlf = input
   safecrlf = false
@@ -9,9 +9,8 @@
 [apply]
   whitespace = fix
 [push]
-  default = simple
+  default = current
 [pager]
-  status = true
 [rerere]
   enabled = true
   autoupdate = true
@@ -36,7 +35,7 @@
   untracked = cyan
 [alias]
   co = checkout
-  ci = commit
+  ci = commit -v
   st = status
   br = branch
   up = pull
@@ -58,6 +57,7 @@
   sstash = stash save -u
   copr = "!copr() { git fetch origin pull/$1/head:$2 && git checkout $2 && git push -u origin $2; }; copr"
   dc = "!dc() { git diff $1^1 $1; }; dc"
+  commit2pr = "!commit2pr() { originalbranch=`git rev-parse --abbrev-ref HEAD` && sha=`git rev-parse HEAD` && newbranch=$originalbranch-`date +%s` && git stash && git fetch && git checkout -b $newbranch origin/master && git cherry-pick $sha && git push -u origin $newbranch && hub pull-request -m \"`git log -1 --pretty=%B`\" && git checkout $originalbranch && git stash pop; }; commit2pr"
 [url "https://github.com/"]
   insteadOf = github:
 [url "ssh://davidstosik@git.drupal.org/"]
@@ -71,6 +71,7 @@
   required = true
 	clean = git-lfs clean -- %f
 	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
 [difftool "sourcetree"]
   cmd = /Applications/DiffMerge.app/Contents/MacOS/DiffMerge --nosplash \"$LOCAL\" \"$REMOTE\"
   path =

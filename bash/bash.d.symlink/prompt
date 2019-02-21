@@ -35,7 +35,8 @@ fi
 GIT_PS1_SHOWDIRTYSTATE=true
 GIT_PS1_SHOWUNTRACKEDFILES=true
 GIT_PS1_SHOWUPSTREAM="auto"
-git_prompt='$(__git_ps1 " (%s)")'
+SHORT_GIT_PROMPT_LIMIT=20
+git_prompt='$(__git_ps1 " (%s)" | perl -p -e "s/^ \((?<prefix>[^.]+)\.([^.]{${SHORT_GIT_PROMPT_LIMIT}})[^.]+\.(?<suffix>.*)\)$/ ($+{prefix}.\2... .$+{suffix})/")'
 
 if [ "$color_prompt" = yes ]; then
     PS1="\n"

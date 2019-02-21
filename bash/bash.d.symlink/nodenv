@@ -1,0 +1,6 @@
+nodenvbin=$HOME/.nodenv/bin
+if [ -d $nodenvbin ]; then
+  export PATH="$nodenvbin:$PATH"
+fi
+cmd_exists nodenv && eval "$(nodenv init -)"
+

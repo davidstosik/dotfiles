@@ -51,3 +51,5 @@ fi
 # Don't ignore non-matching globs interactively; turn off nullglob.
 shopt -u nullglob
 # End of code that allows splitting .bashrc file.
+
+[ -f ~/.fzf.bash ] && source ~/.fzf.bash

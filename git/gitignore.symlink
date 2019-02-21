@@ -13,10 +13,12 @@
 *.swp
 *.swo
 
-/local_files/
+/untracked/
 /tags
 
 *~
 
 # Trello Flow config file
 .trello_flow
+
+*.log

@@ -1,0 +1,6 @@
+# Add zsh to Homebrew formulas
+
+# Switch current user to zsh
+sudo chsh -s /usr/local/bin/zsh $USER
+
+brew install imagemagick

@@ -10,7 +10,7 @@ source $HOME/.dotfiles/vim/plugins.vim
 "" Autoreload
 augroup reload_vimrc " {
     autocmd!
-    autocmd BufWritePost $MYVIMRC source $MYVIMRC
+    autocmd BufWritePost $MYVIMRC exe "source $MYVIMRC | redraw! | echo 'Reloaded vimrc'"
 augroup END " }
 
 if filereadable(expand("~/.vimrc_background"))
@@ -20,6 +20,12 @@ endif
 
 set showcmd
 set nomodeline
+
+" Restore cursor position
+autocmd BufReadPost *
+      \ if line("'\"") > 1 && line("'\"") <= line("$") |
+      \   exe "normal! g`\"" |
+      \ endif
 
 set list
 set listchars=eol:↵,tab:»\ ,trail:·,extends:>,precedes:<,nbsp:%
@@ -111,19 +117,49 @@ if exists("+undofile")
   set undofile
 endif
 
-let g:ctrlp_custom_ignore = {
-\ 'dir':  '\v[\/]\.(git|hg|svn)$',
-\ 'file': '\v\.(exe|so|dll)$',
-\ }
+"let g:ctrlp_custom_ignore = {
+"\ 'dir':  '\v[\/]\.(git|hg|svn)$',
+"\ 'file': '\v\.(exe|so|dll)$',
+"\ }
 
-let g:ctrlp_user_command = {
-  \ 'types': {
-    \ 1: ['.git', 'git --git-dir=%s/.git ls-files -oc --exclude-standard'],
-  \ },
-  \ 'fallback': 'find %s -type f'
-\ }
+"if executable('ag')
+  "" Use ag in CtrlP for listing files. Lightning fast and respects .gitignore
+  "let g:ctrlp_user_command = "ag %s -l --nocolor -g '' | awk '{ print length, $0}' | sort -n | cut -d' ' -f2-"
+"endif
+"let g:ctrlp_user_command = {
+  "\ 'types': {
+    "\ 1: ['.git', 'git --git-dir=%s/.git ls-files -oc --exclude-standard'],
+  "\ },
+  "\ 'fallback': 'find %s -type f'
+"\ }
+noremap <silent> <C-P> :FZF<CR>
 
 " Tab page navigation
 nnoremap H gT
 nnoremap L gt
 
+" Rails stuff
+let g:ruby_indent_access_modifier_style="indent"
+let g:rails_ctags_arguments = "--languages=ruby --exclude=.local_repo"
+
+" F5 to delete trailing spaces
+nmap <silent> <F5> :let _s=@/<Bar>:%s/\s\+$//e<Bar>:let @/=_s<Bar>:nohl<CR>
+"
+autocmd FileType ruby autocmd BufWritePre * %s/\s\+$//e
+autocmd FileType ruby autocmd BufWritePre * %s/\n\n\+$/\r/e
+
+" Use Mac clipboard in default register
+set clipboard=unnamed
+
+" Create current directory tree
+command! Mkdir :silent exec "!mkdir -p %:h" | redraw!
+
+" Leave crontab alone
+autocmd filetype crontab setlocal nobackup nowritebackup
+
+" Markdown preview
+nmap gm :LivedownPreview<CR>
+augroup kill_livedown " {
+    autocmd!
+    autocmd * VimLeave LivedownKill
+augroup END " }

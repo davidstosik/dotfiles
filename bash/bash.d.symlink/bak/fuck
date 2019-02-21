@@ -1,4 +1,4 @@
-cmd_exists thefuck && eval $(thefuck --alias)
+cmd_exists thefuck && eval $(SHELL=bash thefuck --alias)
 
 # https://twitter.com/jpmens/status/557872979091415041
 cmd_exists thefuck || alias fuck='sudo $(history -p \!\!)'

@@ -1,0 +1,4 @@
+pebblebin=~/.pebble-dev/pebble-sdk-4.5-mac/bin
+if [ -d $pebblebin ]; then
+  export PATH=$pebblebin:$PATH
+fi

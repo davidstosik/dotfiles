@@ -1,5 +1,6 @@
 # TODO
 
+- [ ] `vim`
 - [ ] `watch`
 - [ ] GNU grep on macOS:
   ```sh

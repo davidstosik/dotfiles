@@ -1,5 +1,12 @@
 # TODO
 
+- [ ] bash-completion
+- [ ] man on termux
+- [ ] hub
+- [ ] split `history` in its own folder
+- [ ] split bashrc config in folders
+- [ ] http://www.tinygraphs.com to differentiate hosts
+- [ ] setup git config local
 - [ ] `vim`
 - [ ] `watch`
 - [ ] GNU grep on macOS:
@@ -8,3 +15,125 @@
   brew tap homebrew/dupes
   brew install grep --with-default-names
   ```
+- [ ] fzf
+- [ ] the_silver_searcher
+- [ ] rbenv + ruby install
+- [ ] switch to Zshell?
+- [ ] figure out the needed Homebrew packages in:
+  - adns
+  - argp-standalone
+  - autoconf
+  - automake
+  - avr-binutils
+  - avr-gcc
+  - avr-libc
+  - avrdude
+  - awscli
+  - boost
+  - boost-python
+  - casperjs
+  - cmake
+  - colordiff
+  - ctags
+  - dfu-programmer
+  - dtc
+  - envchain
+  - ext4fuse
+  - f3
+  - fd
+  - freetype
+  - gdbm
+  - gettext
+  - ghostscript
+  - git-lfs
+  - glib
+  - gmp
+  - gnupg
+  - gnutls
+  - grafana
+  - grip
+  - heroku
+  - heroku-node
+  - htop
+  - httrack
+  - hub
+  - icu4c
+  - imagemagick
+  - iozone
+  - isl
+  - jpeg
+  - libassuan
+  - libelf
+  - libevent
+  - libffi
+  - libftdi0
+  - libgcrypt
+  - libgpg-error
+  - libhid
+  - libksba
+  - libmaxminddb
+  - libmpc
+  - libpng
+  - libsass
+  - libssh
+  - libtasn1
+  - libtiff
+  - libtool
+  - libunistring
+  - libusb
+  - libusb-compat
+  - libyaml
+  - little-cms2
+  - llvm@3.9
+  - logrotate
+  - mpfr
+  - msgpack
+  - mysql
+  - mysql-client
+  - mysql@5.6
+  - ncurses
+  - nettle
+  - nmap
+  - node
+  - node-build
+  - node@10
+  - node@8
+  - nodenv
+  - npth
+  - openjpeg
+  - openssl
+  - p11-kit
+  - pcre
+  - pcre2
+  - pebble-qemu
+  - pebble-toolchain
+  - percona-toolkit
+  - perl
+  - phantomjs
+  - pinentry
+  - pixman
+  - pkg-config
+  - popt
+  - postgresql
+  - python
+  - python3
+  - python@2
+  - qt
+  - qt5
+  - readline
+  - reattach-to-user-namespace
+  - redis
+  - rename
+  - socat
+  - sqlite
+  - sshpass
+  - telnet
+  - texinfo
+  - thefuck
+  - tmate
+  - todo-txt
+  - unrar
+  - vault
+  - webp
+  - xz
+  - yarn

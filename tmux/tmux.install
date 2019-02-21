@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+if [ "`uname`" == "Darwin" ]
+then
+  brew install tmux
+elif command -v termux-info
+then
+  pkg install tmux
+fi
+
+# See https://github.com/tmux-plugins/tpm/issues/151 regarding the workaround below
+export TMUX_PLUGIN_MANAGER_PATH=~/.tmux/plugins/
+
+# Install TPM
+git clone https://github.com/tmux-plugins/tpm ${TMUX_PLUGIN_MANAGER_PATH}tpm
+
+# Install TPM plugins
+${TMUX_PLUGIN_MANAGER_PATH}tpm/bin/install_plugins
+
+# is reattach-to-user-namespace still necessary on Mac?

@@ -5,7 +5,7 @@ then
   brew install tmux
 elif command -v termux-info
 then
-  pkg install tmux
+  pkg install -y tmux
 fi
 
 # See https://github.com/tmux-plugins/tpm/issues/151 regarding the workaround below

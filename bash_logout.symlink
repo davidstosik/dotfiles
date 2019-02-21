@@ -1,0 +1,1 @@
+[ -n "$PS2" ] && echo "Bye bye!"

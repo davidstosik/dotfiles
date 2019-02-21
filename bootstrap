@@ -2,6 +2,8 @@
 
 set -e
 
+DOTFILES=~/.dotfiles
+
 # Install Homebrew and Git on Mac
 if [ "`uname`" == "Darwin" ]
 then
@@ -49,4 +51,18 @@ read -n 1 -s -r -p "Press any key to continue"
 echo ""
 
 ssh-keyscan github.com >> ~/.ssh/known_hosts
-git clone git@github.com:davidstosik/dotfiles.git
+git clone git@github.com:davidstosik/dotfiles.git $DOTFILES
+
+
+# Symlink
+for file in $(find -H "$DOTFILES" -maxdepth 3 -name '*.symlink' -not -path '*.git*')
+do
+  target="$HOME/.$(basename $file '.symlink')"
+  if [ -e $target ]
+  then
+    echo "~${target#$HOME} already exists... Skipping."
+  else
+    echo "Creating symlink for $file"
+    ln -s $file $target
+  fi
+done

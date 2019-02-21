@@ -1,0 +1,6 @@
+# .bash_profile is loaded only on login shells
+
+# Start tmux here?
+
+# Load common config for login and non-login shell
+[ -r ~/.bashrc ] && . ~/.bashrc

@@ -57,5 +57,5 @@ git clone --branch v2 git@github.com:davidstosik/dotfiles.git $DOTFILES
 # Run .install files
 for file in $(find -H "$DOTFILES" -maxdepth 3 -name '*.install' -not -path '*.git*')
 do
-  . file
+  . $file
 done

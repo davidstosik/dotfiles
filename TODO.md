@@ -3,7 +3,6 @@
 - [ ] bash-completion
 - [ ] man on termux
 - [ ] hub
-- [ ] split `history` in its own folder
 - [ ] split bashrc config in folders
 - [ ] http://www.tinygraphs.com to differentiate hosts
 - [ ] setup git config local

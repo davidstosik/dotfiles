@@ -1,0 +1,23 @@
+#~/usr/bin/env bash
+
+# Make history very long and timestamped, append to end
+shopt -s histappend
+export HISTSIZE=""
+export HISTTIMEFORMAT="%F %T	"
+export HISTCONTROL=""
+
+# Rotate history
+histfile_tmp=${HISTFILE}.tmp
+histfile_size=`cat $HISTFILE | wc -l | xargs`
+
+keep_size=10000
+if [ $histfile_size -gt $((keep_size * 2)) ]; then
+  crop_count=$((histfile_size - keep_size))
+
+  echo "Need to rotate history file (cropping ${crop_count} out of ${histfile_size} lines)..."
+  cp $HISTFILE $histfile_tmp
+  head -$crop_count $histfile_tmp > ${HISTFILE}.old/`date +"%Y%m%d_%H%M%S"`
+  tail -$keep_size $histfile_tmp > $HISTFILE
+  #rm $histfile_tmp
+  echo "!!! Kept temporary file for verification, be sure to check and remove !!!"
+fi

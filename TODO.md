@@ -1,5 +1,6 @@
 # TODO
 
+- [ ] colors
 - [ ] man on termux
 - [ ] hub
 - [ ] split bashrc config in folders
@@ -17,6 +18,10 @@
 - [ ] the_silver_searcher
 - [ ] rbenv + ruby install
 - [ ] switch to Zshell?
+- [ ] rename
+- [ ] todo-txt
+- [ ] unrar
+- [ ] make dotfiles installation idempotent (so that it can be run multiple times, or udpate itself)
 - [ ] figure out the needed Homebrew packages in:
   - adns
   - argp-standalone
@@ -54,7 +59,6 @@
   - heroku-node
   - htop
   - httrack
-  - hub
   - icu4c
   - imagemagick
   - iozone
@@ -121,7 +125,6 @@
   - readline
   - reattach-to-user-namespace
   - redis
-  - rename
   - socat
   - sqlite
   - sshpass
@@ -129,8 +132,6 @@
   - texinfo
   - thefuck
   - tmate
-  - todo-txt
-  - unrar
   - vault
   - webp
   - xz

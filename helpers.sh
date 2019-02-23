@@ -5,3 +5,7 @@ cmd_exists() {
 is_termux() {
   cmd_exists termux-info
 }
+
+is_macos() {
+  test "`uname`" = "Darwin"
+}

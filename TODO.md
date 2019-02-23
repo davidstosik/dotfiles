@@ -1,6 +1,5 @@
 # TODO
 
-- [ ] bash-completion
 - [ ] man on termux
 - [ ] hub
 - [ ] split bashrc config in folders

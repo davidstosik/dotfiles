@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+CURRENT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+source ${CURRENT_DIR}/../helpers.sh
+
+if is_macos
+then
+  script="/usr/local/etc/profile.d/bash_completion.sh"
+  compat_dir_path="/usr/local/etc/bash_completion.d"
+elif is_termux
+then
+  script="${PREFIX}/share/bash-completion/bash_completion"
+  compat_dir_path="${PREFIX}/etc/bash_completion.d"
+fi
+
+[[ -e "$compat_dir_path" ]] && export BASH_COMPLETION_COMPAT_DIR="$compat_dir_path"
+
+[[ -r "$script" ]] && . "$script"

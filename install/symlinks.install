@@ -1,11 +1,9 @@
 #!/usr/bin/env bash
 
 # Symlink
-for file in $(find -H "$DOTFILES" -maxdepth 3 -name '*.symlink' -not -path '*.git*')
-do
+for file in $(find -H $HOME/.dotfiles -maxdepth 3 -name '*.symlink' -not -path '*.git*'); do
   target="$HOME/.$(basename $file '.symlink')"
-  if [ -e $target ]
-  then
+  if [ -e $target ]; then
     echo "~${target#$HOME} already exists... Skipping."
   else
     echo "Creating symlink for $file"

@@ -1,21 +1,16 @@
 #!/usr/bin/env bash
 
-if [ "`uname`" == "Darwin" ]
-then
+CURRENT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+source ${CURRENT_DIR}/../helpers.sh
+
+if is_macos; then
 
   # macOS ships with bash 3.2, this install Bash 5
   brew install bash
   
-  if [ $UID != 0 ]; then
-    echo "Some commands may request sudo access."
-    sudo -v
-  fi
-  
-  NEW_BASH_PATH=/usr/local/bin/bash
-  grep -q $NEW_BASH_PATH /etc/shells | sudo -n sh -c "echo '$NEW_BASH_PATH' >> /etc/shells"
+  NEW_BASH_PATH=$(brew --prefix)/bin/bash
+  grep -q $NEW_BASH_PATH /etc/shells | sudo sh -c "echo '$NEW_BASH_PATH' >> /etc/shells"
   sudo chsh -s $NEW_BASH_PATH `whoami`
-  
-  echo "Revoking sudo timestamp..."
-  sudo -k
 
 fi

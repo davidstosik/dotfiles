@@ -20,7 +20,6 @@
 - [ ] rename
 - [ ] todo-txt
 - [ ] unrar
-- [ ] make dotfiles installation idempotent (so that it can be run multiple times, or udpate itself)
 - [ ] figure out the needed Homebrew packages in:
   - adns
   - argp-standalone

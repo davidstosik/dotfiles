@@ -3,4 +3,4 @@
 # Start tmux here?
 
 # Load common config for login and non-login shell
-[ -r ~/.bashrc ] && . ~/.bashrc
+[ -r $HOME/.bashrc ] && . $HOME/.bashrc

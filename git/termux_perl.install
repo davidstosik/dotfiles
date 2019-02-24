@@ -5,7 +5,6 @@ CURRENT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source ${CURRENT_DIR}/../helpers.sh
 
 # Perl is required by git add--interactive, but not installed in Termux
-if is_termux && test ! $(cmd_exists perl)
-then
+if is_termux && test ! $(cmd_exists perl); then
   pkg install perl
 fi

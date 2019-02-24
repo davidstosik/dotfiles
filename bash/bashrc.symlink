@@ -17,8 +17,7 @@ PS1='\h:\W \u\$ '
 shopt -s checkwinsize
 
 # Run .rc files
-for file in $(find -H ~/.dotfiles -maxdepth 3 -name '*.rc' -not -path '*.git*')
-do
+for file in $(find -H $HOME/.dotfiles -maxdepth 3 -name '*.rc' -not -path '*.git*'); do
   . $file
 done
 
@@ -26,10 +25,10 @@ done
 [ command -v rbenv >/dev/null 2>&1 ] && eval "$(rbenv init -)"
 
 # Add ~/bin to PATH
-[ -d "~/bin" ] && export PATH=~/bin:$PATH
+[ -d "$HOME/bin" ] && export PATH=$HOME/bin:$PATH
 
 # Add fzf if installed
-[ -f "~/.fzf.bash" ] && source ~/.fzf.bash
+[ -f "$HOME/.fzf.bash" ] && source $HOME/.fzf.bash
 
 # Check for terminal specific bashrc files?
-# [ -r "~/.bashrc_$TERM_PROGRAM" ] && . "~/.bashrc_$TERM_PROGRAM"
+# [ -r "$HOME/.bashrc_$TERM_PROGRAM" ] && . "$HOME/.bashrc_$TERM_PROGRAM"

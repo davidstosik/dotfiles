@@ -2,47 +2,47 @@
 
 set -e
 
-export DOTFILES=~/.dotfiles
+TMP_HELPERS="${TMPDIR:-/tmp}/dotfiles_helpers.sh"
+curl -fsSL --output "$TMP_HELPERS" https://raw.githubusercontent.com/davidstosik/dotfiles/v2/helpers.sh
+
+source "$TMP_HELPERS" && rm "$TMP_HELPERS"
 
 # Install Homebrew and Git on Mac
-if [ "`uname`" == "Darwin" ]
-then
+if is_macos; then
 
-  if command -v brew >/dev/null 2>&1
-  then
+  if cmd_exists brew; then
     brew update
   else
     /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)" < /dev/null
   fi
 
-  brew install git
-
 fi
 
-
-# Install SSH and Git on Termux
-if command -v termux-info
-then
+# Install SSH on Termux
+if is_termux; then
 
   apt update && apt upgrade -y
-  pkg install -y openssh git
+  pkg install -y openssh
 
 fi
 
+install_package git
 
 # Setup SSH key and Github known host
 
-mkdir -p ~/.ssh
+mkdir -p $HOME/.ssh
 
-SSH_KEY_FILE=~/.ssh/id_rsa
-if [ ! -e $SSH_KEY_FILE ]
-then
+SSH_KEY_FILE=$HOME/.ssh/id_rsa
+if [ ! -e $SSH_KEY_FILE ]; then
+  echo "Preparing SSH key file"
   ssh-keygen -q -t rsa -b 4096 -C "`whoami`@`hostname`" -N "" -f $SSH_KEY_FILE
+else
+  echo "SSH RSA key file already exists."
 fi
 
 echo "Please make sure the following public key is registered in your GitHub account."
 echo "URL: https://github.com/settings/keys"
-echo "Fingerprint: `ssh-keygen -lf ~/.ssh/id_rsa -E md5`"
+echo "Fingerprint: `ssh-keygen -lf $HOME/.ssh/id_rsa -E md5`"
 echo "Key:"
 echo "====="
 cat "${SSH_KEY_FILE}.pub"
@@ -50,12 +50,15 @@ echo "====="
 read -n 1 -s -r -p "Press any key to continue"
 echo ""
 
-ssh-keyscan github.com >> ~/.ssh/known_hosts
-git clone --branch v2 git@github.com:davidstosik/dotfiles.git $DOTFILES
+if ! grep -q github.com $HOME/.ssh/known_hosts; then
+  ssh-keyscan github.com >> $HOME/.ssh/known_hosts
+fi
 
+if [ ! -d $HOME/.dotfiles ]; then
+  git clone --branch v2 git@github.com:davidstosik/dotfiles.git $HOME/.dotfiles
+fi
 
 # Run .install files
-for file in $(find -H "$DOTFILES" -maxdepth 3 -name '*.install' -not -path '*.git*')
-do
+for file in $(find -H $HOME/.dotfiles -maxdepth 3 -name '*.install' -not -path '*.git*'); do
   . $file
 done

@@ -4,19 +4,18 @@ CURRENT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 source ${CURRENT_DIR}/../helpers.sh
 
-if is_macos
-then
-  brew install tmux
-elif is_termux
-then
-  pkg install -y tmux
-fi
+install_package tmux
 
 # See https://github.com/tmux-plugins/tpm/issues/151 regarding the workaround below
-export TMUX_PLUGIN_MANAGER_PATH=~/.tmux/plugins/
+export TMUX_PLUGIN_MANAGER_PATH=$HOME/.tmux/plugins/
 
 # Install TPM
-git clone https://github.com/tmux-plugins/tpm ${TMUX_PLUGIN_MANAGER_PATH}tpm
+TPM_DIR=${TMUX_PLUGIN_MANAGER_PATH}tpm
+if [ -d "$TPM_DIR" ]; then
+  cd "$TPM_DIR" && git pull && cd -
+else
+  git clone https://github.com/tmux-plugins/tpm $TPM_DIR
+fi
 
 # Install TPM plugins
 ${TMUX_PLUGIN_MANAGER_PATH}tpm/bin/install_plugins

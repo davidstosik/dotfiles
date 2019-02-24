@@ -4,14 +4,10 @@ CURRENT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 source ${CURRENT_DIR}/../helpers.sh
 
-if is_macos
-then
-  brew install vim
-elif is_termux
-then
-  pkg install -y vim
-fi
+install_package vim
 
-curl -fLo ~/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-mkdir -p ~/.vim/plugged
+echo "Installing vim-plug and plug-ins..."
+
+curl -fLo ${HOME}/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+mkdir -p ${HOME}/.vim/plugged
 vim -n -c "set nomore" -c "PlugInstall!" -c "qall"

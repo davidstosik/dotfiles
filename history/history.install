@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 
-mkdir ${HISTFILE}.old
-history -w
+mkdir -p ${HISTFILE}.old
+history -a

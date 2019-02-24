@@ -22,4 +22,4 @@ unbind Right
 setw -g mode-keys vi
 
 # Initialize TMUX plugin manager (keep this line at the very bottom of tmux.conf)
-run -b '~/.tmux/plugins/tpm/tpm'
+run -b '$HOME/.tmux/plugins/tpm/tpm'

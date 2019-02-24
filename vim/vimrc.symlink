@@ -1,6 +1,7 @@
-call plug#begin('~/.vim/plugged')
+call plug#begin('$HOME/.vim/plugged')
 
 Plug 'tpope/vim-sensible'
+Plug 'tpope/vim-fugitive'
 
 " Initialize plugin system
 call plug#end()

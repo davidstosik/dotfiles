@@ -2,7 +2,6 @@
 
 - [ ] colors
 - [ ] man on termux
-- [ ] hub
 - [ ] split bashrc config in folders
 - [ ] http://www.tinygraphs.com to differentiate hosts
 - [ ] setup git config local

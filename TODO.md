@@ -1,5 +1,8 @@
 # TODO
 
+- [ ] brew tap homebrew/cask-fonts && brew cask install font-source-code-pro
+      or brew cask install caskroom/fonts/font-hack
+- [ ] Error: Your macOS keychain GitHub credentials do not have sufficient scope!
 - [ ] colors
 - [ ] man on termux
 - [ ] split bashrc config in folders

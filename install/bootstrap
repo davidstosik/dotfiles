@@ -3,7 +3,7 @@
 set -e
 
 TMP_HELPERS="${TMPDIR:-/tmp}/dotfiles_helpers.sh"
-curl -fsSL --output "$TMP_HELPERS" https://raw.githubusercontent.com/davidstosik/dotfiles/v2/helpers.sh
+curl -fsSL --output "$TMP_HELPERS" https://raw.githubusercontent.com/davidstosik/dotfiles/v2/helpers/common.sh
 
 source "$TMP_HELPERS" && rm "$TMP_HELPERS"
 

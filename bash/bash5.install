@@ -7,10 +7,13 @@ source ${CURRENT_DIR}/../helpers.sh
 if is_macos; then
 
   # macOS ships with bash 3.2, this install Bash 5
-  brew install bash
+  brew_update_or_install bash
   
   NEW_BASH_PATH=$(brew --prefix)/bin/bash
-  grep -q $NEW_BASH_PATH /etc/shells | sudo sh -c "echo '$NEW_BASH_PATH' >> /etc/shells"
-  sudo chsh -s $NEW_BASH_PATH `whoami`
+
+  if [ "`dscl . -read /Users/david-stosik UserShell | grep -Po 'UserShell: \K.*'`" != $NEW_BASH_PATH ]; then
+    grep -q $NEW_BASH_PATH /etc/shells | sudo sh -c "echo '$NEW_BASH_PATH' >> /etc/shells"
+    sudo chsh -s $NEW_BASH_PATH `whoami`
+  fi
 
 fi

@@ -11,14 +11,20 @@ is_macos() {
 }
 
 install_package() {
-  echo "Installing $1..."
   if is_macos; then
-    if brew ls --versions $1 > /dev/null && ! brew outdated $1 > /dev/null; then
-      brew upgrade $1
-    else
-      brew install $1
-    fi
+    brew_update_or_install $1
   elif is_termux; then
+    echo "Installing $1..."
     pkg install -y $1
+  fi
+}
+
+brew_update_or_install() {
+  if brew ls --versions $1 > /dev/null && ! brew outdated $1 > /dev/null; then
+    echo "Updating $1..."
+    brew upgrade $1
+  else
+    echo "Installing $1..."
+    brew install $1
   fi
 }

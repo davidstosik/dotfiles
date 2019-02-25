@@ -11,7 +11,7 @@ source "$TMP_HELPERS" && rm "$TMP_HELPERS"
 if is_macos; then
 
   if cmd_exists brew; then
-    brew update
+    brew update && brew upgrade
   else
     /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)" < /dev/null
   fi

@@ -21,9 +21,6 @@ for file in $(find -H $HOME/.dotfiles -maxdepth 3 -name '*.rc' -not -path '*.git
   . $file
 done
 
-# Setup rbenv
-[ command -v rbenv >/dev/null 2>&1 ] && eval "$(rbenv init -)"
-
 # Add ~/bin to PATH
 [ -d "$HOME/bin" ] && export PATH=$HOME/bin:$PATH
 

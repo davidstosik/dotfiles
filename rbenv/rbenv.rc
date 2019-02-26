@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+CURRENT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+source ${CURRENT_DIR}/../helpers/common.sh
+
+# Add ~/.rbenv/bin to PATH if installed with Git
+RBENV_BIN_PATH=$HOME/.rbenv/bin
+if ! cmd_exists rbenv && [ -x $RBENV_BIN_PATH/rbenv ]; then
+  export PATH=$RBENV_BIN_PATH:$PATH
+fi
+
+cmd_exists rbenv && eval "$(rbenv init -)"

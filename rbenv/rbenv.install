@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+CURRENT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+source ${CURRENT_DIR}/../helpers/common.sh
+
+if is_macos; then
+  brew install rbenv
+else
+  RBENV_PATH=$HOME/.rbenv
+  git clone https://github.com/rbenv/rbenv.git $RBENV_PATH
+  git clone https://github.com/rbenv/ruby-build.git "$($RBENV_PATH/bin/rbenv root)/plugins/ruby-build"
+fi

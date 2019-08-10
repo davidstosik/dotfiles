@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+CURRENT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+source ${CURRENT_DIR}/../helpers/common.sh
+
+if is_macos; then
+  PATH="/usr/local/opt/grep/libexec/gnubin:$PATH"
+fi

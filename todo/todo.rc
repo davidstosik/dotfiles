@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+alias t="todo.sh"
+alias tl="todo.sh list"
+alias ta="todo.sh add"
+alias td="todo.sh do"
+alias tla="todo.sh -x list"

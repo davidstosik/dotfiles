@@ -7,7 +7,7 @@ source ${CURRENT_DIR}/../helpers/common.sh
 if is_macos; then
 
   # macOS ships with bash 3.2, this install Bash 5
-  brew_update_or_install bash
+  brew install bash
   
   NEW_BASH_PATH=$(brew --prefix)/bin/bash
 

@@ -1,7 +1,21 @@
 call plug#begin('$HOME/.vim/plugged')
 
+Plug 'ctrlpvim/ctrlp.vim'
 Plug 'tpope/vim-sensible'
 Plug 'tpope/vim-fugitive'
 
+Plug 'LucHermitte/lh-vim-lib'
+Plug 'LucHermitte/local_vimrc'
+
+
 " Initialize plugin system
 call plug#end()
+
+set diffopt+=vertical
+
+let mapleader = ","
+
+let g:local_vimrc = ['.config', '_vimrc_local.vim']
+
+
+noremap <silent> <leader>m          :10split ~/notes.md <CR>

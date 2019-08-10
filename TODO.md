@@ -2,26 +2,26 @@
 
 - [ ] brew tap homebrew/cask-fonts && brew cask install font-source-code-pro
       or brew cask install caskroom/fonts/font-hack
+- [ ] improve history merging
 - [ ] Error: Your macOS keychain GitHub credentials do not have sufficient scope!
 - [ ] colors
 - [ ] man on termux
 - [ ] split bashrc config in folders
 - [ ] http://www.tinygraphs.com to differentiate hosts
 - [ ] setup git config local
-- [ ] `vim`
+- [x] `vim`
 - [ ] `watch`
-- [ ] GNU grep on macOS:
+- [x] GNU grep on macOS:
   ```sh
   # GNU grep has more complete options
   brew tap homebrew/dupes
   brew install grep --with-default-names
   ```
 - [ ] fzf
-- [ ] the_silver_searcher
-- [ ] rbenv + ruby install
+- [x] the_silver_searcher
 - [ ] switch to Zshell?
 - [ ] rename
-- [ ] todo-txt
+- [x] todo-txt
 - [ ] unrar
 - [ ] figure out the needed Homebrew packages in:
   - adns

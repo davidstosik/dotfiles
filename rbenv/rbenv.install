@@ -7,6 +7,9 @@ source ${CURRENT_DIR}/../helpers/common.sh
 if is_macos; then
   brew install rbenv
 else
+  # Prerequisites to compile Ruby
+  apt install -Y clang make openssl-dev readline-dev
+
   RBENV_PATH=$HOME/.rbenv
   git clone https://github.com/rbenv/rbenv.git $RBENV_PATH
   git clone https://github.com/rbenv/ruby-build.git "$($RBENV_PATH/bin/rbenv root)/plugins/ruby-build"

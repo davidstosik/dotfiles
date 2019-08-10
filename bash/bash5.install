@@ -11,9 +11,14 @@ if is_macos; then
   
   NEW_BASH_PATH=$(brew --prefix)/bin/bash
 
+  echo "Bash5 setup may request your password to use sudo."
+  sudo -v
+
   if [ "`dscl . -read /Users/$(whoami) UserShell | sed -e 's/UserShell: //'`" != $NEW_BASH_PATH ]; then
     grep -q $NEW_BASH_PATH /etc/shells | sudo sh -c "echo '$NEW_BASH_PATH' >> /etc/shells"
     sudo chsh -s $NEW_BASH_PATH `whoami`
   fi
 
+  echo "Expiring sudo credentials for safety."
+  sudo -k
 fi

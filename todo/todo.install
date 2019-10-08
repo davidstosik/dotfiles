@@ -5,7 +5,24 @@ CURRENT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source ${CURRENT_DIR}/../helpers/common.sh
 
 if is_macos; then
-  brew install todo-txt
+  echo "install" #brew install todo-txt
 else
   echo "Need to setup todo-txt for other platforms"
+fi
+
+while [ ! -d "$TODOTXT_DATA" ]; do
+  echo "Please input a valid path to your todo.txt data directory (you might want to use a Dropbox folder) or leave empty for default."
+  read -r -p "todo.txt data directory: " TODOTXT_DATA
+
+  if [ -z "${TODOTXT_DATA}" ]; then
+    break
+  fi
+done
+
+if [ -z "$TODOTXT_DATA" ]; then
+  echo "Creating data directory."
+  mkdir "${CURRENT_DIR}/todo.symlink/data"
+else
+  echo "Linking data directory."
+  ln -s "$TODOTXT_DATA" "${CURRENT_DIR}/todo.symlink/data"
 fi

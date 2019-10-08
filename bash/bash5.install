@@ -7,13 +7,18 @@ source ${CURRENT_DIR}/../helpers/common.sh
 if is_macos; then
 
   # macOS ships with bash 3.2, this install Bash 5
-  brew_update_or_install bash
+  brew install bash
   
   NEW_BASH_PATH=$(brew --prefix)/bin/bash
 
-  if [ "`dscl . -read /Users/david-stosik UserShell | grep -Po 'UserShell: \K.*'`" != $NEW_BASH_PATH ]; then
+  echo "Bash5 setup may request your password to use sudo."
+  sudo -v
+
+  if [ "`dscl . -read /Users/$(whoami) UserShell | sed -e 's/UserShell: //'`" != $NEW_BASH_PATH ]; then
     grep -q $NEW_BASH_PATH /etc/shells | sudo sh -c "echo '$NEW_BASH_PATH' >> /etc/shells"
     sudo chsh -s $NEW_BASH_PATH `whoami`
   fi
 
+  echo "Expiring sudo credentials for safety."
+  sudo -k
 fi

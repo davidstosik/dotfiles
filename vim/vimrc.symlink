@@ -1,21 +1,30 @@
 call plug#begin('$HOME/.vim/plugged')
 
-Plug 'ctrlpvim/ctrlp.vim'
 Plug 'tpope/vim-sensible'
 Plug 'tpope/vim-fugitive'
-
+Plug 'tpope/vim-rails'
+Plug 'tpope/vim-rhubarb'
+Plug 'tpope/vim-eunuch'
+Plug 'mrk21/yaml-vim'
+Plug 'lmeijvogel/vim-yaml-helper'
 Plug 'LucHermitte/lh-vim-lib'
-Plug 'LucHermitte/local_vimrc'
+"Plug 'LucHermitte/local_vimrc'
+Plug 'embear/vim-localvimrc'
 
 
 " Initialize plugin system
 call plug#end()
 
+runtime plugin/sensible.vim
+
+set expandtab softtabstop=2 shiftwidth=2
+
 set diffopt+=vertical
 
 let mapleader = ","
 
-let g:local_vimrc = ['.config', '_vimrc_local.vim']
-
+let g:localvimrc_persistent = 2
 
 noremap <silent> <leader>m          :10split ~/notes.md <CR>
+
+set gdefault " Set the g (global) flag by default on search and replace

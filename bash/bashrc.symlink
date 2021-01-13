@@ -27,8 +27,6 @@ done
 # Add ~/bin to PATH
 [ -d "$HOME/bin" ] && export PATH=$HOME/bin:$PATH
 
-# Add fzf if installed
-[ -f "$HOME/.fzf.bash" ] && source $HOME/.fzf.bash
 
 # Check for terminal specific bashrc files?
 # [ -r "$HOME/.bashrc_$TERM_PROGRAM" ] && . "$HOME/.bashrc_$TERM_PROGRAM"

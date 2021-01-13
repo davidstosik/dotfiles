@@ -1,5 +1,8 @@
 # .bashrc is loaded by .bash_profile or in non-login shells
 
+# default to a proper locale if not set
+export LANG="${LANG:-en_US.UTF-8}"
+
 # Abort if shell is non-interactive
 [ -z "$PS1" ] && return
 # Alternative:

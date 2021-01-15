@@ -17,7 +17,7 @@ DOTFILES="${HOME}/.dotfiles"
 #  - other: apt-get?
 
 if [ ! -d "$DOTFILES" ]; then
-  git clone https://github.com/davidstosik/dotfiles2 "$DOTFILES"
+  git clone https://github.com/davidstosik/dotfiles "$DOTFILES"
 fi
 
 for file in ${DOTFILES}/modules/*/install.zsh; do

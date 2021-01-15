@@ -1,3 +1,6 @@
+" Source VIM defaults
+source $VIMRUNTIME/defaults.vim
+
 call plug#begin('$HOME/.vim/plugged')
 
 Plug 'junegunn/vim-plug'

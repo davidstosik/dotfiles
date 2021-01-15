@@ -20,6 +20,8 @@ Plug 'junegunn/fzf.vim'
 " Initialize plugin system
 call plug#end()
 
+set clipboard=unnamed
+
 runtime plugin/sensible.vim
 
 set expandtab softtabstop=2 shiftwidth=2

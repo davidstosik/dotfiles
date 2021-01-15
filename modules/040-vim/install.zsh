@@ -9,9 +9,16 @@ brew install vim
 ln -s "${MYDIR}/.vimrc" "$HOME"
 
 echo "== Install VIM Plug =="
-PLUGGED="${HOME}/.vim/plugged"
-mkdir -p "${PLUGGED}"
+
+DOTVIM="${HOME}/.vim"
+PLUGGED="${DOTVIM}/plugged"
+AUTOLOAD="${DOTVIM}/autoload"
+
+mkdir -p "${PLUGGED}" "${AUTOLOAD}"
+
 git clone https://github.com/junegunn/vim-plug "${PLUGGED}/vim-plug"
+
+ln -s "${PLUGGED}/vim-plug/plug.vim" "$AUTOLOAD"
 
 echo "== Install VIM plugins =="
 vim -n -c "set nomore" -c "PlugInstall!" -c "qall"

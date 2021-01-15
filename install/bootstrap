@@ -13,6 +13,7 @@ if is_macos; then
   if cmd_exists brew; then
     brew update && brew upgrade
   else
+    xcode-select —-install
     /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)" < /dev/null
   fi
 

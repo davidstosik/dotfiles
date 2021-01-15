@@ -2,9 +2,12 @@ call plug#begin('$HOME/.vim/plugged')
 
 Plug 'tpope/vim-sensible'
 Plug 'tpope/vim-fugitive'
+Plug 'tpope/vim-endwise'
+Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-rails'
 Plug 'tpope/vim-rhubarb'
 Plug 'tpope/vim-eunuch'
+Plug 'jiangmiao/auto-pairs'
 Plug 'mrk21/yaml-vim'
 Plug 'lmeijvogel/vim-yaml-helper'
 Plug 'LucHermitte/lh-vim-lib'

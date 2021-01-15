@@ -27,6 +27,8 @@ done
 # Add ~/bin to PATH
 [ -d "$HOME/bin" ] && export PATH=$HOME/bin:$PATH
 
+# Add Homebrew's sbin to PATH
+[ -d "/usr/local/sbin" ] && export PATH="/usr/local/sbin:$PATH"
 
 # Check for terminal specific bashrc files?
 # [ -r "$HOME/.bashrc_$TERM_PROGRAM" ] && . "$HOME/.bashrc_$TERM_PROGRAM"

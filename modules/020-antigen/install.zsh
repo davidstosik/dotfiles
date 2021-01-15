@@ -2,4 +2,4 @@
 
 MYDIR="${0:a:h}"
 
-curl -L git.io/antigen > "${MYDIR}/antigen.zsh"
+curl --progress-bar -L git.io/antigen > "${MYDIR}/antigen.zsh"

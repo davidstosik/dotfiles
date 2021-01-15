@@ -1,0 +1,8 @@
+echo "==== Antigen ==="
+
+MYDIR="${0:a:h}"
+ADOTDIR="${MYDIR}/.antigen"
+source "${MYDIR}/antigen.zsh"
+antigen init "${MYDIR}/antigenrc"
+
+echo "==== Antigen END ==="

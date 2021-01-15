@@ -3,7 +3,7 @@
 DOTFILES="${HOME}/.dotfiles"
 
 # Need to install some stuff first
-# - XCode
+# - XCode command line tools: https://apple.stackexchange.com/questions/107307/how-can-i-install-the-command-line-tools-completely-from-the-command-line
 # - Homebrew (per user install?)
 # - SSH keys
 # - git?
@@ -20,11 +20,9 @@ else
   git clone https://github.com/davidstosik/dotfiles2 "$DOTFILES"
 fi
 
-curl -L git.io/antigen > "${DOTFILES}/antigen.zsh"
 
-for file in .zshrc; do
-  LINK_DEST="$HOME/$file"
-  ln -sh "$HOME/.dotfiles/$file" "$LINK_DEST"
+for file in ${DOTFILES}/modules/*/install.zsh; do
+  source "$file"
 done
 
-source "$HOME/.zshrc"
+source "${HOME}/.zshrc"

@@ -37,3 +37,4 @@ noremap <silent> <leader>m          :10split ~/notes.md <CR>
 nmap <C-P> :FZF<CR>
 
 set gdefault " Set the g (global) flag by default on search and replace
+set ignorecase smartcase

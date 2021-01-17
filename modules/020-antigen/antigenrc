@@ -1,7 +1,7 @@
 # Load the oh-my-zsh's library.
 antigen use oh-my-zsh
 
-# Bundles from the default repo (robbyrussell's oh-my-zsh).
+ZSH_ALIAS_FINDER_AUTOMATIC=true
 antigen bundle alias-finder
 
 #TODO Move next line in modules/000-command-not-found

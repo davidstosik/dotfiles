@@ -33,3 +33,7 @@ Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
 
 call plug#end()
+
+" Search
+set gdefault " Set the g (global) flag by default on search and replace
+set ignorecase smartcase " Ignore case unless search term contains upper case

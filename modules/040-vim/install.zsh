@@ -16,6 +16,7 @@ AUTOLOAD="${DOTVIM}/autoload"
 
 mkdir -p "${PLUGGED}" "${AUTOLOAD}"
 
+#TODO handle existance
 git clone https://github.com/junegunn/vim-plug "${PLUGGED}/vim-plug"
 
 ln -s "${PLUGGED}/vim-plug/plug.vim" "$AUTOLOAD"

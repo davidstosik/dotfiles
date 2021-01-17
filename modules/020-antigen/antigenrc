@@ -3,9 +3,14 @@ antigen use oh-my-zsh
 
 # Bundles from the default repo (robbyrussell's oh-my-zsh).
 antigen bundle alias-finder
+
+#TODO Move next line in modules/000-command-not-found
 antigen bundle command-not-found
+
+#TODO Move next line in modules/000-git
 antigen bundle git
 
+#TODO Move next lines in modules/000-vim
 VI_MODE_SET_CURSOR=true
 VI_MODE_RESET_PROMPT_ON_MODE_CHANGE=true
 antigen bundle vi-mode

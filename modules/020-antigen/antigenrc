@@ -4,6 +4,9 @@ antigen use oh-my-zsh
 ZSH_ALIAS_FINDER_AUTOMATIC=true
 antigen bundle alias-finder
 
+ZSH_AUTOSUGGEST_STRATEGY=(history completion)
+antigen bundle zsh-users/zsh-autosuggestions
+
 #TODO Move next line in modules/000-command-not-found
 antigen bundle command-not-found
 

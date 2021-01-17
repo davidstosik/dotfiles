@@ -8,6 +8,8 @@ call plug#begin('$HOME/.vim/plugged')
 Plug 'junegunn/vim-plug'
 " Sensible defaults
 Plug 'tpope/vim-sensible'
+" Automatic indentation detection
+Plug 'tpope/vim-sleuth'
 " Git tools
 Plug 'tpope/vim-fugitive'
 " GitHub tools

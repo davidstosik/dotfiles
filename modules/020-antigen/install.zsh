@@ -7,5 +7,5 @@ mkdir -p "$ANTIGEN_ROOT"
 #TODO handle existance
 git clone https://github.com/zsh-users/antigen "${ANTIGEN_ROOT}/git"
 
-# Folder for the z plugin
-mkdir -p ~/.z
+# Prevent "no such file or directory" on first launch
+touch "${HOME}/.antigen/.z"

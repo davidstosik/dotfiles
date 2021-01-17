@@ -1,8 +1,11 @@
 #!/usr/bin/env zsh
 
-MYDIR="${0:a:h}"
+ANTIGEN_ROOT="${HOME}/.antigen"
 
-curl --progress-bar -L git.io/antigen > "${MYDIR}/antigen.zsh"
+mkdir -p "$ANTIGEN_ROOT"
+
+#TODO handle existance
+git clone https://github.com/zsh-users/antigen "${ANTIGEN_ROOT}/git"
 
 # Folder for the z plugin
 mkdir -p ~/.z

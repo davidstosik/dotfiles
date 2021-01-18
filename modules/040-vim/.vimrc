@@ -63,3 +63,6 @@ set diffopt+=vertical
 
 " leader+M opens notes
 noremap <silent> <leader>m          :10split ~/notes.md <CR>
+
+" Force a dark background because Vim misbehaves in tmux
+set background=dark

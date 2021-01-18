@@ -1,0 +1,2 @@
+export AG_DEFAULT_OPTIONS="--hidden --path-to-ignore ${0:a:h}/ignore"
+alias ag="ag $AG_DEFAULT_OPTIONS"

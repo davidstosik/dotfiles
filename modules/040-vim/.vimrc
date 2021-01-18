@@ -49,6 +49,8 @@ set ignorecase smartcase " Ignore case unless search term contains upper case
 
 " FZF-powered CtrlP
 nmap <C-P> :FZF<CR>
+" Use my default AG options for :Ag
+command! -bang -nargs=* Ag call fzf#vim#ag(<q-args>, $AG_DEFAULT_OPTIONS, <bang>0)
 
 " Yank in/paste from macOS's clipboard
 " FIXME doesn't work in tmux (+ what about other OSes?)

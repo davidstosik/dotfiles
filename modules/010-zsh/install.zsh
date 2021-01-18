@@ -2,7 +2,7 @@
 
 MYDIR="${0:a:h}"
 
-#TODO on macOS, install Homebrew's zsh
+# TODO on macOS, install Homebrew's zsh
 
 NEW_SHELL="`which zsh`"
 
@@ -17,5 +17,5 @@ if [[ "$SHELL" != "$NEW_SHELL" ]]; then
   sudo -k
 fi
 
-#TODO Handle case when destination exists
+# TODO Handle case when destination exists
 ln -s "${MYDIR}/.zshrc" "$HOME"

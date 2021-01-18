@@ -2,7 +2,7 @@
 
 DOTFILES="${HOME}/.dotfiles"
 
-# [TODO] Consider following platforms:
+# TODO Consider following platforms:
 # - macOS (main)
 # - Debian (for Raspberry Pi)
 # - Ubuntu? (same as Debian?)

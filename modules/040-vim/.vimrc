@@ -29,6 +29,7 @@ Plug 'mrk21/yaml-vim'
 " :YamlGoToKey, :YamlGetFullPath
 Plug 'lmeijvogel/vim-yaml-helper'
 " Advanced CtrlP
+" FIXME load from modules/000-fzf?
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
 " Explore the undo tree
@@ -50,7 +51,7 @@ set ignorecase smartcase " Ignore case unless search term contains upper case
 nmap <C-P> :FZF<CR>
 
 " Yank in/paste from macOS's clipboard
-"FIXME: doesn't work in tmux (+ what about other OSes?)
+" FIXME doesn't work in tmux (+ what about other OSes?)
 set clipboard=unnamed
 
 let mapleader = ","

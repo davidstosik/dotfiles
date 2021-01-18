@@ -36,6 +36,9 @@ Plug 'mbbill/undotree'
 
 call plug#end()
 
+" vim-plug is added to plugins above, so updates itself with :PlugUpdate
+delc PlugUpgrade
+
 " Allow vim-sensible overrides
 " runtime! plugin/sensible.vim
 

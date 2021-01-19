@@ -50,10 +50,15 @@ delc PlugUpgrade
 set gdefault " Set the g (global) flag by default on search and replace
 set ignorecase smartcase " Ignore case unless search term contains upper case
 
-" FZF-powered CtrlP
+" === FZF ===
+" CtrlP shortcut
 nmap <C-P> :FZF<CR>
+
+let g:fzf_preview_window = ['right:50%', 'ctrl-_']
+
 " Use my default AG options for :Ag
-command! -bang -nargs=* Ag call fzf#vim#ag(<q-args>, $AG_DEFAULT_OPTIONS, <bang>0)
+" See https://github.com/junegunn/fzf.vim/issues/1225
+command! -bang -nargs=* Ag call fzf#vim#ag(<q-args>, $AG_DEFAULT_OPTIONS, call('fzf#vim#with_preview', g:fzf_preview_window), <bang>0)
 
 " Yank in/paste from macOS's clipboard
 " FIXME doesn't work in tmux (+ what about other OSes?)

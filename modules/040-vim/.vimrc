@@ -37,6 +37,9 @@ Plug 'mbbill/undotree'
 
 call plug#end()
 
+" Automatically source vimrc on save.
+autocmd! bufwritepost $MYVIMRC source $MYVIMRC
+
 " vim-plug is added to plugins above, so updates itself with :PlugUpdate
 delc PlugUpgrade
 

@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+if [ "$SPIN" ]; then
+  exit
+fi
+
 DOTFILES="${HOME}/.dotfiles"
 
 # TODO Consider following platforms:

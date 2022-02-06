@@ -1,0 +1,26 @@
+# Load the oh-my-zsh's library.
+antigen use oh-my-zsh
+
+# Bundles from the default repo (robbyrussell's oh-my-zsh).
+antigen bundle git
+#antigen bundle pip
+#antigen bundle lein
+antigen bundle command-not-found
+
+# Syntax highlighting bundle.
+antigen bundle zsh-users/zsh-syntax-highlighting
+
+# Load the theme.
+antigen theme gnzh
+
+# Display red dots whilst waiting for completion.
+COMPLETION_WAITING_DOTS="true"
+
+# Disable marking untracked files under VCS as dirty.
+DISABLE_UNTRACKED_FILES_DIRTY="true"
+
+# Change the command execution time stamp shown in the history command output.
+HIST_STAMPS="yyyy-mm-dd"
+
+# Tell Antigen that you're done.
+antigen apply

@@ -1,0 +1,4 @@
+MYDIR="${0:a:h}"
+ADOTDIR="${HOME}/.antigen/adotdir"
+source "${HOME}/.antigen/git/antigen.zsh"
+antigen init "${MYDIR}/antigenrc"

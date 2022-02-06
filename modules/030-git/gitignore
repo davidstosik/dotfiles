@@ -1,0 +1,12 @@
+*.DS_Store
+
+# Vim
+*.swp
+*.swo
+
+/untracked
+/tags
+
+*~
+
+*.log

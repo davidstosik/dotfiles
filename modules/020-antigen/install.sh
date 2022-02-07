@@ -1,4 +1,4 @@
-##!/usr/bin/env zsh
+#!/usr/bin/env zsh
 
 MYDIR="${0:a:h}"
 

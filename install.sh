@@ -5,6 +5,12 @@ abort() {
   exit 1
 }
 
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  if ! command -v brew >/dev/null 2>&1; then
+    abort "On macOS, you'll need to install Homebrew first."
+  fi
+fi
+
 if [ -z "${ZSH_VERSION:-}" ]; then
   abort "ZShell is required to interpret this script."
 fi

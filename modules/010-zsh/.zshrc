@@ -18,6 +18,6 @@ if [[ ! "$LANG" == *UTF-8 ]]; then
 fi
 
 # Allow modules to hook into zshrc
-find "${MYDIR}/.." -mindepth 2 -maxdepth 2 -name zshrc -print0 | sort | while read -d $'\0' file; do
+for file in "$MYDIR"/../*/zshrc; do
   source "$file"
 done

@@ -17,6 +17,6 @@ SCRIPT="$(cd -P -- "$(dirname -- "$0")" && printf '%s\n' "$(pwd -P)/$(basename -
 SCRIPTPATH=$(dirname "$SCRIPT")
 
 # Allow modules to hook into install
-find "${SCRIPTPATH}/modules" -mindepth 2 -maxdepth 2 -name install.sh -print0 | sort | while read -d $'\0' file; do
+for file in "$SCRIPTPATH"/modules/*/install.sh; do
   source "$file"
 done

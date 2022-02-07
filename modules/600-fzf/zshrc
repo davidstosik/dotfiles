@@ -1,0 +1,31 @@
+# Use ag to find hidden files and ignore stuff like .git
+export FZF_DEFAULT_COMMAND="ag $AG_DEFAULT_OPTIONS -g \"\""
+export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+
+# Setup fzf
+# ---------
+# ?? Why did I need this ?? Only on macOS?
+#if [[ ! "$PATH" == */usr/local/opt/fzf/bin* ]]; then
+#  export PATH="${PATH:+${PATH}:}/usr/local/opt/fzf/bin"
+#fi
+
+# Auto-completion
+# ---------------
+#[[ $- == *i* ]] && source "/usr/local/opt/fzf/shell/completion.zsh" 2> /dev/null
+
+# Key bindings
+# ------------
+#source "/usr/local/opt/fzf/shell/key-bindings.zsh"
+
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  # FIXME use `brew --prefix`?
+  FZF_UTILS_PREFIX="/usr/local/opt/fzf/shell"
+elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
+  # FIXME this won't always work on Linux?
+  FZF_UTILS_PREFIX="/usr/share/doc/fzf/examples"
+fi
+
+if [ -d "$FZF_UTILS_PREFIX" ]; then
+  source "${FZF_UTILS_PREFIX}/completion.zsh"
+  source "${FZF_UTILS_PREFIX}/key-bindings.zsh"
+fi

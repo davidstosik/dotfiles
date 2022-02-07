@@ -14,9 +14,7 @@ AUTOLOAD="${DOTVIM}/autoload"
 mkdir -p "${PLUGGED}" "${AUTOLOAD}"
 
 # TODO handle existance
-git clone https://github.com/junegunn/vim-plug "${PLUGGED}/vim-plug"
-
-ln -s "${PLUGGED}/vim-plug/plug.vim" "$AUTOLOAD"
+ln -s "$MYDIR"/../../submodules/vim-plug/plug.vim "$AUTOLOAD"
 
 echo "== Install VIM plugins =="
 vim -n +'set nomore' +'PlugInstall --sync' +qall >/dev/null 2>&1

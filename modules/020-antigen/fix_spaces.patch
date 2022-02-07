@@ -1,0 +1,26 @@
+diff --git i/bin/antigen.zsh w/bin/antigen.zsh
+index aeba2a7..f0d83d9 100644
+--- i/bin/antigen.zsh
++++ w/bin/antigen.zsh
+@@ -1917,7 +1917,7 @@ EOC
+       fi
+       # TODO Fix: Fuzzy match shoud be replaced by a sane way to determine it.
+       if [[ $#funcfiletrace -ge 6 ]]; then
+-        ANTIGEN_CHECK_FILES+=("${${funcfiletrace[6]%:*}##* }")
++        ANTIGEN_CHECK_FILES+=("${funcfiletrace[6]%:*}")
+       fi
+     fi
+ 
+diff --git i/src/ext/cache.zsh w/src/ext/cache.zsh
+index 248638d..85f1d04 100644
+--- i/src/ext/cache.zsh
++++ w/src/ext/cache.zsh
+@@ -133,7 +133,7 @@ EOC
+       fi
+       # TODO Fix: Fuzzy match shoud be replaced by a sane way to determine it.
+       if [[ $#funcfiletrace -ge 6 ]]; then
+-        ANTIGEN_CHECK_FILES+=("${${funcfiletrace[6]%:*}##* }")
++        ANTIGEN_CHECK_FILES+=("${funcfiletrace[6]%:*}")
+       fi
+     fi
+ 

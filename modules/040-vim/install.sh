@@ -2,21 +2,6 @@
 
 MYDIR="${0:a:h}"
 
-command_exists() {
-  command -v $@ >/dev/null 2>&1
-}
-
-if ! command_exists vim; then
-  if command_exists brew; then
-    brew install vim
-  elif command_exists apt-get; then
-    apt-get install -y vim
-  else
-    echo "Unable to install Vim, skipping..."
-    exit 1
-  fi
-fi
-
 # TODO avoid failing if already exists
 ln -s "${MYDIR}/vimrc" "$HOME"/.vimrc
 

@@ -6,8 +6,8 @@ RUN apt-get update && apt-get install -y \
   vim \
   zsh
 
-COPY . /dotfiles
-RUN ["/dotfiles/install.sh"]
+COPY [".", "/dotfiles with space"]
+RUN ["/dotfiles with space/install.sh"]
 
 WORKDIR /root
 ENTRYPOINT zsh

@@ -10,7 +10,7 @@ if ! command_exists tmux; then
   if command_exists brew; then
     brew install tmux
   elif command_exists apt-get; then
-    apt-get install -y tmux
+    sudo apt-get install -y tmux
   else
     echo "Unable to install tmux, skipping..."
     exit 1

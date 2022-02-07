@@ -8,7 +8,7 @@ if ! command_exists ag; then
   if command_exists brew; then
     brew install the_silver_searcher
   elif command_exists apt-get; then
-    apt-get install -y silversearcher-ag
+    sudo apt-get install -y silversearcher-ag
   else
     echo "Unable to install ag (The Silver Searcher), skipping..."
     exit 1

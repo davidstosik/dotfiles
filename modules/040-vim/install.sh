@@ -17,6 +17,7 @@ if ! command_exists vim; then
   fi
 fi
 
+# TODO avoid failing if already exists
 ln -s "${MYDIR}/.vimrc" "$HOME"
 
 echo "== Install VIM Plug =="

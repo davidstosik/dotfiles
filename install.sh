@@ -31,16 +31,10 @@ git -C "$SCRIPTPATH" submodule update --init
 echo "== Install packages =="
 
 if command_exists brew; then
-  PACKAGES=(${(@f)$(cat "$SCRIPTPATH"/packages{,.homebrew}.list)})
-  brew update && brew install $(cat "$SCRIPTPATH"/packages{,.homebrew}.list)
+  brew install $(cat "$SCRIPTPATH"/packages{,.homebrew}.list)
 
 elif command_exists apt-get; then
-  PACKAGES=(${(@f)$(cat "$SCRIPTPATH"/packages{,.apt-get}.list)})
-  if command_exists sudo; then
-    sudo apt-get update && sudo apt-get install -y $PACKAGES
-  else
-    apt-get update && apt-get install -y $PACKAGES
-  fi
+  sudo apt-get install -y $(cat "$SCRIPTPATH"/packages{,.apt-get}.list)
 
 else
   abort "Don't know how to install packages on this platform. Aborting..."

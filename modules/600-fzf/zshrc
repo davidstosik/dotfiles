@@ -2,20 +2,20 @@
 export FZF_DEFAULT_COMMAND="ag $AG_DEFAULT_OPTIONS -g \"\""
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 
-DOTFILES_BASE="${0:a:h}"/../..
+FZF_BASE="${0:a:h}"/../../submodules/fzf
 
 # Extracted from .fzf.zsh
 
 # Setup fzf
 # ---------
-if [[ ! "$PATH" == *"$DOTFILES_BASE"/submodules/fzf/bin* ]]; then
-  export PATH="${PATH:+${PATH}:}"$DOTFILES_BASE"/submodules/fzf/bin"
+if [[ ! "$PATH" == *"$FZF_BASE"/bin* ]]; then
+  export PATH="${PATH:+${PATH}:}"$FZF_BASE"/bin"
 fi
 
 # Auto-completion
 # ---------------
-[[ $- == *i* ]] && source "${DOTFILES_BASE}/submodules/fzf/shell/completion.zsh" 2> /dev/null
+[[ $- == *i* ]] && source "${FZF_BASE}/shell/completion.zsh" 2> /dev/null
 
 # Key bindings
 # ------------
-source "${DOTFILES_BASE}/submodules/fzf/shell/key-bindings.zsh"
+source "${FZF_BASE}/shell/key-bindings.zsh"

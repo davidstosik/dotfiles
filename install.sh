@@ -25,6 +25,9 @@ fi
 
 SCRIPTPATH="${0:a:h}"
 
+echo "== Update git submodules =="
+git -C "$SCRIPTPATH" submodule update --init
+
 echo "== Install packages =="
 
 if command_exists brew; then

@@ -17,6 +17,8 @@ if [[ ! "$LANG" == *UTF-8 ]]; then
   fi
 fi
 
+fpath=($fpath "$HOME"/.zsh_functions)
+
 # Allow modules to hook into zshrc
 for file in "$MYDIR"/../*/zshrc; do
   source "$file"

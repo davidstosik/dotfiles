@@ -11,3 +11,5 @@ if [ -f "$ZSHRC_PATH" ]; then
 fi
 
 ln -s -f "$ZSHRC_TARGET" "$ZSHRC_PATH"
+
+mkdir "$HOME"/.zsh_functions

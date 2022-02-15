@@ -1,15 +1,17 @@
 #!/usr/bin/env zsh
 
 MYDIR="${0:a:h}"
-ZSHRC_TARGET="${MYDIR}/.zshrc"
-ZSHRC_PATH="${HOME}/.zshrc"
+files=(".zshrc" ".zlogin")
 
-if [ -f "$ZSHRC_PATH" ]; then
-  if [ ! "$(readlink "$ZSHRC_PATH")" -ef "$ZSHRC_TARGET" ]; then
-    mv "$ZSHRC_PATH" "${HOME}/.zshrc_orig"
+for file in "${files[@]}"; do
+  source="$MYDIR/$file"
+  link="$HOME/$file"
+
+  if [ -f "$link" -a ! "$(readlink "$link")" -ef "$source" ]; then
+    mv "$link" "${link}_orig"
   fi
-fi
 
-ln -s -f "$ZSHRC_TARGET" "$ZSHRC_PATH"
+  ln -s -f "$source" "$link"
+done
 
-mkdir "$HOME"/.zsh_functions
+mkdir -p "$HOME"/.zsh_functions

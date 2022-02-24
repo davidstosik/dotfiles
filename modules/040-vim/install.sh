@@ -17,4 +17,4 @@ mkdir -p "${PLUGGED}" "${AUTOLOAD}"
 ln -s "$MYDIR"/../../submodules/vim-plug/plug.vim "$AUTOLOAD"
 
 echo "== Install VIM plugins =="
-vim -n +'set nomore' +'PlugInstall --sync' +qall >/dev/null 2>&1
+vim -S "$MYDIR"/snapshot.vim >/dev/null 2>&1

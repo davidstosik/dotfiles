@@ -44,7 +44,11 @@
 
 [alias]
   co = checkout
+  cob = checkout -b
   ci = commit -v
+  cia = commit --amend --no-edit
+  ciam = commit --amend
+  cim = commit -v -m
   st = status
   br = branch
   up = pull

@@ -40,6 +40,8 @@ else
   abort "Don't know how to install packages on this platform. Aborting..."
 fi
 
+mkdir -p "$HOME"/bin
+
 # Allow modules to hook into install
 for file in "$SCRIPTPATH"/modules/*/install.sh; do
   source "$file"

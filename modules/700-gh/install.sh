@@ -15,6 +15,6 @@ if ! command_exists gh; then
   fi
 fi
 
-if command -v gh >/dev/null 2>&1; then
+if command_exists gh; then
   gh completion -s zsh > "$HOME"/.zsh_functions/_gh
 fi

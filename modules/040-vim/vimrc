@@ -186,6 +186,7 @@ Plug 'mbbill/undotree'
 "  " Only enabled for Vim 8 (not for Neovim).
 "  "Plug 'roxma/nvim-yarp', v:version >= 800 && !has('nvim') ? {} : { 'on': [], 'for': [] }
 "  "Plug 'roxma/vim-hug-neovim-rpc', v:version >= 800 && !has('nvim') ? {} : { 'on': [], 'for': [] }
+Plug 'dense-analysis/ale'
 
 call plug#end()
 
@@ -263,3 +264,11 @@ nnoremap H gT
 "  au!
 "  autocmd BufNewFile,BufRead ghost-* set filetype=markdown
 "  augroup END
+
+" ALE
+let g:ale_completion_enabled = 1
+let g:ale_hover_to_preview = 1
+let g:ale_ruby_rubocop_executable = 'bundle'
+set updatetime=500
+set omnifunc=ale#completion#OmniFunc
+silent! helptags ALL

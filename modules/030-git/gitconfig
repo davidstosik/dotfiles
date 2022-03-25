@@ -1,4 +1,7 @@
 [include]
+  path = ~/.gitconfig.original
+
+[include]
   path = ~/.gitconfig.local
 
 [core]
@@ -96,6 +99,3 @@
 
 [init]
   defaultBranch = main
-
-[include]
-  path = ~/.gitconfig.original

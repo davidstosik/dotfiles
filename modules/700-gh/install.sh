@@ -1,5 +1,7 @@
 #!/usr/bin/env zsh
 
+MYDIR="${0:a:h}"
+
 command_exists() {
   command -v $@ >/dev/null 2>&1
 }
@@ -17,4 +19,15 @@ fi
 
 if command_exists gh; then
   gh completion -s zsh > "$HOME"/.zsh_functions/_gh
+
+  config_dir="$HOME"/.config/gh
+  filename=config.yml
+
+  mkdir -p config_dir
+
+  if [ -f "$config_dir"/$filename ]; then
+    mv "$config_dir"/$filename{,.bak}
+  fi
+
+  ln -s "$MYDIR"/$filename "$config_dir"
 fi

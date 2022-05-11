@@ -34,7 +34,7 @@ if command_exists brew; then
   brew install $(cat "$SCRIPTPATH"/packages{,.homebrew}.list)
 
 elif command_exists apt-get; then
-  sudo apt-get install -y $(cat "$SCRIPTPATH"/packages{,.apt-get}.list)
+  sudo apt-get install -o DPkg::Lock::Timeout=600 -y $(cat "$SCRIPTPATH"/packages{,.apt-get}.list)
 
 else
   abort "Don't know how to install packages on this platform. Aborting..."

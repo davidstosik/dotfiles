@@ -271,6 +271,7 @@ nnoremap H gT
 let g:ale_completion_enabled = 1
 let g:ale_hover_to_preview = 1
 let g:ale_ruby_rubocop_executable = 'bundle'
+let g:ale_history_enabled = 1
 set updatetime=500
 set omnifunc=ale#completion#OmniFunc
 silent! helptags ALL

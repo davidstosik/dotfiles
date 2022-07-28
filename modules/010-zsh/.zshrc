@@ -25,3 +25,5 @@ path+=("$HOME"/bin)
 for file in "$MYDIR"/../*/zshrc; do
   source "$file"
 done
+
+[[ -x /opt/homebrew/bin/brew ]] && eval $(/opt/homebrew/bin/brew shellenv)

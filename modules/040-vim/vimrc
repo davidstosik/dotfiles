@@ -220,6 +220,8 @@ let g:fzf_preview_window = ['right:50%', 'ctrl-_']
 " See https://github.com/junegunn/fzf.vim/issues/1225
 command! -bang -nargs=* Ag call fzf#vim#ag(<q-args>, $AG_DEFAULT_OPTIONS, call('fzf#vim#with_preview', g:fzf_preview_window), <bang>0)
 
+let g:fzf_history_dir = '~/.local/share/fzf-history'
+
 "  " Yank in/paste from macOS's clipboard
 "  " FIXME doesn't work in tmux? (+ what about other OSes?)
 "  set clipboard=unnamed

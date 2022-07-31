@@ -187,6 +187,7 @@ Plug 'mbbill/undotree'
 "  "Plug 'roxma/nvim-yarp', v:version >= 800 && !has('nvim') ? {} : { 'on': [], 'for': [] }
 "  "Plug 'roxma/vim-hug-neovim-rpc', v:version >= 800 && !has('nvim') ? {} : { 'on': [], 'for': [] }
 Plug 'dense-analysis/ale'
+Plug 'github/copilot.vim'
 
 call plug#end()
 

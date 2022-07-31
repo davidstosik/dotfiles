@@ -18,16 +18,16 @@ if ! command_exists gh; then
 fi
 
 if command_exists gh; then
-  gh completion -s zsh > "$HOME"/.zsh_functions/_gh
-
   config_dir="$HOME"/.config/gh
   filename=config.yml
 
-  mkdir -p config_dir
+  mkdir -p "$config_dir"
 
   if [ -f "$config_dir"/$filename ]; then
     mv "$config_dir"/$filename{,.bak}
   fi
 
-  ln -s "$MYDIR"/$filename "$config_dir"
+  ln -s "$MYDIR/$filename" "$config_dir"
+
+  gh completion -s zsh > "$HOME"/.zsh_functions/_gh
 fi

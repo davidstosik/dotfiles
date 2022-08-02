@@ -1,5 +1,5 @@
 if [[ "$(uname -s)" != "Darwin" ]]; then
-  exit 0
+  return
 else
   echo "== Setting up iCloud Drive related tools =="
 fi

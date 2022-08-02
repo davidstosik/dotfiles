@@ -1,0 +1,3 @@
+if [[ "$(uname -s)" == "Darwin" ]]; then
+  download-evicted-icloud-files "${0:a:h}/../.."
+fi

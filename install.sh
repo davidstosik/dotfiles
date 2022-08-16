@@ -28,16 +28,19 @@ SCRIPTPATH="${0:a:h}"
 echo "== Update git submodules =="
 git -C "$SCRIPTPATH" submodule update --init
 
-echo "== Install packages =="
+if [ -z "$SKIP_PACKAGES" ]; then
+  echo "== Install packages =="
 
-if command_exists brew; then
-  brew install $(cat "$SCRIPTPATH"/packages{,.homebrew}.list)
+  if command_exists brew; then
+    brew install $(cat "$SCRIPTPATH"/packages{,.homebrew}.list)
 
-elif command_exists apt-get; then
-  sudo apt-get install -o DPkg::Lock::Timeout=600 -y $(cat "$SCRIPTPATH"/packages{,.apt-get}.list)
+  elif command_exists apt-get; then
+    sudo apt-get install -y $(cat "$SCRIPTPATH"/packages{,.apt-get}.list)
 
-else
-  abort "Don't know how to install packages on this platform. Aborting..."
+  else
+    abort "Don't know how to install packages on this platform. Aborting..."
+  fi
+
 fi
 
 mkdir -p "$HOME"/bin

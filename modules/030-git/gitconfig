@@ -76,6 +76,7 @@
   commit2pr = "!commit2pr() { originalbranch=`git rev-parse --abbrev-ref HEAD` && sha=`git rev-parse HEAD` && newbranch=$originalbranch-`date +%s` && git stash && git fetch && git checkout -b $newbranch origin/master && git cherry-pick $sha && git push -u origin $newbranch && hub pull-request -m \"`git log -1 --pretty=%B`\" && git checkout $originalbranch && git stash pop; }; commit2pr"
   pull-request = pull-request -d
   recent = branch --sort=-committerdate --format=\"%(committerdate:relative)%09%(refname:short)\"
+  pushf = push --force
 
 [url "https://github.com/"]
   insteadOf = github:

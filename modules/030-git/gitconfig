@@ -19,8 +19,8 @@
 [pager]
 
 [rerere]
-  enabled = false
-  autoupdate = true
+  enabled = true
+  autoupdate = false
 
 [color]
   diff = auto

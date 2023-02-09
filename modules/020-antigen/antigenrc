@@ -11,7 +11,7 @@ antigen bundle command-not-found
 antigen bundle zsh-users/zsh-syntax-highlighting
 
 # Load the theme.
-antigen theme gnzh
+#antigen theme gnzh
 
 # Display red dots whilst waiting for completion.
 COMPLETION_WAITING_DOTS="true"

@@ -1,3 +1,5 @@
 MYDIR="${0:a:h}"
 source "${MYDIR}/../../submodules/antigen/antigen.zsh"
 antigen init "${MYDIR}/antigenrc"
+
+source "${MYDIR}/sto.zsh-theme"

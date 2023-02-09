@@ -107,3 +107,6 @@
 
 [rebase]
   autostash = true
+
+[status]
+  showStash = true

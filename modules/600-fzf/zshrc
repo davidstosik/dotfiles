@@ -2,14 +2,14 @@
 export FZF_DEFAULT_COMMAND="ag $AG_DEFAULT_OPTIONS -g \"\""
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 
-FZF_BASE="${0:a:h}"/../../submodules/fzf
+FZF_BASE="$(realpath "${0:a:h}"/../../submodules/fzf)"
 
 # Extracted from .fzf.zsh
 
 # Setup fzf
 # ---------
 if [[ ! "$PATH" == *"$FZF_BASE"/bin* ]]; then
-  export PATH="${PATH:+${PATH}:}"$FZF_BASE"/bin"
+  export PATH="${FZF_BASE}/bin:${PATH}"
 fi
 
 # Auto-completion

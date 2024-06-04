@@ -188,8 +188,9 @@ Plug 'mbbill/undotree'
 "  "Plug 'roxma/vim-hug-neovim-rpc', v:version >= 800 && !has('nvim') ? {} : { 'on': [], 'for': [] }
 Plug 'dense-analysis/ale'
 Plug 'github/copilot.vim'
-" colorscheme for NeoVim or Vim 9+ with LUA 5.1+
+" colorschemes
 Plug 'EdenEast/nightfox.nvim'
+Plug 'folke/tokyonight.nvim'
 
 call plug#end()
 

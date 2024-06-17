@@ -1,0 +1,22 @@
+--require("neotest-minitest")({
+--  test_cmd = function()
+--    return vim.tbl_flatten({
+--      "dev",
+--      "test",
+--    })
+--  end
+--})
+--
+--return {
+--  {
+--    "nvim-neotest/neotest",
+--    dependencies = {
+--      "zidhuss/neotest-minitest",
+--    },
+--    opts = {
+--      adapters = {
+--        ["neotest-minitest"] = {},
+--      },
+--    }
+--  }
+--}

@@ -13,4 +13,4 @@ fi
 MYDIR="${0:a:h}"
 
 mkdir -p "$HOME"/.config
-ln -s "${MYDIR}/.config-nvim" "$HOME"/.config/nvim
+ln -s "${MYDIR}/config-nvim" "$HOME"/.config/nvim

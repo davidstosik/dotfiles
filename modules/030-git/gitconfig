@@ -118,5 +118,5 @@
   email = 816901+davidstosik@users.noreply.github.com
   name = David Stosik
 
-[includeIf "gitdir:~/src/github.com/Shopify"]
+[includeIf "gitdir/i:shopify*/"]
   path = ~/shopify.gitconfig

@@ -113,3 +113,10 @@
 
 [feature]
   manyFiles = true
+
+[user]
+  email = 816901+davidstosik@users.noreply.github.com
+  name = David Stosik
+
+[includeIf "gitdir:~/src/github.com/Shopify"]
+  path = ~/shopify.gitconfig

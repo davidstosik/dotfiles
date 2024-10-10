@@ -10,6 +10,8 @@ if ! command -v nvim >/dev/null 2>&1; then
   fi
 fi
 
+gem install --user neovim
+
 MYDIR="${0:a:h}"
 
 mkdir -p "$HOME"/.config

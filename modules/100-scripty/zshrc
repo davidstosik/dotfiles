@@ -1,0 +1,14 @@
+export SCRIPTY='~/src/scripty'
+mkdir -p $SCRIPTY
+
+# A function named `scripty`, which works following two scenarios:
+#  - if a filename was passed, it returns that files's absolute path inside `$SCRIPTY`
+#  - if no filename was passed, it returns `$SCRIPTY`'s path
+
+#scripty() {
+#  if [ -z "$1" ]; then
+#    echo $SCRIPTY
+#  else
+#    echo $SCRIPTY/$1
+#  fi
+#}

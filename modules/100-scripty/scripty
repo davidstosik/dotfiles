@@ -1,0 +1,48 @@
+#!/usr/bin/env ruby
+
+require "debug"
+require "digest"
+require "psych"
+
+class Scripty
+  def initialize(argv)
+    @argv = argv
+    @project_subpath = build_project_subpath
+  end
+
+  def run
+    `mkdir -p "#{project_full_path}"`
+    puts(File.join(project_full_path, argv[0] || ""))
+  end
+
+  private
+
+  CONFIG_PATH = File.expand_path("~/.scripty")
+  CONFIG_DEFAULTS = {
+    "base" => "~/src/scripty"
+  }
+  private_constant :CONFIG_PATH, :CONFIG_DEFAULTS
+
+  attr_reader :argv, :project_subpath
+
+  def project_full_path
+    File.expand_path(File.join(config["base"], project_subpath))
+  end
+
+  def build_project_subpath
+    pwd = `pwd`.chomp
+    elements = pwd.split("/").last(2)
+    elements << Digest::MD5.hexdigest(pwd)[..6]
+    elements.join("--")
+  end
+
+  def config
+    return @config if defined?(@config)
+
+    @config = CONFIG_DEFAULTS.tap do |config|
+      config.merge!(Psych.safe_load_file(CONFIG_PATH)) if File.exist?(CONFIG_PATH)
+    end
+  end
+end
+
+Scripty.new(ARGV).run

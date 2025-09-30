@@ -6,6 +6,9 @@ setopt HIST_IGNORE_ALL_DUPS
 HISTSIZE=10000
 SAVEHIST=10000
 
+export EDITOR=vim
+bindkey -e # for emacs keys in shell despite EDITOR
+
 alias g=git
 alias hist='fc -lt "%F %T"'
 

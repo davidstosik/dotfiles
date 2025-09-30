@@ -13,8 +13,21 @@ autoload -U colors && colors
 autoload -Uz vcs_info
 autoload -Uz compinit && compinit
 
+if command -v op &> /dev/null; then
+  eval "$(op completion zsh)" ; compdef _op op
+fi
+
+# FIXME: should probably be in .zprofile on Mac
+if command -v gt &> /dev/null; then
+  eval "$(gt completion)"
+fi
+
+if command -v mise &> /dev/null; then
+  eval "$(mise activate zsh)"
+fi
+
 precmd_update_vcs_info() {
-    vcs_info
+  vcs_info
 }
 precmd_functions+=(precmd_update_vcs_info)
 
@@ -31,5 +44,6 @@ zstyle ':vcs_info:git:*' stagedstr "%{$fg_bold[green]%}!%{$default_vcs_info_colo
 PROMPT=$'\n''%{$fg[green]%}%~%{$reset_color%} ${vcs_info_msg_0_}'$'\n''%{$fg[white]%}%{$dim%}%(!.#.$)%{$reset_color%} '
 RPROMPT='' # '%{$fg[cyan]%}%T%{$reset_color%}'
 
-# FIXME: should probably be in .zprofile on Mac
-eval "$(gt completion)"
+if command -v tmux &> /dev/null && [[ -z "$TMUX" ]]; then
+  tmux new-session -A -s "$USER"
+fi

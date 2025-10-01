@@ -1,0 +1,54 @@
+[user]
+	name = David Stosik
+	email = 816901+davidstosik@users.noreply.github.com
+
+[core]
+	autocrlf = input
+	safecrlf = false
+	whitespace = -indent-with-non-tab,trailing-space,cr-at-eol
+	excludesfile = ~/.gitignore
+
+[init]
+	defaultBranch = main
+
+[alias]
+	addp = add --patch
+	ci = commit --verbose
+	cia = commit --amend --no-edit
+	ciam = commit --amend
+	cim = commit --verbose --message
+	co = checkout
+	cob = checkout -b
+	diffc = diff --cached
+	find-merge = "!sh -c 'commit=$0 && branch=${1:-HEAD} && (git rev-list $commit..$branch --ancestry-path | cat -n; git rev-list $commit..$branch --first-parent | cat -n) | sort -k2 -s | uniq -f1 -d | sort -n | tail -1 | cut -f2'"
+	lol = log --decorate --pretty=format:'%C(yellow)%h%Creset -%C(auto)%d%Creset %s %Cgreen(%cd) %C(bold blue)<%an>%Creset' --abbrev-commit --date=auto:human
+	pushf = push --force-with-lease
+	recent = branch --sort=-committerdate --format=\"%(committerdate:relative)%09%(refname:short)\"
+	st = status
+	unstage = reset HEAD
+
+[color "status"]
+	header = white dim
+	added = green bold # or updated
+	changed = yellow bold
+	untracked = red bold
+	branch = magenta bold
+	nobranch = red bold
+	localBranch = magenta bold
+	remoteBranch = magenta bold
+	unmerged = red bold ul
+
+[color "diff"]
+	meta = yellow
+	context = white dim
+	whitespace = red reverse
+	frag = magenta bold
+	old = red
+	new = green
+	whitespace = red reverse
+
+[rebase]
+	autostash = true
+
+[push]
+	autoSetupRemote = true

@@ -36,7 +36,7 @@
 	header = white dim
 	added = green bold # or updated
 	changed = yellow bold
-	untracked = red bold
+	untracked = red bold dim
 	branch = magenta bold
 	nobranch = red bold
 	localBranch = magenta bold

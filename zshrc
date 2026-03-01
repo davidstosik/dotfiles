@@ -8,6 +8,7 @@ SAVEHIST=10000
 
 export EDITOR=vim
 bindkey -e # for emacs keys in shell despite EDITOR
+bindkey "^[[3~" delete-char # restore Delete key in tmux
 
 alias g=git
 alias hist='fc -lt "%F %T"'

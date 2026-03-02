@@ -39,6 +39,7 @@ return {
           node_decremental = "<BS>",
         },
       },
+      endwise = { enable = true },  -- requires nvim-treesitter-endwise
     },
     config = function(_, opts)
       require("nvim-treesitter.configs").setup(opts)

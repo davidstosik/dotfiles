@@ -1,0 +1,87 @@
+# ~/.zshrc — David Stosik's zsh configuration
+# Managed by: https://github.com/davidstosik/dotfiles
+
+# --- History ---
+HISTFILE="${HOME}/.zsh_history"
+HISTSIZE=50000
+SAVEHIST=50000
+setopt SHARE_HISTORY
+setopt INC_APPEND_HISTORY
+setopt HIST_IGNORE_DUPS
+setopt HIST_IGNORE_ALL_DUPS
+setopt HIST_REDUCE_BLANKS
+setopt HIST_VERIFY
+
+# --- General options ---
+setopt AUTO_CD
+setopt INTERACTIVE_COMMENTS
+setopt PROMPT_SUBST
+
+# --- Keybindings ---
+bindkey -e                    # Emacs keybindings in shell (despite EDITOR=nvim)
+bindkey "^[[3~" delete-char   # Fix Delete key (tmux/ghostty)
+
+# --- Environment ---
+export EDITOR=nvim
+export VISUAL=nvim
+export LANG="${LANG:-en_US.UTF-8}"
+export PATH="${HOME}/.local/bin:${HOME}/bin:${PATH}"
+
+# --- Completions ---
+autoload -Uz compinit && compinit
+zstyle ':completion:*' menu select
+zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'  # Case-insensitive completion
+
+# --- Colors & VCS Info ---
+autoload -U colors && colors
+autoload -Uz vcs_info
+
+precmd_update_vcs_info() { vcs_info }
+precmd_functions+=(precmd_update_vcs_info)
+
+default_vcs_info_color=$fg[blue]
+zstyle ':vcs_info:*' enable git
+zstyle ':vcs_info:git:*' formats "%{$default_vcs_info_color%}(%b%u%c)%{$reset_color%}"
+zstyle ':vcs_info:git:*' actionformats "%{$default_vcs_info_color%}(%b|%{$fg_bold[magenta]%}%a%{$default_vcs_info_color%}%u%c)%{$reset_color%}"
+zstyle ':vcs_info:git:*' check-for-changes true
+zstyle ':vcs_info:git:*' unstagedstr "%{$fg_bold[yellow]%}*%{$default_vcs_info_color%}"
+zstyle ':vcs_info:git:*' stagedstr "%{$fg_bold[green]%}!%{$default_vcs_info_color%}"
+
+# --- Prompt ---
+PROMPT=$'\n''%{$fg[green]%}%~%{$reset_color%} ${vcs_info_msg_0_}'$'\n''%{$fg[white]%}%{$dim%}%(!.#.$)%{$reset_color%} '
+RPROMPT=''
+
+# --- Source aliases & functions ---
+DOTFILES_DIR="${${(%):-%x}:A:h:h}"
+[[ -f "${DOTFILES_DIR}/zsh/aliases.zsh" ]] && source "${DOTFILES_DIR}/zsh/aliases.zsh"
+[[ -f "${DOTFILES_DIR}/zsh/functions.zsh" ]] && source "${DOTFILES_DIR}/zsh/functions.zsh"
+
+# --- Tool integrations ---
+
+# mise (polyglot version manager — replaces rbenv, nvm, etc.)
+if command -v mise &> /dev/null; then
+  eval "$(mise activate zsh)"
+fi
+
+# fzf (fuzzy finder)
+if command -v fzf &> /dev/null; then
+  source <(fzf --zsh 2>/dev/null) || true
+fi
+
+# 1Password CLI completions
+if command -v op &> /dev/null; then
+  eval "$(op completion zsh)" ; compdef _op op
+fi
+
+# Graphite CLI completions
+if command -v gt &> /dev/null; then
+  eval "$(gt completion)"
+fi
+
+# --- Auto-attach tmux ---
+if command -v tmux &> /dev/null && [[ -z "$TMUX" ]]; then
+  tmux new-session -A -s "${USER}"
+fi
+
+# --- Local overrides (not tracked) ---
+[[ -f "${HOME}/.zshrc.local" ]] && source "${HOME}/.zshrc.local"

@@ -56,3 +56,19 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 export PATH="$HOME/.local/bin:$PATH"
+
+
+vpn-fix() {
+  local iface=$(ifconfig | awk '/^utun/{iface=$1} /10\.10\.10\./{gsub(/:$/,"",iface); print iface}')
+  if [[ -z "$iface" ]]; then
+    echo "WireGuard interface not found — is VPN connected?"
+    return 1
+  fi
+  if netstat -rn | grep -q "192.168.1 \+${iface}"; then
+    echo "Route already set (192.168.1.0/24 → $iface)"
+    return 0
+  fi
+  sudo -v -p "sudo password required to add route: " && \
+  sudo route add 192.168.1.0/24 -interface "$iface" &>/dev/null && \
+  echo "✓ Route added: 192.168.1.0/24 → $iface"
+}

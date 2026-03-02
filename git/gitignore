@@ -1,0 +1,16 @@
+# macOS
+*.DS_Store
+
+# Vim / Neovim
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+
+# Claude / AI tools
+.claude
+
+# Tags (ctags)
+/tags

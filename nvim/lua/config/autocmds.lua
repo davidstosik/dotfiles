@@ -1,0 +1,12 @@
+-- Autocmds are loaded on the VeryLazy event
+-- LazyVim defaults: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/autocmds.lua
+
+-- Add your custom autocmds here
+-- Example:
+-- vim.api.nvim_create_autocmd("FileType", {
+--   pattern = "ruby",
+--   callback = function()
+--     vim.opt_local.tabstop = 2
+--     vim.opt_local.shiftwidth = 2
+--   end,
+-- })

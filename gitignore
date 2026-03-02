@@ -1,11 +1,16 @@
-*.DS_Store
+# macOS
+.DS_Store
 
-# Vim
+# Vim swap files
 *.swp
 *.swo
-
 *~
 
+# Log files
 *.log
 
+# Editor/tool state
 .claude
+
+# Machine-local overrides (not committed — put them in ~/.zshrc.local / ~/.gitconfig.local)
+*.local

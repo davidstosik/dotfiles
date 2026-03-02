@@ -1,0 +1,5 @@
+-- Keymaps are loaded on the VeryLazy event
+-- LazyVim defaults: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/keymaps.lua
+
+-- Add your custom keymaps here
+-- Example: vim.keymap.set("n", "<leader>X", ":SomeCommand<CR>", { desc = "Do something" })

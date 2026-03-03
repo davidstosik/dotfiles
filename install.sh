@@ -69,6 +69,10 @@ else
 fi
 link_file "${DOTFILES_DIR}/config/ghostty/config" "${ghostty_dir}/config"
 
+# Neovim
+info "Linking Neovim config..."
+link_file "${DOTFILES_DIR}/config/nvim" "${HOME}/.config/nvim"
+
 # TPM (tmux plugin manager)
 if [[ ! -d "${HOME}/.tmux/plugins/tpm" ]]; then
   info "Installing TPM (tmux plugin manager)..."
@@ -84,6 +88,7 @@ echo ""
 echo "  Next steps:"
 echo "    1. Restart your shell (or: source ~/.zshrc)"
 echo "    2. Open tmux and press ${YELLOW}prefix + I${NC} to install tmux plugins"
+echo "    3. Open Neovim — plugins will install automatically on first launch"
 echo ""
 echo "  Optional:"
 echo "    • Create ${YELLOW}~/.zshrc.local${NC} for machine-specific shell config"

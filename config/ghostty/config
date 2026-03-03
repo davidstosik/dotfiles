@@ -13,8 +13,6 @@ font-feature = ss08
 font-feature = ss09
 font-variation = wght=300
 
-# fi fl
-
 window-inherit-font-size = false
 font-size = 13
 

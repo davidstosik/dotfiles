@@ -9,6 +9,7 @@ My personal dotfiles. macOS primary, Linux compatible.
 | **zsh** | `zsh/` | Prompt with git info, history, aliases, functions |
 | **git** | `git/` | Modern defaults, useful aliases, pretty log |
 | **tmux** | `tmux/` | C-a prefix, vim-style nav, Tokyo Night theme, TPM |
+| **Neovim** | `config/nvim/` | lazy.nvim, Tokyo Night, Telescope, Treesitter, LSP, nvim-cmp |
 | **Ghostty** | `config/ghostty/` | Tokyo Night, Monaspace font, transparency |
 
 ## Bootstrap
@@ -32,6 +33,7 @@ cd ~/.dotfiles
 
 1. **Restart your shell** (or `source ~/.zshrc`)
 2. **tmux:** Press `C-a I` to install tmux plugins via TPM
+3. **Neovim:** Open `nvim` — plugins install automatically on first launch
 
 ## Local overrides
 
@@ -70,9 +72,47 @@ dotfiles/
 │   ├── tmux.conf            # tmux configuration
 │   └── tmux.mac.conf        # macOS-specific (pbcopy integration)
 └── config/
-    └── ghostty/
-        └── config           # Ghostty terminal config
+    ├── ghostty/
+    │   └── config           # Ghostty terminal config
+    └── nvim/
+        ├── init.lua          # Entry point
+        └── lua/
+            ├── options.lua   # Editor options
+            ├── keymaps.lua   # Key mappings
+            ├── autocmds.lua  # Autocommands
+            └── plugins/
+                ├── init.lua        # lazy.nvim bootstrap
+                ├── colorscheme.lua # Tokyo Night
+                ├── telescope.lua   # Fuzzy finder
+                ├── treesitter.lua  # Syntax highlighting
+                ├── lsp.lua         # Language servers
+                ├── completion.lua  # nvim-cmp
+                ├── ui.lua          # Statusline, file explorer, git signs
+                └── editor.lua      # Comments, pairs, surround, etc.
 ```
+
+## Neovim plugins
+
+Managed by [lazy.nvim](https://github.com/folke/lazy.nvim) (not LazyVim):
+
+- **Tokyo Night** — colorscheme
+- **Telescope** — fuzzy finder (files, grep, buffers, symbols)
+- **Treesitter** — syntax highlighting, text objects, incremental selection
+- **LSP** — language servers via Mason (Ruby, Lua out of the box)
+- **nvim-cmp** — autocompletion with LSP, buffer, path, and snippet sources
+- **Lualine** — statusline
+- **Oil.nvim** — file explorer as a buffer (`-` to open parent dir)
+- **Gitsigns** — git decorations in the gutter
+- **Fugitive** — Git commands in Neovim
+- **Comment.nvim** — toggle comments (`gc` / `gcc`)
+- **nvim-surround** — add/change/delete surrounding chars
+- **nvim-autopairs** — auto-close brackets and quotes
+- **nvim-treesitter-endwise** — auto-add `end` in Ruby, Lua, etc.
+- **Trouble** — better diagnostics list
+- **Todo-comments** — highlight TODO/FIXME comments
+- **Which-key** — keybinding hints
+- **Indent blankline** — indent guides
+- **vim-sleuth** — auto-detect indentation
 
 ## Design decisions
 
@@ -81,4 +121,5 @@ dotfiles/
 - **No dotfiles framework** — chezmoi, yadm, etc. are overkill for this setup. mitamae + install.sh covers packages and links with minimal complexity.
 - **mise over rbenv/nvm** — single tool for all language versions.
 - **Local override files** — machine-specific config stays out of the repo.
+- **No LazyVim** — lazy.nvim as plugin manager, but every plugin is explicitly configured. Full control, no hidden magic.
 - **macOS + Linux** — platform conditionals where needed (ls colors, vpn-fix, tmux copy).

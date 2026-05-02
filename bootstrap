@@ -40,6 +40,23 @@ load_macos_homebrew_shellenv() {
   fi
 }
 
+ensure_sudo() {
+  if [ "$DRY_RUN" -eq 1 ]; then
+    log "DRY-RUN: would validate sudo credentials"
+    return 0
+  fi
+
+  if [ "$NON_INTERACTIVE" -eq 1 ]; then
+    sudo -n -v || {
+      log "sudo credentials are required but are not available in --non-interactive mode."
+      return 1
+    }
+  else
+    log "Validating sudo credentials..."
+    sudo -v
+  fi
+}
+
 install_homebrew() {
   if command -v brew >/dev/null 2>&1; then
     return 0
@@ -61,13 +78,14 @@ install_homebrew() {
     return 0
   fi
 
-  if [ "$NON_INTERACTIVE" -eq 1 ]; then
-    log "Homebrew is missing; refusing to install it in --non-interactive mode."
-    return 1
-  fi
+  ensure_sudo
 
   log "Installing Homebrew..."
-  run /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  if [ "$NON_INTERACTIVE" -eq 1 ]; then
+    run env NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  else
+    run /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  fi
 
   load_macos_homebrew_shellenv
 }

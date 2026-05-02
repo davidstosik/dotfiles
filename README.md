@@ -8,7 +8,10 @@ This repository is intentionally conservative: linking dotfiles is separate from
 
 Implemented:
 
-- safe dotfile linker
+- shell bootstrap entrypoint
+- Ruby dotfile linker
+- Homebrew `Brewfile`
+- mise-managed Ruby via `.mise.toml`
 - dry-run mode
 - alternate home directory for tests
 - basic test harness
@@ -16,7 +19,6 @@ Implemented:
 
 Not implemented yet:
 
-- Homebrew/Brewfile package installation
 - Linux package installation
 - Neovim config
 - SSH key generation/GitHub upload
@@ -27,13 +29,19 @@ Not implemented yet:
 Preview link actions:
 
 ```sh
-./install --dry-run link
+./bootstrap --dry-run link
 ```
 
 Link into your real home directory:
 
 ```sh
-./install link
+./bootstrap link
+```
+
+Skip Homebrew bundle during bootstrap:
+
+```sh
+./bootstrap --skip-brew-bundle link
 ```
 
 Run tests:
@@ -45,7 +53,7 @@ Run tests:
 Use a temporary/alternate home:
 
 ```sh
-./install --home /tmp/dotfiles-home link
+./dotfiles --home /tmp/dotfiles-home link
 ```
 
 ## Safety behavior

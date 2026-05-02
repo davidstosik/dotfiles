@@ -1,0 +1,103 @@
+#!/usr/bin/env sh
+set -eu
+
+ROOT=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+DRY_RUN=0
+NON_INTERACTIVE=0
+SKIP_BREW_BUNDLE=0
+
+usage() {
+  cat <<EOF
+Usage: ./bootstrap [bootstrap-options] [dotfiles-options] [command]
+
+Bootstrap options:
+  --skip-brew-bundle   Do not run brew bundle before Ruby installer
+  --dry-run            Print actions without changing files
+  --non-interactive    Never prompt; fail instead
+
+All other options/commands are passed to ./dotfiles.
+EOF
+}
+
+log() { printf '%s\n' "$*"; }
+run() {
+  if [ "$DRY_RUN" -eq 1 ]; then
+    log "DRY-RUN: $*"
+  else
+    "$@"
+  fi
+}
+
+install_homebrew() {
+  if command -v brew >/dev/null 2>&1; then
+    return 0
+  fi
+
+  if [ "$(uname -s)" != "Darwin" ]; then
+    log "Homebrew bootstrap is only automatic on macOS for now."
+    return 1
+  fi
+
+  if [ "$NON_INTERACTIVE" -eq 1 ]; then
+    log "Homebrew is missing; refusing to install it in --non-interactive mode."
+    return 1
+  fi
+
+  log "Installing Homebrew..."
+  run /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+  # Apple Silicon default location. The eval is intentionally best-effort; a new
+  # shell will also pick this up once Homebrew's shellenv is configured.
+  if [ -x /opt/homebrew/bin/brew ]; then
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+  elif [ -x /usr/local/bin/brew ]; then
+    eval "$(/usr/local/bin/brew shellenv)"
+  fi
+}
+
+ensure_mise_and_ruby() {
+  if command -v brew >/dev/null 2>&1; then
+    if ! command -v mise >/dev/null 2>&1; then
+      run brew install mise
+    fi
+
+    if [ "$SKIP_BREW_BUNDLE" -eq 0 ]; then
+      run brew bundle --file "$ROOT/Brewfile"
+    fi
+  fi
+
+  if [ "$DRY_RUN" -eq 1 ] && command -v ruby >/dev/null 2>&1; then
+    exec ruby "$ROOT/dotfiles" "$@"
+  fi
+
+  if command -v mise >/dev/null 2>&1; then
+    run mise trust "$ROOT"
+    if [ "$NON_INTERACTIVE" -eq 1 ]; then
+      run mise install -y --cd "$ROOT"
+    else
+      run mise install --cd "$ROOT"
+    fi
+    exec mise exec --cd "$ROOT" -- ruby "$ROOT/dotfiles" "$@"
+  fi
+
+  if command -v ruby >/dev/null 2>&1; then
+    exec ruby "$ROOT/dotfiles" "$@"
+  fi
+
+  log "Ruby is missing and mise could not be installed."
+  exit 1
+}
+
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    --dry-run) DRY_RUN=1; export DOTFILES_DRY_RUN=1 ;;
+    --non-interactive) NON_INTERACTIVE=1; export DOTFILES_NON_INTERACTIVE=1 ;;
+    --skip-brew-bundle) SKIP_BREW_BUNDLE=1 ;;
+    -h|--help) usage; exit 0 ;;
+    *) break ;;
+  esac
+  shift
+done
+
+install_homebrew
+ensure_mise_and_ruby "$@"

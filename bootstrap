@@ -28,19 +28,33 @@ run() {
   fi
 }
 
-install_homebrew() {
+load_homebrew_shellenv() {
   if command -v brew >/dev/null 2>&1; then
     return 0
   fi
 
-  if [ "$DRY_RUN" -eq 1 ]; then
-    log "DRY-RUN: would install Homebrew"
+  if [ -x /opt/homebrew/bin/brew ]; then
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+  elif [ -x /usr/local/bin/brew ]; then
+    eval "$(/usr/local/bin/brew shellenv)"
+  fi
+}
+
+install_homebrew() {
+  load_homebrew_shellenv
+
+  if command -v brew >/dev/null 2>&1; then
     return 0
   fi
 
   if [ "$(uname -s)" != "Darwin" ]; then
     log "Homebrew bootstrap is only automatic on macOS for now."
     return 1
+  fi
+
+  if [ "$DRY_RUN" -eq 1 ]; then
+    log "DRY-RUN: would install Homebrew"
+    return 0
   fi
 
   if [ "$NON_INTERACTIVE" -eq 1 ]; then
@@ -51,17 +65,14 @@ install_homebrew() {
   log "Installing Homebrew..."
   run /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
-  # Apple Silicon default location. The eval is intentionally best-effort; a new
-  # shell will also pick this up once Homebrew's shellenv is configured.
-  if [ -x /opt/homebrew/bin/brew ]; then
-    eval "$(/opt/homebrew/bin/brew shellenv)"
-  elif [ -x /usr/local/bin/brew ]; then
-    eval "$(/usr/local/bin/brew shellenv)"
-  fi
+  load_homebrew_shellenv
 }
 
 ensure_mise_and_ruby() {
   if command -v brew >/dev/null 2>&1; then
+    # mise is required for the real bootstrap path even if some Ruby already
+    # exists on the machine. The Ruby fallback below is only for non-macOS or
+    # dry-run smoke tests where we intentionally avoid installing anything.
     if ! command -v mise >/dev/null 2>&1; then
       run brew install mise
     fi
@@ -86,11 +97,11 @@ ensure_mise_and_ruby() {
     exec mise exec --cd "$ROOT" -- ruby "$ROOT/dotfiles" "$@"
   fi
 
-  if command -v ruby >/dev/null 2>&1; then
+  if [ "$(uname -s)" != "Darwin" ] && command -v ruby >/dev/null 2>&1; then
     exec ruby "$ROOT/dotfiles" "$@"
   fi
 
-  log "Ruby is missing and mise could not be installed."
+  log "mise/Ruby bootstrap failed. On macOS, Homebrew and mise are required."
   exit 1
 }
 

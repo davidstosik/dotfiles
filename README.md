@@ -86,6 +86,8 @@ Run tests:
 - `lib/dotfiles/app.rb` — `Dotfiles::App` implementation
 - `home_symlinks/` — files linked into `$HOME`
 - `test/dotfiles/app_test.rb` — minitest coverage for linker behavior
+- `test/dotfiles/bootstrap_test.rb` — minitest coverage for bootstrap command flow using fake commands
+- `test/support/fake_command` — shared fake executable used by bootstrap tests
 - `bin/test` — test entrypoint
 
 ## Not done yet

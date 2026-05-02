@@ -1,0 +1,34 @@
+#!/usr/bin/env sh
+set -eu
+
+name=$(basename "$0")
+
+if [ -n "${FAKE_COMMAND_LOG:-}" ]; then
+  printf '%s' "$name" >> "$FAKE_COMMAND_LOG"
+  for arg in "$@"; do
+    printf '\t%s' "$arg" >> "$FAKE_COMMAND_LOG"
+  done
+  printf '\n' >> "$FAKE_COMMAND_LOG"
+fi
+
+case "$name" in
+  uname)
+    if [ "${1:-}" = "-s" ]; then
+      printf 'Darwin\n'
+    else
+      printf 'arm64\n'
+    fi
+    ;;
+  brew)
+    if [ "${1:-}" = "install" ] && [ "${2:-}" = "mise" ] && [ -n "${FAKE_COMMAND_BIN:-}" ]; then
+      ln -sf "$(dirname "$0")/fake_command" "$FAKE_COMMAND_BIN/mise"
+    fi
+    ;;
+esac
+
+status_file="${FAKE_COMMAND_STATUS_DIR:-}/$name"
+if [ -n "${FAKE_COMMAND_STATUS_DIR:-}" ] && [ -f "$status_file" ]; then
+  exit "$(cat "$status_file")"
+fi
+
+exit 0

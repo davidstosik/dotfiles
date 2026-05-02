@@ -6,4 +6,6 @@ ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 # Bootstrap smoke test. In dry-run mode it should not invoke real installs.
 "$ROOT/bootstrap" --skip-brew-bundle --dry-run doctor >/dev/null
 
-ruby -I"$ROOT/lib" "$ROOT/test/dotfiles/app_test.rb"
+find "$ROOT/test" -name '*_test.rb' -print | sort | while IFS= read -r test_file; do
+  ruby -I"$ROOT/lib" "$test_file"
+done

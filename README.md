@@ -1,52 +1,60 @@
 # dotfiles
 
-Personal dotfiles and machine bootstrap scripts.
+Personal dotfiles and local macOS bootstrap.
 
-This repository targets local macOS setup.
+## Install
 
-## Current milestone
-
-Implemented:
-
-- shell bootstrap entrypoint
-- Ruby dotfile linker
-- Homebrew `Brewfile`
-- mise-managed Ruby 4.x via `.mise.toml`
-- dry-run mode
-- alternate home directory for tests
-- minitest-based test harness
-- imported current tmux, zsh, git, gitignore, and Ghostty configs
-
-Not implemented yet:
-
-- Neovim config
-- SSH key generation/GitHub upload
-- macOS defaults
-
-## Usage
-
-Preview link actions:
+Preview what would happen:
 
 ```sh
 ./bootstrap --dry-run link
 ```
 
-Link into your real home directory:
+Bootstrap the machine and link dotfiles:
 
 ```sh
 ./bootstrap link
 ```
 
-Skip Homebrew bundle during bootstrap:
+`bootstrap` will:
+
+1. ensure it is running on macOS
+2. install/load Homebrew if needed
+3. install packages from `Brewfile`
+4. install/use `mise`
+5. install Ruby 4.x from `.mise.toml`
+6. run the Ruby dotfile linker
+
+If you only want to run the linker and skip `brew bundle`:
 
 ```sh
 ./bootstrap --skip-brew-bundle link
 ```
 
-Run tests:
+## Dotfile linking
+
+Files under `home_symlinks/` are linked into the same relative path under `$HOME`.
+
+Examples:
+
+```text
+home_symlinks/.gitconfig                         -> ~/.gitconfig
+home_symlinks/.tmux.conf                         -> ~/.tmux.conf
+home_symlinks/.config/ghostty/config.ghostty     -> ~/.config/ghostty/config.ghostty
+```
+
+Existing files are never deleted. If a target already exists and is not the expected symlink, it is moved aside first:
+
+```text
+~/.gitconfig -> ~/.gitconfig.backup.YYYYMMDD-HHMMSS
+```
+
+## Commands
+
+Run the Ruby linker directly:
 
 ```sh
-./bin/test
+./dotfiles link
 ```
 
 Use a temporary/alternate home:
@@ -55,12 +63,31 @@ Use a temporary/alternate home:
 ./dotfiles --home /tmp/dotfiles-home link
 ```
 
-## Safety behavior
+Run basic checks:
 
-If a target already exists and is not the expected symlink, it is moved aside first:
-
-```text
-~/.gitconfig -> ~/.gitconfig.backup.YYYYMMDD-HHMMSS
+```sh
+./dotfiles doctor
 ```
 
-Existing files are not deleted.
+Run tests:
+
+```sh
+./bin/test
+```
+
+## Current contents
+
+- `bootstrap` — shell bootstrap for Homebrew, mise, and Ruby
+- `Brewfile` — macOS packages/apps
+- `.mise.toml` — Ruby 4.x
+- `dotfiles` — Ruby CLI entrypoint
+- `lib/dotfiles/app.rb` — linker implementation
+- `home_symlinks/` — files linked into `$HOME`
+- `test/dotfiles_test.rb` — minitest coverage for linker behavior
+- `bin/test` — test entrypoint
+
+## Not done yet
+
+- Neovim config
+- SSH key generation/GitHub upload
+- macOS defaults

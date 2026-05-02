@@ -58,13 +58,13 @@ ensure_sudo() {
 }
 
 install_homebrew() {
-  if command -v brew >/dev/null 2>&1; then
-    return 0
+  if [ "$(uname -s)" != "Darwin" ]; then
+    log "This bootstrap is for macOS."
+    return 1
   fi
 
-  if [ "$(uname -s)" != "Darwin" ]; then
-    log "Homebrew bootstrap is only automatic on macOS for now."
-    return 1
+  if command -v brew >/dev/null 2>&1; then
+    return 0
   fi
 
   load_macos_homebrew_shellenv
@@ -91,17 +91,17 @@ install_homebrew() {
 }
 
 ensure_mise_and_ruby() {
-  if command -v brew >/dev/null 2>&1; then
-    # mise is required for the real bootstrap path even if some Ruby already
-    # exists on the machine. The Ruby fallback below is only for non-macOS or
-    # dry-run smoke tests where we intentionally avoid installing anything.
-    if ! command -v mise >/dev/null 2>&1; then
-      run brew install mise
-    fi
+  if ! command -v brew >/dev/null 2>&1; then
+    log "Homebrew is required."
+    exit 1
+  fi
 
-    if [ "$SKIP_BREW_BUNDLE" -eq 0 ]; then
-      run brew bundle --file "$ROOT/Brewfile"
-    fi
+  if ! command -v mise >/dev/null 2>&1; then
+    run brew install mise
+  fi
+
+  if [ "$SKIP_BREW_BUNDLE" -eq 0 ]; then
+    run brew bundle --file "$ROOT/Brewfile"
   fi
 
   if [ "$DRY_RUN" -eq 1 ] && command -v ruby >/dev/null 2>&1; then
@@ -119,11 +119,7 @@ ensure_mise_and_ruby() {
     exec mise exec --cd "$ROOT" -- ruby "$ROOT/dotfiles" "$@"
   fi
 
-  if [ "$(uname -s)" != "Darwin" ] && command -v ruby >/dev/null 2>&1; then
-    exec ruby "$ROOT/dotfiles" "$@"
-  fi
-
-  log "mise/Ruby bootstrap failed. On macOS, Homebrew and mise are required."
+  log "mise/Ruby bootstrap failed."
   exit 1
 }
 

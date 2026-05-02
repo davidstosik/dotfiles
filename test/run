@@ -1,0 +1,57 @@
+#!/usr/bin/env sh
+set -eu
+
+ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+TMP_HOME=$(mktemp -d)
+cleanup() { rm -rf "$TMP_HOME"; }
+trap cleanup EXIT INT TERM
+
+assert_link() {
+  target=$1
+  expected=$2
+  if [ ! -L "$target" ]; then
+    echo "not a symlink: $target" >&2
+    exit 1
+  fi
+  actual=$(readlink "$target")
+  if [ "$actual" != "$expected" ]; then
+    echo "bad symlink: $target" >&2
+    echo "  expected: $expected" >&2
+    echo "  actual:   $actual" >&2
+    exit 1
+  fi
+}
+
+# Dry-run should not create files.
+"$ROOT/install" --home "$TMP_HOME" --dry-run link >/dev/null
+if [ -e "$TMP_HOME/.gitconfig" ]; then
+  echo "dry-run created files" >&2
+  exit 1
+fi
+
+# First run links files.
+"$ROOT/install" --home "$TMP_HOME" link >/dev/null
+assert_link "$TMP_HOME/.gitconfig" "$ROOT/home/.gitconfig"
+assert_link "$TMP_HOME/.gitignore" "$ROOT/home/.gitignore"
+assert_link "$TMP_HOME/.zshrc" "$ROOT/home/.zshrc"
+assert_link "$TMP_HOME/.tmux.conf" "$ROOT/home/.tmux.conf"
+assert_link "$TMP_HOME/.tmux.mac.conf" "$ROOT/home/.tmux.mac.conf"
+assert_link "$TMP_HOME/.config/ghostty/config" "$ROOT/home/.config/ghostty/config"
+
+# Second run is idempotent.
+"$ROOT/install" --home "$TMP_HOME" link >/dev/null
+assert_link "$TMP_HOME/.gitconfig" "$ROOT/home/.gitconfig"
+
+# Existing real files are backed up, not overwritten.
+OTHER_HOME=$(mktemp -d)
+printf 'existing\n' > "$OTHER_HOME/.gitconfig"
+"$ROOT/install" --home "$OTHER_HOME" link >/dev/null
+assert_link "$OTHER_HOME/.gitconfig" "$ROOT/home/.gitconfig"
+backup_count=$(find "$OTHER_HOME" -maxdepth 1 -name '.gitconfig.backup.*' | wc -l | tr -d ' ')
+if [ "$backup_count" != "1" ]; then
+  echo "expected one backup, found $backup_count" >&2
+  exit 1
+fi
+rm -rf "$OTHER_HOME"
+
+echo "tests: ok"

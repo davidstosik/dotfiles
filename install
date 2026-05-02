@@ -1,0 +1,104 @@
+#!/usr/bin/env sh
+set -eu
+
+ROOT=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+HOME_DIR=${DOTFILES_HOME:-$HOME}
+DRY_RUN=0
+NON_INTERACTIVE=0
+COMMAND=link
+
+usage() {
+  cat <<EOF
+Usage: ./install [options] [command]
+
+Commands:
+  link      Link dotfiles into DOTFILES_HOME/HOME (default)
+  doctor    Check basic prerequisites
+  help      Show this help
+
+Options:
+  --dry-run           Print actions without changing files
+  --non-interactive   Never prompt; fail or skip prompt-requiring steps
+  --home PATH         Use PATH instead of HOME; also available as DOTFILES_HOME
+EOF
+}
+
+log() { printf '%s\n' "$*"; }
+run() {
+  if [ "$DRY_RUN" -eq 1 ]; then
+    log "DRY-RUN: $*"
+  else
+    "$@"
+  fi
+}
+
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    --dry-run) DRY_RUN=1 ;;
+    --non-interactive) NON_INTERACTIVE=1 ;;
+    --home)
+      shift
+      [ "$#" -gt 0 ] || { echo "--home requires a path" >&2; exit 2; }
+      HOME_DIR=$1
+      ;;
+    link|doctor|help) COMMAND=$1 ;;
+    -h|--help) COMMAND=help ;;
+    *) echo "Unknown argument: $1" >&2; usage >&2; exit 2 ;;
+  esac
+  shift
+ done
+
+backup_path() {
+  printf '%s.backup.%s' "$1" "$(date +%Y%m%d-%H%M%S)"
+}
+
+is_expected_link() {
+  target=$1
+  source=$2
+  [ -L "$target" ] && [ "$(readlink "$target")" = "$source" ]
+}
+
+link_one() {
+  source=$1
+  target=$2
+
+  if is_expected_link "$target" "$source"; then
+    log "ok: $target -> $source"
+    return 0
+  fi
+
+  parent=$(dirname -- "$target")
+  if [ ! -d "$parent" ]; then
+    run mkdir -p "$parent"
+  fi
+
+  if [ -e "$target" ] || [ -L "$target" ]; then
+    backup=$(backup_path "$target")
+    log "backup: $target -> $backup"
+    run mv "$target" "$backup"
+  fi
+
+  log "link: $target -> $source"
+  run ln -s "$source" "$target"
+}
+
+link_dotfiles() {
+  link_one "$ROOT/home/.gitconfig" "$HOME_DIR/.gitconfig"
+  link_one "$ROOT/home/.gitignore" "$HOME_DIR/.gitignore"
+  link_one "$ROOT/home/.zshrc" "$HOME_DIR/.zshrc"
+  link_one "$ROOT/home/.tmux.conf" "$HOME_DIR/.tmux.conf"
+  link_one "$ROOT/home/.tmux.mac.conf" "$HOME_DIR/.tmux.mac.conf"
+  link_one "$ROOT/home/.config/ghostty/config" "$HOME_DIR/.config/ghostty/config"
+}
+
+doctor() {
+  command -v git >/dev/null 2>&1 || { echo "missing: git" >&2; exit 1; }
+  command -v sh >/dev/null 2>&1 || { echo "missing: sh" >&2; exit 1; }
+  log "doctor: ok"
+}
+
+case "$COMMAND" in
+  link) link_dotfiles ;;
+  doctor) doctor ;;
+  help) usage ;;
+esac

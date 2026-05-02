@@ -25,11 +25,13 @@ Bootstrap the machine and link dotfiles:
 5. install Ruby 4.x from `.mise.toml`
 6. run the Ruby dotfile linker
 
-If you only want to run the linker and skip `brew bundle`:
+If you want the bootstrap path but do not want to install the full `Brewfile` yet:
 
 ```sh
 ./bootstrap --skip-brew-bundle link
 ```
+
+This still ensures Homebrew, mise, and Ruby are available. To run only the linker, use `./dotfiles link`.
 
 ## Dotfile linking
 

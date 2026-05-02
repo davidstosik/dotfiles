@@ -90,37 +90,43 @@ install_homebrew() {
   load_macos_homebrew_shellenv
 }
 
-ensure_mise_and_ruby() {
-  if ! command -v brew >/dev/null 2>&1; then
-    log "Homebrew is required."
-    exit 1
-  fi
-
-  if ! command -v mise >/dev/null 2>&1; then
-    run brew install mise
-  fi
-
+install_packages() {
   if [ "$SKIP_BREW_BUNDLE" -eq 0 ]; then
     run brew bundle --file "$ROOT/Brewfile"
   fi
+}
 
+ensure_mise() {
+  if ! command -v mise >/dev/null 2>&1; then
+    run brew install mise
+  fi
+}
+
+install_ruby() {
+  if [ "$DRY_RUN" -eq 1 ] && command -v ruby >/dev/null 2>&1; then
+    return 0
+  fi
+
+  if ! command -v mise >/dev/null 2>&1; then
+    log "mise is required."
+    exit 1
+  fi
+
+  if [ "$NON_INTERACTIVE" -eq 1 ]; then
+    run mise trust -y "$ROOT/.mise.toml"
+    run mise install -y --cd "$ROOT"
+  else
+    run mise trust "$ROOT/.mise.toml"
+    run mise install --cd "$ROOT"
+  fi
+}
+
+run_dotfiles() {
   if [ "$DRY_RUN" -eq 1 ] && command -v ruby >/dev/null 2>&1; then
     exec ruby "$ROOT/dotfiles" "$@"
   fi
 
-  if command -v mise >/dev/null 2>&1; then
-    if [ "$NON_INTERACTIVE" -eq 1 ]; then
-      run mise trust -y "$ROOT/.mise.toml"
-      run mise install -y --cd "$ROOT"
-    else
-      run mise trust "$ROOT/.mise.toml"
-      run mise install --cd "$ROOT"
-    fi
-    exec mise exec --cd "$ROOT" -- ruby "$ROOT/dotfiles" "$@"
-  fi
-
-  log "mise/Ruby bootstrap failed."
-  exit 1
+  exec mise exec --cd "$ROOT" -- ruby "$ROOT/dotfiles" "$@"
 }
 
 while [ "$#" -gt 0 ]; do
@@ -135,4 +141,7 @@ while [ "$#" -gt 0 ]; do
 done
 
 install_homebrew
-ensure_mise_and_ruby "$@"
+install_packages
+ensure_mise
+install_ruby
+run_dotfiles "$@"

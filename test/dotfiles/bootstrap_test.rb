@@ -8,6 +8,7 @@ require "tmpdir"
 module Dotfiles
   class BootstrapTest < Minitest::Test
     ROOT = File.expand_path("../..", __dir__)
+    FAKE_COMMAND = File.join(ROOT, "test/support/fake_command")
     FAKE_BIN = File.join(ROOT, "test/support/fake_bin")
 
     def test_runs_brew_bundle_mise_and_dotfiles
@@ -100,7 +101,7 @@ module Dotfiles
 
     def copy_fake_bin(destination, missing: [])
       FileUtils.mkdir_p(destination)
-      FileUtils.cp(File.realpath(File.join(FAKE_BIN, "brew")), File.join(destination, "fake_command"))
+      FileUtils.cp(FAKE_COMMAND, File.join(destination, "fake_command"))
       FileUtils.chmod("u+x", File.join(destination, "fake_command"))
 
       Dir.children(FAKE_BIN).each do |command|

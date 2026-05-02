@@ -44,6 +44,8 @@ module Dotfiles
 
     def test_installs_mise_when_missing
       with_fake_commands(%w[uname brew ruby]) do |fake|
+        fake.create_executables("brew", "mise")
+
         result = run_bootstrap(fake, "--skip-brew-bundle", "link")
 
         assert_success result
@@ -54,27 +56,54 @@ module Dotfiles
 
     private
 
-    FakeSystem = Struct.new(:dir, :bin, :log) do
+    FakeSystem = Struct.new(:dir, :bin, :log, :behavior_dir) do
       def commands
         return [] unless File.exist?(log)
 
         File.readlines(log, chomp: true).map { |line| line.split("\t") }
       end
+
+      def stdout(command, content)
+        write_behavior(command, "stdout", content)
+      end
+
+      def status(command, code)
+        write_behavior(command, "status", "#{code}\n")
+      end
+
+      def create_executables(command, *executables)
+        write_behavior(command, "create_executables", "#{executables.join("\n")}\n")
+      end
+
+      private
+
+      def write_behavior(command, file, content)
+        command_dir = File.join(behavior_dir, command)
+        FileUtils.mkdir_p(command_dir)
+        File.write(File.join(command_dir, file), content)
+      end
     end
 
     def with_fake_commands(commands)
       Dir.mktmpdir do |dir|
-        fake = FakeSystem.new(dir, File.join(dir, "bin"), File.join(dir, "commands.log"))
+        fake = FakeSystem.new(
+          dir,
+          File.join(dir, "bin"),
+          File.join(dir, "commands.log"),
+          File.join(dir, "behavior")
+        )
         FileUtils.mkdir_p(fake.bin)
         FileUtils.cp(FAKE_COMMAND, File.join(fake.bin, "fake_command"))
         FileUtils.chmod("u+x", File.join(fake.bin, "fake_command"))
         commands.each { |command| FileUtils.ln_s(File.join(fake.bin, "fake_command"), File.join(fake.bin, command)) }
+        fake.stdout("uname", "Darwin\n")
         yield fake
       end
     end
 
     def run_bootstrap(fake, *args)
       env = {
+        "FAKE_COMMAND_BEHAVIOR_DIR" => fake.behavior_dir,
         "FAKE_COMMAND_BIN" => fake.bin,
         "FAKE_COMMAND_LOG" => fake.log,
         "PATH" => [fake.bin, "/usr/bin", "/bin", "/usr/sbin", "/sbin"].join(":"),

@@ -11,24 +11,22 @@ if [ -n "${FAKE_COMMAND_LOG:-}" ]; then
   printf '\n' >> "$FAKE_COMMAND_LOG"
 fi
 
-case "$name" in
-  uname)
-    if [ "${1:-}" = "-s" ]; then
-      printf 'Darwin\n'
-    else
-      printf 'arm64\n'
-    fi
-    ;;
-  brew)
-    if [ "${1:-}" = "install" ] && [ "${2:-}" = "mise" ] && [ -n "${FAKE_COMMAND_BIN:-}" ]; then
-      ln -sf "$(dirname "$0")/fake_command" "$FAKE_COMMAND_BIN/mise"
-    fi
-    ;;
-esac
+command_dir="${FAKE_COMMAND_BEHAVIOR_DIR:-}/$name"
 
-status_file="${FAKE_COMMAND_STATUS_DIR:-}/$name"
-if [ -n "${FAKE_COMMAND_STATUS_DIR:-}" ] && [ -f "$status_file" ]; then
-  exit "$(cat "$status_file")"
+if [ -d "$command_dir" ]; then
+  [ ! -f "$command_dir/stdout" ] || cat "$command_dir/stdout"
+  [ ! -f "$command_dir/stderr" ] || cat "$command_dir/stderr" >&2
+
+  if [ -f "$command_dir/create_executables" ]; then
+    while IFS= read -r executable; do
+      [ -n "$executable" ] || continue
+      ln -sf "$(dirname "$0")/fake_command" "${FAKE_COMMAND_BIN:?}/$executable"
+    done < "$command_dir/create_executables"
+  fi
+
+  if [ -f "$command_dir/status" ]; then
+    exit "$(cat "$command_dir/status")"
+  fi
 fi
 
 exit 0

@@ -11,7 +11,7 @@ Implemented:
 - shell bootstrap entrypoint
 - Ruby dotfile linker
 - Homebrew `Brewfile`
-- mise-managed Ruby via `.mise.toml`
+- mise-managed Ruby 4.x via `.mise.toml`
 - dry-run mode
 - alternate home directory for tests
 - basic test harness

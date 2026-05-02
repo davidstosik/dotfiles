@@ -22,6 +22,9 @@ assert_link() {
   fi
 }
 
+# Bootstrap smoke test. In dry-run mode it should not invoke mise/brew installs.
+"$ROOT/bootstrap" --skip-brew-bundle --dry-run doctor >/dev/null
+
 # Dry-run should not create files.
 ruby "$ROOT/dotfiles" --home "$TMP_HOME" --dry-run link >/dev/null
 if [ -e "$TMP_HOME/.gitconfig" ]; then

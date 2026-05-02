@@ -33,6 +33,11 @@ install_homebrew() {
     return 0
   fi
 
+  if [ "$DRY_RUN" -eq 1 ]; then
+    log "DRY-RUN: would install Homebrew"
+    return 0
+  fi
+
   if [ "$(uname -s)" != "Darwin" ]; then
     log "Homebrew bootstrap is only automatic on macOS for now."
     return 1
@@ -71,10 +76,11 @@ ensure_mise_and_ruby() {
   fi
 
   if command -v mise >/dev/null 2>&1; then
-    run mise trust "$ROOT"
     if [ "$NON_INTERACTIVE" -eq 1 ]; then
+      run mise trust -y "$ROOT/.mise.toml"
       run mise install -y --cd "$ROOT"
     else
+      run mise trust "$ROOT/.mise.toml"
       run mise install --cd "$ROOT"
     fi
     exec mise exec --cd "$ROOT" -- ruby "$ROOT/dotfiles" "$@"

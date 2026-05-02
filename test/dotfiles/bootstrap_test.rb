@@ -8,10 +8,10 @@ require "tmpdir"
 module Dotfiles
   class BootstrapTest < Minitest::Test
     ROOT = File.expand_path("../..", __dir__)
-    FAKE_COMMAND = File.join(ROOT, "test/support/fake_command")
+    FAKE_BIN = File.join(ROOT, "test/support/fake_bin")
 
     def test_runs_brew_bundle_mise_and_dotfiles
-      with_fake_commands(%w[uname brew mise ruby]) do |fake|
+      with_fake_system do |fake|
         result = run_bootstrap(fake, "link")
 
         assert_success result
@@ -23,7 +23,7 @@ module Dotfiles
     end
 
     def test_skip_brew_bundle
-      with_fake_commands(%w[uname brew mise ruby]) do |fake|
+      with_fake_system do |fake|
         result = run_bootstrap(fake, "--skip-brew-bundle", "link")
 
         assert_success result
@@ -33,7 +33,7 @@ module Dotfiles
     end
 
     def test_non_interactive_mise_flags
-      with_fake_commands(%w[uname brew mise ruby]) do |fake|
+      with_fake_system do |fake|
         result = run_bootstrap(fake, "--non-interactive", "link")
 
         assert_success result
@@ -43,7 +43,7 @@ module Dotfiles
     end
 
     def test_installs_mise_when_missing
-      with_fake_commands(%w[uname brew ruby]) do |fake|
+      with_fake_system(missing: %w[mise]) do |fake|
         fake.create_executables("brew", "mise")
 
         result = run_bootstrap(fake, "--skip-brew-bundle", "link")
@@ -84,7 +84,7 @@ module Dotfiles
       end
     end
 
-    def with_fake_commands(commands)
+    def with_fake_system(missing: [])
       Dir.mktmpdir do |dir|
         fake = FakeSystem.new(
           dir,
@@ -92,12 +92,21 @@ module Dotfiles
           File.join(dir, "commands.log"),
           File.join(dir, "behavior")
         )
-        FileUtils.mkdir_p(fake.bin)
-        FileUtils.cp(FAKE_COMMAND, File.join(fake.bin, "fake_command"))
-        FileUtils.chmod("u+x", File.join(fake.bin, "fake_command"))
-        commands.each { |command| FileUtils.ln_s(File.join(fake.bin, "fake_command"), File.join(fake.bin, command)) }
+        copy_fake_bin(fake.bin, missing: missing)
         fake.stdout("uname", "Darwin\n")
         yield fake
+      end
+    end
+
+    def copy_fake_bin(destination, missing: [])
+      FileUtils.mkdir_p(destination)
+      FileUtils.cp(File.realpath(File.join(FAKE_BIN, "brew")), File.join(destination, "fake_command"))
+      FileUtils.chmod("u+x", File.join(destination, "fake_command"))
+
+      Dir.children(FAKE_BIN).each do |command|
+        next if missing.include?(command)
+
+        FileUtils.ln_s(File.join(destination, "fake_command"), File.join(destination, command))
       end
     end
 

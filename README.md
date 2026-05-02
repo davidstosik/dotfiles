@@ -88,6 +88,7 @@ Run tests:
 - `test/dotfiles/app_test.rb` — minitest coverage for linker behavior
 - `test/dotfiles/bootstrap_test.rb` — minitest coverage for bootstrap command flow using fake commands
 - `test/support/fake_command` — shared fake executable used by bootstrap tests
+- `test/support/fake_bin/` — committed fake command symlinks copied by bootstrap tests
 - `bin/test` — test entrypoint
 
 ## Not done yet

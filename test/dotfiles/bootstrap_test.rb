@@ -104,7 +104,7 @@ module Dotfiles
       FileUtils.cp_r(FAKE_BIN, destination, preserve: true)
       FileUtils.cp(File.realpath(File.join(FAKE_BIN, "fake_command")), File.join(tmpdir, "fake_command"))
       FileUtils.chmod("u+x", File.join(tmpdir, "fake_command"))
-      missing.each { |command| FileUtils.rm_f(File.join(destination, command)) }
+      missing.each { FileUtils.rm_f(File.join(destination, it)) }
       destination
     end
 

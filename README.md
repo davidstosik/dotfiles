@@ -83,9 +83,9 @@ Run tests:
 - `Brewfile` — macOS packages/apps
 - `.mise.toml` — Ruby 4.x
 - `dotfiles` — Ruby CLI entrypoint
-- `lib/dotfiles/app.rb` — linker implementation
+- `lib/dotfiles/app.rb` — `Dotfiles::App` implementation
 - `home_symlinks/` — files linked into `$HOME`
-- `test/dotfiles_test.rb` — minitest coverage for linker behavior
+- `test/dotfiles/app_test.rb` — minitest coverage for linker behavior
 - `bin/test` — test entrypoint
 
 ## Not done yet

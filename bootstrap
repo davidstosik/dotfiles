@@ -28,7 +28,7 @@ run() {
   fi
 }
 
-load_homebrew_shellenv() {
+load_macos_homebrew_shellenv() {
   if command -v brew >/dev/null 2>&1; then
     return 0
   fi
@@ -41,8 +41,6 @@ load_homebrew_shellenv() {
 }
 
 install_homebrew() {
-  load_homebrew_shellenv
-
   if command -v brew >/dev/null 2>&1; then
     return 0
   fi
@@ -50,6 +48,12 @@ install_homebrew() {
   if [ "$(uname -s)" != "Darwin" ]; then
     log "Homebrew bootstrap is only automatic on macOS for now."
     return 1
+  fi
+
+  load_macos_homebrew_shellenv
+
+  if command -v brew >/dev/null 2>&1; then
+    return 0
   fi
 
   if [ "$DRY_RUN" -eq 1 ]; then
@@ -65,7 +69,7 @@ install_homebrew() {
   log "Installing Homebrew..."
   run /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
-  load_homebrew_shellenv
+  load_macos_homebrew_shellenv
 }
 
 ensure_mise_and_ruby() {

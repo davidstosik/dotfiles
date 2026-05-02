@@ -20,7 +20,7 @@ if [ -d "$command_dir" ]; then
   if [ -f "$command_dir/create_executables" ]; then
     while IFS= read -r executable; do
       [ -n "$executable" ] || continue
-      ln -sf "$(dirname "$0")/fake_command" "${FAKE_COMMAND_BIN:?}/$executable"
+      ln -sf "$(dirname "$0")/_fake_command" "${FAKE_COMMAND_BIN:?}/$executable"
     done < "$command_dir/create_executables"
   fi
 

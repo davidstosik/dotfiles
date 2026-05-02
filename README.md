@@ -2,7 +2,7 @@
 
 Personal dotfiles and machine bootstrap scripts.
 
-This repository is intentionally conservative: linking dotfiles is separate from installing packages or changing OS settings.
+This repository targets local macOS setup.
 
 ## Current milestone
 
@@ -14,12 +14,11 @@ Implemented:
 - mise-managed Ruby 4.x via `.mise.toml`
 - dry-run mode
 - alternate home directory for tests
-- basic test harness
+- minitest-based test harness
 - imported current tmux, zsh, git, gitignore, and Ghostty configs
 
 Not implemented yet:
 
-- Linux package installation
 - Neovim config
 - SSH key generation/GitHub upload
 - macOS defaults
@@ -47,7 +46,7 @@ Skip Homebrew bundle during bootstrap:
 Run tests:
 
 ```sh
-./test/run
+./bin/test
 ```
 
 Use a temporary/alternate home:

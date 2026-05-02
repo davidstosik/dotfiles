@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "find"
 require "fileutils"
 require "optparse"
 require "time"
@@ -83,15 +84,13 @@ class Dotfiles
   end
 
   def link
-    {
-      "home/.gitconfig" => ".gitconfig",
-      "home/.gitignore" => ".gitignore",
-      "home/.zshrc" => ".zshrc",
-      "home/.tmux.conf" => ".tmux.conf",
-      "home/.tmux.mac.conf" => ".tmux.mac.conf",
-      "home/.config/ghostty/config" => ".config/ghostty/config"
-    }.each do |source, target|
-      link_one(File.join(ROOT, source), File.join(@home, target))
+    symlink_root = File.join(ROOT, "home_symlinks")
+
+    Find.find(symlink_root) do |source|
+      next if File.directory?(source)
+
+      target = File.join(@home, source.delete_prefix("#{symlink_root}/"))
+      link_one(source, target)
     end
   end
 

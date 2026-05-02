@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "find"
 require "fileutils"
 require "minitest/autorun"
 require "tmpdir"
@@ -8,15 +9,7 @@ require_relative "../lib/dotfiles/app"
 
 class DotfilesTest < Minitest::Test
   ROOT = File.expand_path("..", __dir__)
-
-  LINKS = {
-    ".gitconfig" => "home/.gitconfig",
-    ".gitignore" => "home/.gitignore",
-    ".zshrc" => "home/.zshrc",
-    ".tmux.conf" => "home/.tmux.conf",
-    ".tmux.mac.conf" => "home/.tmux.mac.conf",
-    ".config/ghostty/config" => "home/.config/ghostty/config"
-  }.freeze
+  SYMLINK_ROOT = File.join(ROOT, "home_symlinks")
 
   def test_dry_run_does_not_create_files
     Dir.mktmpdir do |home|
@@ -31,8 +24,8 @@ class DotfilesTest < Minitest::Test
     Dir.mktmpdir do |home|
       capture_io { Dotfiles.new(["--home", home, "link"]).run }
 
-      LINKS.each do |target, source|
-        assert_symlink File.join(home, target), File.join(ROOT, source)
+      expected_links.each do |target, source|
+        assert_symlink File.join(home, target), source
       end
     end
   end
@@ -42,7 +35,7 @@ class DotfilesTest < Minitest::Test
       capture_io { Dotfiles.new(["--home", home, "link"]).run }
       capture_io { Dotfiles.new(["--home", home, "link"]).run }
 
-      assert_symlink File.join(home, ".gitconfig"), File.join(ROOT, "home/.gitconfig")
+      assert_symlink File.join(home, ".gitconfig"), File.join(SYMLINK_ROOT, ".gitconfig")
       assert_empty Dir.glob(File.join(home, ".gitconfig.backup.*"))
     end
   end
@@ -53,7 +46,7 @@ class DotfilesTest < Minitest::Test
 
       capture_io { Dotfiles.new(["--home", home, "link"]).run }
 
-      assert_symlink File.join(home, ".gitconfig"), File.join(ROOT, "home/.gitconfig")
+      assert_symlink File.join(home, ".gitconfig"), File.join(SYMLINK_ROOT, ".gitconfig")
       backups = Dir.glob(File.join(home, ".gitconfig.backup.*"))
       assert_equal 1, backups.length
       assert_equal "existing\n", File.read(backups.first)
@@ -61,6 +54,15 @@ class DotfilesTest < Minitest::Test
   end
 
   private
+
+  def expected_links
+    Find.find(SYMLINK_ROOT).each_with_object({}) do |source, links|
+      next if File.directory?(source)
+
+      target = source.delete_prefix("#{SYMLINK_ROOT}/")
+      links[target] = source
+    end
+  end
 
   def assert_symlink(target, expected_source)
     assert File.symlink?(target), "expected #{target} to be a symlink"

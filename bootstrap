@@ -75,16 +75,16 @@ install_homebrew() {
 
   if [ "$DRY_RUN" -eq 1 ]; then
     log "DRY-RUN: would install Homebrew"
-    return 0
+  else
+    log "Installing Homebrew..."
   fi
 
   ensure_sudo
 
-  log "Installing Homebrew..."
   if [ "$NON_INTERACTIVE" -eq 1 ]; then
-    env NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    run env NONINTERACTIVE=1 /bin/bash -c 'curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh | /bin/bash'
   else
-    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    run /bin/bash -c 'curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh | /bin/bash'
   fi
 
   load_macos_homebrew_shellenv

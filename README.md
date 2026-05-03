@@ -77,6 +77,18 @@ Run tests:
 ./bin/test
 ```
 
+Run the full bootstrap flow in a disposable Tart VM:
+
+```sh
+./bin/tart-test
+```
+
+Useful overrides:
+
+```sh
+TART_BASE_VM=clean-tahoe TART_KEEP_VM=1 ./bin/tart-test
+```
+
 ## Current contents
 
 - `bootstrap` — shell bootstrap for Homebrew, mise, and Ruby
@@ -90,6 +102,7 @@ Run tests:
 - `test/support/fake_bin/_fake_command` — shared fake executable used by bootstrap tests
 - `test/support/fake_bin/` — committed fake command symlinks copied by bootstrap tests
 - `bin/test` — test entrypoint
+- `bin/tart-test` — end-to-end Tart VM test runner
 
 ## Not done yet
 

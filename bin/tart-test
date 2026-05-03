@@ -1,0 +1,160 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require "open3"
+require "shellwords"
+require "time"
+
+ROOT = File.expand_path("..", __dir__)
+BASE_VM = ENV.fetch("TART_BASE_VM", "clean-tahoe")
+BASE_IMAGE = ENV.fetch("TART_BASE_IMAGE", "ghcr.io/cirruslabs/macos-tahoe-vanilla:latest")
+TEST_VM = ENV.fetch("TART_TEST_VM", "dotfiles-test-#{Time.now.strftime("%Y%m%d%H%M%S")}")
+SSH_USER = ENV.fetch("TART_SSH_USER", "admin")
+SHARE_NAME = ENV.fetch("TART_SHARE_NAME", "dotfiles-next")
+REMOTE_REPO = ENV.fetch("TART_REMOTE_REPO", "/Volumes/My Shared Files/#{SHARE_NAME}")
+BOOTSTRAP_INSTALL_FLAGS = ENV.fetch("TART_BOOTSTRAP_INSTALL_FLAGS", "--non-interactive --verbose")
+KEEP_VM = ENV["TART_KEEP_VM"] == "1"
+NO_GRAPHICS = ENV.fetch("TART_NO_GRAPHICS", "1") != "0"
+SSH_OPTIONS = %w[
+  -o StrictHostKeyChecking=no
+  -o UserKnownHostsFile=/dev/null
+  -o LogLevel=ERROR
+]
+
+$vm_started = false
+$failed = false
+
+def log(message)
+  puts "== #{message} =="
+end
+
+def run(*cmd)
+  log cmd.shelljoin
+  system(*cmd) || raise("command failed: #{cmd.shelljoin}")
+end
+
+def capture(*cmd)
+  stdout, stderr, status = Open3.capture3(*cmd)
+  raise "command failed: #{cmd.shelljoin}\n#{stderr}" unless status.success?
+
+  stdout
+end
+
+def local_vms
+  capture("tart", "list", "--source", "local", "--quiet").lines.map(&:chomp)
+end
+
+def vm_exists?(name)
+  local_vms.include?(name)
+end
+
+def ensure_base_vm
+  return if vm_exists?(BASE_VM)
+
+  run "tart", "clone", BASE_IMAGE, BASE_VM
+end
+
+def wait_for_ip(vm)
+  120.times do
+    ip = capture("tart", "ip", vm).strip
+    return ip unless ip.empty?
+  rescue StandardError
+    sleep 2
+  end
+
+  raise "timed out waiting for #{vm} IP"
+end
+
+def ssh(ip, command)
+  run "ssh", *SSH_OPTIONS, "#{SSH_USER}@#{ip}", command
+end
+
+def wait_for_ssh(ip)
+  120.times do
+    return if system("ssh", *SSH_OPTIONS, "#{SSH_USER}@#{ip}", "true", out: File::NULL, err: File::NULL)
+
+    sleep 2
+  end
+
+  raise "timed out waiting for SSH on #{ip}"
+end
+
+def remote_script
+  <<~SH
+    set -euo pipefail
+
+    cd #{REMOTE_REPO.shellescape}
+
+    echo '== remote: dry-run preview =='
+    ./bootstrap --dry-run --verbose link
+
+    echo '== remote: install =='
+    ./bootstrap #{BOOTSTRAP_INSTALL_FLAGS} link
+
+    echo '== remote: load Homebrew shellenv for verification =='
+    if [ -x /opt/homebrew/bin/brew ]; then
+      eval "$(/opt/homebrew/bin/brew shellenv)"
+    elif [ -x /usr/local/bin/brew ]; then
+      eval "$(/usr/local/bin/brew shellenv)"
+    fi
+
+    echo '== remote: tests =='
+    ./bin/test
+
+    echo '== remote: verification =='
+    command -v brew
+    command -v mise
+    mise exec --cd . -- ruby -v
+    test -L "$HOME/.zprofile"
+    test -L "$HOME/.gitconfig"
+    test -L "$HOME/.gitignore"
+    test -L "$HOME/.zshrc"
+    test -L "$HOME/.tmux.conf"
+    test -L "$HOME/.tmux.mac.conf"
+    test -L "$HOME/.config/ghostty/config.ghostty"
+  SH
+end
+
+def cleanup
+  return if KEEP_VM || !$vm_started
+
+  if $failed
+    warn "Keeping #{TEST_VM} for debugging because the test failed."
+    return
+  end
+
+  system("tart", "stop", TEST_VM, out: File::NULL, err: File::NULL)
+  system("tart", "delete", TEST_VM, out: File::NULL, err: File::NULL)
+end
+
+at_exit { cleanup }
+
+begin
+  run "tart", "--version"
+  ensure_base_vm
+
+  raise "test VM already exists: #{TEST_VM}" if vm_exists?(TEST_VM)
+
+  run "tart", "clone", BASE_VM, TEST_VM
+
+  run_args = ["tart", "run"]
+  run_args << "--no-graphics" if NO_GRAPHICS
+  run_args << "--dir=#{SHARE_NAME}:#{ROOT}"
+  run_args << TEST_VM
+
+  log run_args.shelljoin
+  vm_log = File.open(File.join(ROOT, "tmp-tart-#{TEST_VM}.log"), "w")
+  spawn(*run_args, out: vm_log, err: [:child, :out])
+  $vm_started = true
+
+  ip = wait_for_ip(TEST_VM)
+  log "#{TEST_VM} IP: #{ip}"
+  wait_for_ssh(ip)
+  ssh(ip, remote_script)
+
+  log "Tart test passed"
+rescue StandardError => e
+  $failed = true
+  warn e.message
+  exit 1
+end

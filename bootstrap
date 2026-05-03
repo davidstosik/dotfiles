@@ -49,6 +49,8 @@ load_macos_homebrew_shellenv() {
   elif [ -x /usr/local/bin/brew ]; then
     eval "$(/usr/local/bin/brew shellenv)"
   fi
+
+  command_exists brew
 }
 
 ensure_sudo() {
@@ -74,9 +76,7 @@ install_homebrew() {
     return 1
   fi
 
-  load_macos_homebrew_shellenv
-
-  if command_exists brew; then
+  if load_macos_homebrew_shellenv; then
     return 0
   fi
 

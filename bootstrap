@@ -18,8 +18,8 @@ Commands:
 
 Bootstrap options:
   --skip-brew-bundle   Do not run brew bundle before Ruby installer
-  --dry-run            Print actions without changing files
-  --verbose            Print commands before executing them
+  --dry-run            Do not execute commands that change the system
+  --verbose            Print commands before executing them, or before skipping them in dry-run
   --non-interactive    Never prompt; fail instead
 
 All other options/commands are passed to ./dotfiles.
@@ -32,14 +32,11 @@ is_dry_run() { [ "$DRY_RUN" -eq 1 ]; }
 is_non_interactive() { [ "$NON_INTERACTIVE" -eq 1 ]; }
 is_verbose() { [ "$VERBOSE" -eq 1 ]; }
 run() {
-  if is_dry_run; then
-    if is_verbose; then
-      log "DRY-RUN: $*"
-    fi
-  else
-    if is_verbose; then
-      log "+ $*"
-    fi
+  if is_verbose; then
+    log "+ $*"
+  fi
+
+  if ! is_dry_run; then
     "$@"
   fi
 }
@@ -59,20 +56,21 @@ load_macos_homebrew_shellenv() {
 }
 
 ensure_sudo() {
+  log "Validating sudo credentials..."
+
   if is_non_interactive; then
     run sudo -n -v || {
       log "sudo credentials are required but are not available in --non-interactive mode."
       return 1
     }
   else
-    if ! is_dry_run; then
-      log "Validating sudo credentials..."
-    fi
     run sudo -v
   fi
 }
 
 install_homebrew() {
+  log "Ensuring Homebrew is installed..."
+
   if [ "$(uname -s)" != "Darwin" ]; then
     log "This bootstrap is for macOS."
     return 1
@@ -80,12 +78,6 @@ install_homebrew() {
 
   if load_macos_homebrew_shellenv; then
     return 0
-  fi
-
-  if is_dry_run; then
-    log "DRY-RUN: would install Homebrew"
-  else
-    log "Installing Homebrew..."
   fi
 
   ensure_sudo
@@ -108,17 +100,24 @@ install_homebrew() {
 
 install_packages() {
   if [ "$SKIP_BREW_BUNDLE" -eq 0 ]; then
+    log "Installing packages from Brewfile..."
     run brew bundle --file "$ROOT/Brewfile"
+  else
+    log "Skipping Brewfile packages."
   fi
 }
 
 ensure_mise() {
+  log "Ensuring mise is installed..."
+
   if ! command_exists mise; then
     run brew install mise
   fi
 }
 
 install_ruby() {
+  log "Ensuring Ruby is installed..."
+
   if ! command_exists mise; then
     log "mise is required."
     exit 1
@@ -134,6 +133,8 @@ install_ruby() {
 }
 
 run_dotfiles() {
+  log "Running dotfiles command..."
+
   if is_dry_run && command_exists ruby; then
     run mise exec --cd "$ROOT" -- ruby "$ROOT/dotfiles" "$@"
     exec ruby "$ROOT/dotfiles" "$@"

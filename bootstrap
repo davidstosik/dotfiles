@@ -20,6 +20,7 @@ EOF
 }
 
 log() { printf '%s\n' "$*"; }
+command_exists() { command -v "$1" >/dev/null 2>&1; }
 run() {
   if [ "$DRY_RUN" -eq 1 ]; then
     log "DRY-RUN: $*"
@@ -29,7 +30,7 @@ run() {
 }
 
 load_macos_homebrew_shellenv() {
-  if command -v brew >/dev/null 2>&1; then
+  if command_exists brew; then
     return 0
   fi
 
@@ -65,7 +66,7 @@ install_homebrew() {
 
   load_macos_homebrew_shellenv
 
-  if command -v brew >/dev/null 2>&1; then
+  if command_exists brew; then
     return 0
   fi
 
@@ -100,17 +101,17 @@ install_packages() {
 }
 
 ensure_mise() {
-  if ! command -v mise >/dev/null 2>&1; then
+  if ! command_exists mise; then
     run brew install mise
   fi
 }
 
 install_ruby() {
-  if [ "$DRY_RUN" -eq 1 ] && command -v ruby >/dev/null 2>&1; then
+  if [ "$DRY_RUN" -eq 1 ] && command_exists ruby; then
     return 0
   fi
 
-  if ! command -v mise >/dev/null 2>&1; then
+  if ! command_exists mise; then
     log "mise is required."
     exit 1
   fi
@@ -125,7 +126,7 @@ install_ruby() {
 }
 
 run_dotfiles() {
-  if [ "$DRY_RUN" -eq 1 ] && command -v ruby >/dev/null 2>&1; then
+  if [ "$DRY_RUN" -eq 1 ] && command_exists ruby; then
     exec ruby "$ROOT/dotfiles" "$@"
   fi
 

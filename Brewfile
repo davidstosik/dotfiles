@@ -10,6 +10,7 @@ brew "mise"
 brew "libyaml"
 brew "openssl@3"
 brew "readline"
+brew "autoconf"
 
 # Fonts
 cask "font-monaspace-nerd-font"

@@ -29,7 +29,9 @@ module Dotfiles
         result = run_bootstrap(fake, "--skip-brew-bundle", "link")
 
         assert_success result
-        refute_includes fake.commands.map(&:first), "brew"
+        assert_includes fake.commands, ["brew", "update"]
+        refute_includes fake.commands, ["brew", "bundle", "--file", File.join(ROOT, "Brewfile")]
+        refute_includes fake.commands, ["brew", "upgrade"]
         assert_includes fake.commands, ["mise", "exec", "--cd", ROOT, "--", "ruby", File.join(ROOT, "dotfiles"), "link"]
       end
     end
@@ -46,7 +48,7 @@ module Dotfiles
 
     def test_installs_mise_when_missing
       with_fake_system(missing: %w[mise]) do |fake|
-        fake.create_executables("brew", "mise")
+        fake.create_executables_when("brew", %w[install mise], "mise")
 
         result = run_bootstrap(fake, "--skip-brew-bundle", "link")
 
@@ -87,6 +89,11 @@ module Dotfiles
 
       def create_executables(command, *executables)
         write_behavior(command, "create_executables", "#{executables.join("\n")}\n")
+      end
+
+      def create_executables_when(command, args, *executables)
+        lines = executables.map { "#{args.join(" ")}\t#{it}" }.join("\n")
+        write_behavior(command, "create_executables_when", "#{lines}\n")
       end
 
       def path

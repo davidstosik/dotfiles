@@ -66,6 +66,19 @@ module Dotfiles
       end
     end
 
+    def test_stale_managed_symlinks_are_reported_but_not_removed
+      Dir.mktmpdir do |home|
+        stale = File.join(home, ".config/ghostty/old")
+        FileUtils.mkdir_p(File.dirname(stale))
+        FileUtils.ln_s(File.join(SYMLINK_ROOT, ".config/ghostty/old"), stale)
+
+        stdout, = capture_io { App.new(["--home", home, "link"]).run }
+
+        assert_includes stdout, "warning: stale managed symlink: #{stale} -> #{File.join(SYMLINK_ROOT, ".config/ghostty/old")}" 
+        assert File.symlink?(stale), "expected stale symlink to be left in place"
+      end
+    end
+
     private
 
     def expected_links

@@ -89,6 +89,36 @@ module Dotfiles
         target = File.join(@home, source.delete_prefix("#{symlink_root}/"))
         link_one(source, target)
       end
+
+      warn_about_stale_managed_symlinks(symlink_root)
+    end
+
+    def warn_about_stale_managed_symlinks(symlink_root)
+      stale_symlinks(symlink_root).each do |path|
+        say "warning: stale managed symlink: #{path} -> #{File.readlink(path)}"
+      end
+    end
+
+    def stale_symlinks(symlink_root)
+      managed_targets(symlink_root).select do |path|
+        File.symlink?(path) && symlink_target(path).start_with?("#{symlink_root}/") && !File.exist?(symlink_target(path))
+      end
+    end
+
+    def managed_targets(symlink_root)
+      Dir.children(symlink_root).flat_map do |entry|
+        target = File.join(@home, entry)
+        if File.directory?(File.join(symlink_root, entry)) && File.directory?(target)
+          Find.find(target).to_a
+        else
+          [target]
+        end
+      end
+    end
+
+    def symlink_target(path)
+      target = File.readlink(path)
+      File.expand_path(target, File.dirname(path))
     end
 
     def doctor

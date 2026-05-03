@@ -109,10 +109,6 @@ ensure_mise() {
 }
 
 install_ruby() {
-  if is_dry_run && command_exists ruby; then
-    return 0
-  fi
-
   if ! command_exists mise; then
     log "mise is required."
     exit 1
@@ -129,6 +125,7 @@ install_ruby() {
 
 run_dotfiles() {
   if is_dry_run && command_exists ruby; then
+    run mise exec --cd "$ROOT" -- ruby "$ROOT/dotfiles" "$@"
     exec ruby "$ROOT/dotfiles" "$@"
   fi
 

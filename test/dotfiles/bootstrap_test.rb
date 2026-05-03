@@ -93,6 +93,7 @@ module Dotfiles
           File.join(dir, "behavior")
         )
         fake.stdout("uname", "Darwin\n")
+        assert_missing_commands_are_not_in_path(fake, missing)
         yield fake
       end
     end
@@ -104,6 +105,13 @@ module Dotfiles
       FileUtils.cp_r(FAKE_BIN, destination, preserve: true)
       missing.each { FileUtils.rm_f(File.join(destination, it)) }
       destination
+    end
+
+    def assert_missing_commands_are_not_in_path(fake, missing)
+      missing.each do |command|
+        refute system({ "PATH" => [fake.bin, "/usr/bin", "/bin", "/usr/sbin", "/sbin"].join(":") }, "command -v #{command} >/dev/null 2>&1"),
+          "expected #{command.inspect} to be missing from test PATH"
+      end
     end
 
     def run_bootstrap(fake, *args)

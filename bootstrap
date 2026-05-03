@@ -81,11 +81,18 @@ install_homebrew() {
 
   ensure_sudo
 
+  installer=$(mktemp)
+  trap 'rm -f "$installer"' EXIT
+  run curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh -o "$installer"
+
   if [ "$NON_INTERACTIVE" -eq 1 ]; then
-    run env NONINTERACTIVE=1 /bin/bash -c 'curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh | /bin/bash'
+    run env NONINTERACTIVE=1 /bin/bash "$installer"
   else
-    run /bin/bash -c 'curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh | /bin/bash'
+    run /bin/bash "$installer"
   fi
+
+  rm -f "$installer"
+  trap - EXIT
 
   load_macos_homebrew_shellenv
 }

@@ -15,7 +15,9 @@ module Dotfiles
         result = run_bootstrap(fake, "link")
 
         assert_success result
+        assert_includes fake.commands, ["brew", "update"]
         assert_includes fake.commands, ["brew", "bundle", "--file", File.join(ROOT, "Brewfile")]
+        assert_includes fake.commands, ["brew", "upgrade"]
         assert_includes fake.commands, ["mise", "trust", File.join(ROOT, ".mise.toml")]
         assert_includes fake.commands, ["mise", "install", "--cd", ROOT]
         assert_includes fake.commands, ["mise", "exec", "--cd", ROOT, "--", "ruby", File.join(ROOT, "dotfiles"), "link"]

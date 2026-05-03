@@ -136,6 +136,7 @@ home_symlinks/.zshrc
 6. Add SSH key generation and GitHub upload as an explicit opt-in command.
 7. Add minimal non-LazyVim Neovim config.
 8. Add opt-in macOS defaults.
+9. Add an explicit cleanup/check command for stale managed symlinks. It should only consider symlinks whose target points inside this repo's `home_symlinks/`, and it should probably report by default before deleting anything.
 
 ## Open questions
 
@@ -144,4 +145,5 @@ home_symlinks/.zshrc
 - Should `bootstrap` install Homebrew non-interactively by default when `--non-interactive` is passed, or require an explicit flag?
 - Should `Brewfile` include language runtimes like node/python, or should those be mise-only?
 - Should tmux plugin installation be automatic or manual?
+- What exact roots should stale-symlink cleanup inspect? Current safest idea: scan `$HOME` and selected config roots, but only act on symlinks pointing into `ROOT/home_symlinks`.
 - Should Ghostty XDG path be the only managed path? Current answer: yes, based on manual validation.

@@ -104,8 +104,14 @@ install_homebrew() {
 
 install_packages() {
   if [ "$SKIP_BREW_BUNDLE" -eq 0 ]; then
+    log "Updating Homebrew..."
+    run brew update
+
     log "Installing packages from Brewfile..."
     run brew bundle --file "$ROOT/Brewfile"
+
+    log "Upgrading Homebrew packages..."
+    run brew upgrade
   else
     log "Skipping Brewfile packages."
   fi

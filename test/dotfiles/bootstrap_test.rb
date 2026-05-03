@@ -75,6 +75,10 @@ module Dotfiles
         write_behavior(command, "create_executables", "#{executables.join("\n")}\n")
       end
 
+      def path
+        [bin, "/usr/bin", "/bin", "/usr/sbin", "/sbin"].join(":")
+      end
+
       private
 
       def write_behavior(command, file, content)
@@ -109,7 +113,7 @@ module Dotfiles
 
     def assert_missing_commands_are_not_in_path(fake, missing)
       missing.each do |command|
-        refute system({ "PATH" => [fake.bin, "/usr/bin", "/bin", "/usr/sbin", "/sbin"].join(":") }, "command -v #{command} >/dev/null 2>&1"),
+        refute system({ "PATH" => fake.path }, "command -v #{command} >/dev/null 2>&1"),
           "expected #{command.inspect} to be missing from test PATH"
       end
     end
@@ -119,7 +123,7 @@ module Dotfiles
         "FAKE_COMMAND_BEHAVIOR_DIR" => fake.behavior_dir,
         "FAKE_COMMAND_BIN" => fake.bin,
         "FAKE_COMMAND_LOG" => fake.log,
-        "PATH" => [fake.bin, "/usr/bin", "/bin", "/usr/sbin", "/sbin"].join(":"),
+        "PATH" => fake.path,
       }
       stdout, stderr, status = Open3.capture3(env, File.join(ROOT, "bootstrap"), *args, chdir: ROOT)
       { stdout: stdout, stderr: stderr, status: status }

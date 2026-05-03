@@ -54,19 +54,16 @@ load_macos_homebrew_shellenv() {
 }
 
 ensure_sudo() {
-  if is_dry_run; then
-    log "DRY-RUN: would validate sudo credentials"
-    return 0
-  fi
-
   if is_non_interactive; then
-    sudo -n -v || {
+    run sudo -n -v || {
       log "sudo credentials are required but are not available in --non-interactive mode."
       return 1
     }
   else
-    log "Validating sudo credentials..."
-    sudo -v
+    if ! is_dry_run; then
+      log "Validating sudo credentials..."
+    fi
+    run sudo -v
   fi
 }
 

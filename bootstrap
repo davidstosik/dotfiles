@@ -11,6 +11,11 @@ usage() {
   cat <<EOF
 Usage: ./bootstrap [bootstrap-options] [dotfiles-options] [command]
 
+Commands:
+  link      Link dotfiles into HOME (default)
+  doctor    Check basic prerequisites
+  help      Show Ruby CLI help
+
 Bootstrap options:
   --skip-brew-bundle   Do not run brew bundle before Ruby installer
   --dry-run            Print actions without changing files

@@ -95,6 +95,10 @@ install_homebrew() {
   rm -f "$installer"
   trap - EXIT
 
+  if is_dry_run; then
+    return 0
+  fi
+
   load_macos_homebrew_shellenv
 }
 
@@ -119,8 +123,10 @@ install_ruby() {
   log "Ensuring Ruby is installed..."
 
   if ! command_exists mise; then
-    log "mise is required."
-    exit 1
+    if ! is_dry_run; then
+      log "mise is required."
+      exit 1
+    fi
   fi
 
   if is_non_interactive; then
@@ -170,9 +176,12 @@ run_mise_dotfiles() {
 run_dotfiles() {
   log "Running dotfiles command..."
 
-  if is_dry_run && command_exists ruby; then
+  if is_dry_run; then
     run mise exec --cd "$ROOT" -- ruby "$ROOT/dotfiles" "$@"
-    exec ruby "$ROOT/dotfiles" "$@"
+    if command_exists ruby; then
+      exec ruby "$ROOT/dotfiles" "$@"
+    fi
+    return 0
   fi
 
   run_mise_dotfiles "$@"

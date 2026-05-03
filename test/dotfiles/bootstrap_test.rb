@@ -54,6 +54,18 @@ module Dotfiles
       end
     end
 
+    def test_dry_run_continues_past_missing_mise
+      with_fake_system(missing: %w[mise]) do |fake|
+        result = run_bootstrap(fake, "--dry-run", "--skip-brew-bundle", "--verbose", "link")
+
+        assert_success result
+        assert_includes fake.commands, ["ruby", File.join(ROOT, "dotfiles"), "link"]
+        assert_includes result[:stdout], "+ brew install mise"
+        assert_includes result[:stdout], "+ mise install --cd #{ROOT}"
+        assert_includes result[:stdout], "+ mise exec --cd #{ROOT} -- ruby #{File.join(ROOT, "dotfiles")} link"
+      end
+    end
+
     private
 
     FakeSystem = Struct.new(:dir, :bin, :log, :behavior_dir) do

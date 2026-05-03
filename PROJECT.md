@@ -126,18 +126,21 @@ home_symlinks/.zshrc
 
 ## Next likely milestones
 
-1. Review `Brewfile` package list and decide what belongs there.
-2. Add local override support if missing/desired:
+1. Add one-liner bootstrap support (`curl ... | bash`) by teaching `bootstrap` to clone the repo when not already running from a checkout.
+2. Review `Brewfile` package list and decide what belongs there.
+3. Add local override support if missing/desired:
    - `~/.gitconfig.local`
    - `~/.zshrc.local`
-3. Consider splitting zsh config into aliases/functions.
-4. Add TPM installation/management for tmux, or document manual plugin install.
-5. Add SSH key generation and GitHub upload as an explicit opt-in command.
-6. Add minimal non-LazyVim Neovim config.
-7. Add opt-in macOS defaults.
+4. Consider splitting zsh config into aliases/functions.
+5. Add TPM installation/management for tmux, or document manual plugin install.
+6. Add SSH key generation and GitHub upload as an explicit opt-in command.
+7. Add minimal non-LazyVim Neovim config.
+8. Add opt-in macOS defaults.
 
 ## Open questions
 
+- What should the one-liner install location be? Current candidate: `~/.dotfiles`.
+- Should one-liner cloning use HTTPS by default and allow `DOTFILES_REPO_URL` override?
 - Should `bootstrap` install Homebrew non-interactively by default when `--non-interactive` is passed, or require an explicit flag?
 - Should `Brewfile` include language runtimes like node/python, or should those be mise-only?
 - Should tmux plugin installation be automatic or manual?

@@ -22,6 +22,7 @@ EOF
 log() { printf '%s\n' "$*"; }
 command_exists() { command -v "$1" >/dev/null 2>&1; }
 is_dry_run() { [ "$DRY_RUN" -eq 1 ]; }
+is_non_interactive() { [ "$NON_INTERACTIVE" -eq 1 ]; }
 run() {
   if is_dry_run; then
     log "DRY-RUN: $*"
@@ -48,7 +49,7 @@ ensure_sudo() {
     return 0
   fi
 
-  if [ "$NON_INTERACTIVE" -eq 1 ]; then
+  if is_non_interactive; then
     sudo -n -v || {
       log "sudo credentials are required but are not available in --non-interactive mode."
       return 1
@@ -83,7 +84,7 @@ install_homebrew() {
   trap 'rm -f "$installer"' EXIT
   run curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh -o "$installer"
 
-  if [ "$NON_INTERACTIVE" -eq 1 ]; then
+  if is_non_interactive; then
     run env NONINTERACTIVE=1 /bin/bash "$installer"
   else
     run /bin/bash "$installer"
@@ -117,7 +118,7 @@ install_ruby() {
     exit 1
   fi
 
-  if [ "$NON_INTERACTIVE" -eq 1 ]; then
+  if is_non_interactive; then
     run mise trust -y "$ROOT/.mise.toml"
     run mise install -y --cd "$ROOT"
   else

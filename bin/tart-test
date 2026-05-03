@@ -10,6 +10,7 @@ BASE_VM = ENV.fetch("TART_BASE_VM", "clean-tahoe")
 BASE_IMAGE = ENV.fetch("TART_BASE_IMAGE", "ghcr.io/cirruslabs/macos-tahoe-vanilla:latest")
 TEST_VM = ENV.fetch("TART_TEST_VM", "dotfiles-test-#{Time.now.strftime("%Y%m%d%H%M%S")}")
 SSH_USER = ENV.fetch("TART_SSH_USER", "admin")
+SSH_PASSWORD = ENV.fetch("TART_SSH_PASSWORD", "admin")
 SHARE_NAME = ENV.fetch("TART_SHARE_NAME", "dotfiles-next")
 REMOTE_REPO = ENV.fetch("TART_REMOTE_REPO", "/Volumes/My Shared Files/#{SHARE_NAME}")
 BOOTSTRAP_INSTALL_FLAGS = ENV.fetch("TART_BOOTSTRAP_INSTALL_FLAGS", "--non-interactive --verbose")
@@ -28,9 +29,18 @@ def log(message)
   puts "== #{message} =="
 end
 
+def command_for_log(cmd)
+  if cmd.first.is_a?(Hash)
+    env = cmd.first.map { |key, value| "#{key}=#{value.shellescape}" }.join(" ")
+    [env, cmd.drop(1).shelljoin].reject(&:empty?).join(" ")
+  else
+    cmd.shelljoin
+  end
+end
+
 def run(*cmd)
-  log cmd.shelljoin
-  system(*cmd) || raise("command failed: #{cmd.shelljoin}")
+  log command_for_log(cmd)
+  system(*cmd) || raise("command failed: #{command_for_log(cmd)}")
 end
 
 def capture(*cmd)
@@ -65,13 +75,49 @@ def wait_for_ip(vm)
   raise "timed out waiting for #{vm} IP"
 end
 
+def expect_available?
+  system("command -v expect >/dev/null 2>&1")
+end
+
+def ssh_command(ip, command)
+  ["ssh", *SSH_OPTIONS, "#{SSH_USER}@#{ip}", command]
+end
+
+def expect_ssh_command(ip, command)
+  script = <<~EXPECT
+    set timeout -1
+    spawn {*}$argv
+    expect {
+      -re "(?i)password:" {
+        send -- "$env(TART_SSH_PASSWORD)\r"
+        exp_continue
+      }
+      eof
+    }
+    catch wait result
+    exit [lindex $result 3]
+  EXPECT
+
+  ["expect", "-c", script, *ssh_command(ip, command)]
+end
+
 def ssh(ip, command)
-  run "ssh", *SSH_OPTIONS, "#{SSH_USER}@#{ip}", command
+  if SSH_PASSWORD.empty?
+    run(*ssh_command(ip, command))
+  else
+    raise "TART_SSH_PASSWORD is set, but expect is not available" unless expect_available?
+
+    run({ "TART_SSH_PASSWORD" => SSH_PASSWORD }, *expect_ssh_command(ip, command))
+  end
 end
 
 def wait_for_ssh(ip)
   120.times do
-    return if system("ssh", *SSH_OPTIONS, "#{SSH_USER}@#{ip}", "true", out: File::NULL, err: File::NULL)
+    if SSH_PASSWORD.empty?
+      return if system(*ssh_command(ip, "true"), out: File::NULL, err: File::NULL)
+    elsif expect_available?
+      return if system({ "TART_SSH_PASSWORD" => SSH_PASSWORD }, *expect_ssh_command(ip, "true"), out: File::NULL, err: File::NULL)
+    end
 
     sleep 2
   end
@@ -87,6 +133,11 @@ def remote_script
 
     echo '== remote: dry-run preview =='
     ./bootstrap --dry-run --verbose link
+
+    if [ -n #{SSH_PASSWORD.shellescape} ]; then
+      echo '== remote: validate sudo =='
+      printf '%s\n' #{SSH_PASSWORD.shellescape} | sudo -S -v
+    fi
 
     echo '== remote: install =='
     ./bootstrap #{BOOTSTRAP_INSTALL_FLAGS} link

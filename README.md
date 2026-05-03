@@ -89,6 +89,13 @@ Useful overrides:
 TART_BASE_VM=clean-tahoe TART_KEEP_VM=1 ./bin/tart-test
 ```
 
+The default Cirrus/Tart admin credentials are assumed:
+
+```sh
+TART_SSH_USER=admin
+TART_SSH_PASSWORD=admin
+```
+
 ## Current contents
 
 - `bootstrap` — shell bootstrap for Homebrew, mise, and Ruby

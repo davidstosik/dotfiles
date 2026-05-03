@@ -21,8 +21,9 @@ EOF
 
 log() { printf '%s\n' "$*"; }
 command_exists() { command -v "$1" >/dev/null 2>&1; }
+is_dry_run() { [ "$DRY_RUN" -eq 1 ]; }
 run() {
-  if [ "$DRY_RUN" -eq 1 ]; then
+  if is_dry_run; then
     log "DRY-RUN: $*"
   else
     "$@"
@@ -42,7 +43,7 @@ load_macos_homebrew_shellenv() {
 }
 
 ensure_sudo() {
-  if [ "$DRY_RUN" -eq 1 ]; then
+  if is_dry_run; then
     log "DRY-RUN: would validate sudo credentials"
     return 0
   fi
@@ -70,7 +71,7 @@ install_homebrew() {
     return 0
   fi
 
-  if [ "$DRY_RUN" -eq 1 ]; then
+  if is_dry_run; then
     log "DRY-RUN: would install Homebrew"
   else
     log "Installing Homebrew..."
@@ -107,7 +108,7 @@ ensure_mise() {
 }
 
 install_ruby() {
-  if [ "$DRY_RUN" -eq 1 ] && command_exists ruby; then
+  if is_dry_run && command_exists ruby; then
     return 0
   fi
 
@@ -126,7 +127,7 @@ install_ruby() {
 }
 
 run_dotfiles() {
-  if [ "$DRY_RUN" -eq 1 ] && command_exists ruby; then
+  if is_dry_run && command_exists ruby; then
     exec ruby "$ROOT/dotfiles" "$@"
   fi
 

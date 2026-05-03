@@ -59,7 +59,7 @@ module Dotfiles
         result = run_bootstrap(fake, "--dry-run", "--skip-brew-bundle", "--verbose", "link")
 
         assert_success result
-        assert_includes fake.commands, ["ruby", File.join(ROOT, "dotfiles"), "link"]
+        refute_includes fake.commands.map(&:first), "ruby"
         assert_includes result[:stdout], "+ brew install mise"
         assert_includes result[:stdout], "+ mise install --cd #{ROOT}"
         assert_includes result[:stdout], "+ mise exec --cd #{ROOT} -- ruby #{File.join(ROOT, "dotfiles")} link"

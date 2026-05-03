@@ -158,33 +158,12 @@ doctor() {
   fi
 
   log "Checking Ruby and dotfiles app..."
-  if is_dry_run && command_exists ruby; then
-    run mise exec --cd "$ROOT" -- ruby "$ROOT/dotfiles" doctor
-    ruby "$ROOT/dotfiles" doctor
-  else
-    run_mise_dotfiles doctor
-  fi
-}
-
-run_mise_dotfiles() {
-  if is_verbose; then
-    log "+ mise exec --cd $ROOT -- ruby $ROOT/dotfiles $*"
-  fi
-  exec mise exec --cd "$ROOT" -- ruby "$ROOT/dotfiles" "$@"
+  run mise exec --cd "$ROOT" -- ruby "$ROOT/dotfiles" doctor
 }
 
 run_dotfiles() {
   log "Running dotfiles command..."
-
-  if is_dry_run; then
-    run mise exec --cd "$ROOT" -- ruby "$ROOT/dotfiles" "$@"
-    if command_exists ruby; then
-      exec ruby "$ROOT/dotfiles" "$@"
-    fi
-    return 0
-  fi
-
-  run_mise_dotfiles "$@"
+  run mise exec --cd "$ROOT" -- ruby "$ROOT/dotfiles" "$@"
 }
 
 while [ "$#" -gt 0 ]; do

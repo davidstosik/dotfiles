@@ -5,6 +5,7 @@ ROOT=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 DRY_RUN=0
 NON_INTERACTIVE=0
 SKIP_BREW_BUNDLE=0
+VERBOSE=0
 
 usage() {
   cat <<EOF
@@ -13,6 +14,7 @@ Usage: ./bootstrap [bootstrap-options] [dotfiles-options] [command]
 Bootstrap options:
   --skip-brew-bundle   Do not run brew bundle before Ruby installer
   --dry-run            Print actions without changing files
+  --verbose            Print commands before executing them
   --non-interactive    Never prompt; fail instead
 
 All other options/commands are passed to ./dotfiles.
@@ -23,10 +25,16 @@ log() { printf '%s\n' "$*"; }
 command_exists() { command -v "$1" >/dev/null 2>&1; }
 is_dry_run() { [ "$DRY_RUN" -eq 1 ]; }
 is_non_interactive() { [ "$NON_INTERACTIVE" -eq 1 ]; }
+is_verbose() { [ "$VERBOSE" -eq 1 ]; }
 run() {
   if is_dry_run; then
-    log "DRY-RUN: $*"
+    if is_verbose; then
+      log "DRY-RUN: $*"
+    fi
   else
+    if is_verbose; then
+      log "+ $*"
+    fi
     "$@"
   fi
 }
@@ -129,12 +137,16 @@ run_dotfiles() {
     exec ruby "$ROOT/dotfiles" "$@"
   fi
 
+  if is_verbose; then
+    log "+ mise exec --cd $ROOT -- ruby $ROOT/dotfiles $*"
+  fi
   exec mise exec --cd "$ROOT" -- ruby "$ROOT/dotfiles" "$@"
 }
 
 while [ "$#" -gt 0 ]; do
   case "$1" in
     --dry-run) DRY_RUN=1; export DOTFILES_DRY_RUN=1 ;;
+    --verbose) VERBOSE=1 ;;
     --non-interactive) NON_INTERACTIVE=1; export DOTFILES_NON_INTERACTIVE=1 ;;
     --skip-brew-bundle) SKIP_BREW_BUNDLE=1 ;;
     -h|--help) usage; exit 0 ;;

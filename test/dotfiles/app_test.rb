@@ -14,10 +14,22 @@ module Dotfiles
 
     def test_dry_run_does_not_create_files
       Dir.mktmpdir do |home|
-        capture_io { App.new(["--home", home, "--dry-run", "link"]).run }
+        stdout, = capture_io { App.new(["--home", home, "--dry-run", "link"]).run }
 
+        assert_includes stdout, "Linking dotfiles..."
+        refute_includes stdout, "+ ln -s"
         refute File.exist?(File.join(home, ".gitconfig")), "dry-run created .gitconfig"
         refute File.exist?(File.join(home, ".config")), "dry-run created .config"
+      end
+    end
+
+    def test_dry_run_verbose_prints_commands_without_creating_files
+      Dir.mktmpdir do |home|
+        stdout, = capture_io { App.new(["--home", home, "--dry-run", "--verbose", "link"]).run }
+
+        assert_includes stdout, "Linking dotfiles..."
+        assert_includes stdout, "+ ln -s"
+        refute File.exist?(File.join(home, ".gitconfig")), "dry-run created .gitconfig"
       end
     end
 

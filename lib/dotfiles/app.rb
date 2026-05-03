@@ -12,12 +12,14 @@ module Dotfiles
     def initialize(argv)
       @home = ENV.fetch("DOTFILES_HOME", Dir.home)
       @dry_run = ENV["DOTFILES_DRY_RUN"] == "1"
+      @verbose = ENV["DOTFILES_VERBOSE"] == "1"
       @non_interactive = ENV["DOTFILES_NON_INTERACTIVE"] == "1"
       @command = "link"
 
       parser = OptionParser.new do |opts|
         opts.banner = "Usage: ./dotfiles [options] [command]"
-        opts.on("--dry-run", "Print actions without changing files") { @dry_run = true }
+        opts.on("--dry-run", "Do not execute commands that change the system") { @dry_run = true }
+        opts.on("--verbose", "Print commands before executing them, or before skipping them in dry-run") { @verbose = true }
         opts.on("--non-interactive", "Never prompt") { @non_interactive = true }
         opts.on("--home PATH", "Use PATH instead of HOME") { |path| @home = path }
         opts.on("-h", "--help", "Show help") { @command = "help" }
@@ -47,32 +49,24 @@ module Dotfiles
     end
 
     def action(*cmd)
-      if @dry_run
-        say "DRY-RUN: #{cmd.join(" ")}"
-      else
-        system(*cmd) || raise("command failed: #{cmd.join(" ")}")
-      end
+      say "+ #{cmd.join(" ")}" if @verbose
+      system(*cmd) || raise("command failed: #{cmd.join(" ")}") unless @dry_run
     end
 
     def link_one(source, target)
       source = File.expand_path(source)
       target = File.expand_path(target)
 
-      if expected_link?(target, source)
-        say "ok: #{target} -> #{source}"
-        return
-      end
+      return if expected_link?(target, source)
 
       parent = File.dirname(target)
       action("mkdir", "-p", parent) unless Dir.exist?(parent)
 
       if File.exist?(target) || File.symlink?(target)
         backup = backup_path(target)
-        say "backup: #{target} -> #{backup}"
         action("mv", target, backup)
       end
 
-      say "link: #{target} -> #{source}"
       action("ln", "-s", source, target)
     end
 
@@ -85,6 +79,8 @@ module Dotfiles
     end
 
     def link
+      say "Linking dotfiles..."
+
       symlink_root = File.join(ROOT, "home_symlinks")
 
       Find.find(symlink_root) do |source|

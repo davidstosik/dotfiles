@@ -7,6 +7,8 @@ brew "fzf"
 brew "ripgrep"
 brew "the_silver_searcher"
 brew "mise"
+
+# Ruby build dependencies
 brew "libyaml"
 brew "openssl@3"
 brew "readline"

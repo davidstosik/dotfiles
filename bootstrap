@@ -132,6 +132,41 @@ install_ruby() {
   fi
 }
 
+doctor() {
+  log "Checking macOS..."
+  if [ "$(uname -s)" != "Darwin" ]; then
+    log "This bootstrap is for macOS."
+    return 1
+  fi
+
+  log "Checking Homebrew..."
+  if ! load_macos_homebrew_shellenv; then
+    log "Homebrew is not installed."
+    return 1
+  fi
+
+  log "Checking mise..."
+  if ! command_exists mise; then
+    log "mise is not installed."
+    return 1
+  fi
+
+  log "Checking Ruby and dotfiles app..."
+  if is_dry_run && command_exists ruby; then
+    run mise exec --cd "$ROOT" -- ruby "$ROOT/dotfiles" doctor
+    ruby "$ROOT/dotfiles" doctor
+  else
+    run_mise_dotfiles doctor
+  fi
+}
+
+run_mise_dotfiles() {
+  if is_verbose; then
+    log "+ mise exec --cd $ROOT -- ruby $ROOT/dotfiles $*"
+  fi
+  exec mise exec --cd "$ROOT" -- ruby "$ROOT/dotfiles" "$@"
+}
+
 run_dotfiles() {
   log "Running dotfiles command..."
 
@@ -140,10 +175,7 @@ run_dotfiles() {
     exec ruby "$ROOT/dotfiles" "$@"
   fi
 
-  if is_verbose; then
-    log "+ mise exec --cd $ROOT -- ruby $ROOT/dotfiles $*"
-  fi
-  exec mise exec --cd "$ROOT" -- ruby "$ROOT/dotfiles" "$@"
+  run_mise_dotfiles "$@"
 }
 
 while [ "$#" -gt 0 ]; do
@@ -158,8 +190,15 @@ while [ "$#" -gt 0 ]; do
   shift
 done
 
-install_homebrew
-install_packages
-ensure_mise
-install_ruby
-run_dotfiles "$@"
+case "${1:-link}" in
+  doctor)
+    doctor
+    ;;
+  *)
+    install_homebrew
+    install_packages
+    ensure_mise
+    install_ruby
+    run_dotfiles "$@"
+    ;;
+esac

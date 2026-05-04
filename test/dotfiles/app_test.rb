@@ -19,6 +19,7 @@ module Dotfiles
         assert_includes stdout, "Linking dotfiles..."
         refute_includes stdout, "+ ln -s"
         refute File.exist?(File.join(home, ".gitconfig")), "dry-run created .gitconfig"
+        refute File.exist?(File.join(home, ".gitignore")), "dry-run created .gitignore"
         refute File.exist?(File.join(home, ".config")), "dry-run created .config"
       end
     end
@@ -40,6 +41,7 @@ module Dotfiles
         expected_links.each do |target, source|
           assert_symlink File.join(home, target), source
         end
+        assert_symlink File.join(home, ".gitignore"), File.join(home, ".config/git/ignore")
       end
     end
 

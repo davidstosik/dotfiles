@@ -90,7 +90,23 @@ module Dotfiles
         link_one(source, target)
       end
 
+      link_aliases
       warn_about_stale_managed_symlinks(symlink_root)
+    end
+
+    def link_aliases
+      alias_file = File.join(ROOT, "home_link_aliases")
+      return unless File.exist?(alias_file)
+
+      File.readlines(alias_file, chomp: true).each do |line|
+        line = line.strip
+        next if line.empty? || line.start_with?("#")
+
+        source, target = line.split(/\s+/, 2)
+        raise "invalid home link alias: #{line}" unless source && target
+
+        link_one(File.join(@home, source), File.join(@home, target))
+      end
     end
 
     def warn_about_stale_managed_symlinks(symlink_root)

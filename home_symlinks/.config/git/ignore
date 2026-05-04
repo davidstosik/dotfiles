@@ -9,3 +9,4 @@
 *.log
 
 .claude
+**/.claude/settings.local.json

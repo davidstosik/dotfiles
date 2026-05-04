@@ -1,0 +1,2 @@
+# source-relative-to-HOME target-relative-to-HOME
+.config/git/ignore .gitignore

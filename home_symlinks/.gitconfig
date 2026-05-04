@@ -6,7 +6,6 @@
 	autocrlf = input
 	safecrlf = false
 	whitespace = -indent-with-non-tab,trailing-space,cr-at-eol
-	excludesfile = ~/.gitignore
 	fsmonitor = true
 	untrackedCache = true
 

@@ -4,12 +4,6 @@ Personal dotfiles and local macOS bootstrap.
 
 ## Install
 
-Preview what would happen:
-
-```sh
-./bootstrap --dry-run link
-```
-
 Bootstrap the machine and link dotfiles:
 
 ```sh
@@ -20,10 +14,24 @@ Bootstrap the machine and link dotfiles:
 
 1. ensure it is running on macOS
 2. install/load Homebrew if needed
-3. install packages from `Brewfile`
-4. install/use `mise`
-5. install Ruby 4.x from `.mise.toml`
-6. run the Ruby dotfile linker
+3. update Homebrew
+4. install packages from `Brewfile`
+5. upgrade Homebrew packages
+6. install/use `mise`
+7. install Ruby 4.x from `.mise.toml`
+8. run the Ruby dotfile linker
+
+Preview the bootstrap steps without changing the system:
+
+```sh
+./bootstrap --dry-run --verbose link
+```
+
+In bootstrap dry-run mode, mutating commands are skipped and the Ruby linker is not executed. To preview linker-specific actions, run the Ruby CLI directly:
+
+```sh
+./dotfiles --dry-run --verbose link
+```
 
 If you want the bootstrap path but do not want to install the full `Brewfile` yet:
 
@@ -33,6 +41,8 @@ If you want the bootstrap path but do not want to install the full `Brewfile` ye
 
 This still ensures Homebrew, mise, and Ruby are available. To run only the linker, use `./dotfiles link`.
 
+For unattended automation, add `--non-interactive`; commands that would prompt instead use non-interactive flags or fail.
+
 ## Dotfile linking
 
 Files under `home_symlinks/` are linked into the same relative path under `$HOME`.
@@ -41,7 +51,11 @@ Examples:
 
 ```text
 home_symlinks/.gitconfig                         -> ~/.gitconfig
+home_symlinks/.gitignore                         -> ~/.gitignore
+home_symlinks/.zprofile                          -> ~/.zprofile
+home_symlinks/.zshrc                             -> ~/.zshrc
 home_symlinks/.tmux.conf                         -> ~/.tmux.conf
+home_symlinks/.tmux.mac.conf                     -> ~/.tmux.mac.conf
 home_symlinks/.config/ghostty/config.ghostty     -> ~/.config/ghostty/config.ghostty
 ```
 
@@ -65,10 +79,16 @@ Use a temporary/alternate home:
 ./dotfiles --home /tmp/dotfiles-home link
 ```
 
-Run basic checks:
+Run basic Ruby app checks:
 
 ```sh
 ./dotfiles doctor
+```
+
+Run bootstrap prerequisite checks without installing anything:
+
+```sh
+./bootstrap doctor
 ```
 
 Run tests:
@@ -89,9 +109,11 @@ Useful overrides:
 TART_BASE_VM=clean-tahoe TART_KEEP_VM=1 ./bin/tart-test
 ```
 
-The default Cirrus/Tart admin credentials are assumed:
+Defaults include:
 
 ```sh
+TART_BASE_VM=clean-tahoe
+TART_BASE_IMAGE=ghcr.io/cirruslabs/macos-tahoe-vanilla:latest
 TART_SSH_USER=admin
 TART_SSH_PASSWORD=admin
 ```
@@ -100,7 +122,7 @@ TART_SSH_PASSWORD=admin
 
 - `bootstrap` — shell bootstrap for Homebrew, mise, and Ruby
 - `Brewfile` — macOS packages/apps
-- `.mise.toml` — Ruby 4.x
+- `.mise.toml` — Ruby 4.x configured for precompiled installs
 - `dotfiles` — Ruby CLI entrypoint
 - `lib/dotfiles/app.rb` — `Dotfiles::App` implementation
 - `home_symlinks/` — files linked into `$HOME`

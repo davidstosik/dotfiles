@@ -91,7 +91,7 @@ def expect_ssh_command(ip, command)
     set timeout -1
     spawn {*}$argv
     expect {
-      -re "(?i)password:" {
+      -nocase "password:" {
         send -- "$env(TART_SSH_PASSWORD)\r"
         exp_continue
       }

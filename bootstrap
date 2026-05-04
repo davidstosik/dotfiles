@@ -147,6 +147,19 @@ install_ruby() {
   fi
 }
 
+install_npm_global_packages() {
+  package_file="$ROOT/npm-global-packages.txt"
+  [ -f "$package_file" ] || return 0
+
+  packages=$(grep -v '^[[:space:]]*#' "$package_file" | grep -v '^[[:space:]]*$' | tr '\n' ' ')
+  [ -n "$packages" ] || return 0
+
+  log "Installing global npm packages..."
+  run mise install node@24
+  # shellcheck disable=SC2086
+  run mise exec -- npm install -g $packages
+}
+
 doctor() {
   log "Checking macOS..."
   if [ "$(uname -s)" != "Darwin" ]; then
@@ -202,5 +215,6 @@ case "${1:-link}" in
     ensure_mise
     install_ruby
     run_dotfiles "$@"
+    install_npm_global_packages
     ;;
 esac

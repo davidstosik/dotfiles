@@ -16,28 +16,35 @@ Out of scope for now:
 ## Current architecture
 
 ```text
-bootstrap             # small shell bootstrap
+bootstrap                  # small shell bootstrap
   -> install/load Homebrew
   -> brew bundle
   -> install/use mise
   -> install Ruby 4.x
   -> run Ruby CLI
+  -> install global npm packages with mise-managed Node 24
 
-dotfiles              # Ruby executable
-lib/dotfiles/app.rb   # Dotfiles::App
-home_symlinks/        # files linked into $HOME
-test/                 # minitest coverage
-bin/test              # test entrypoint
-bin/tart-test         # end-to-end Tart VM test suite runner
+dotfiles                   # Ruby executable
+lib/dotfiles/app.rb        # Dotfiles::App
+home_symlinks/             # files linked into $HOME
+home_link_aliases          # additional HOME-relative symlink aliases
+npm-global-packages.txt    # global npm package list
+test/                      # minitest coverage
+bin/test                   # test entrypoint
+bin/tart-test              # end-to-end Tart VM test suite runner
 ```
 
 ## Important decisions
 
 - macOS only for now.
-- `Brewfile` is the package/app source of truth.
+- `Brewfile` is the target machine package/app source of truth.
+- `Brewfile.dev` contains repo development/test packages such as Tart.
 - Ruby is managed by mise, pinned to Ruby 4.x in `.mise.toml`.
+- Global Node is managed by mise, pinned to Node 24 in `~/.config/mise/config.toml`.
+- Global npm packages are listed in `npm-global-packages.txt` and installed with mise-managed Node.
 - Ruby code uses `Dotfiles` namespace, currently `Dotfiles::App`.
 - Dotfiles are discovered from `home_symlinks/` and linked into matching `$HOME` paths.
+- Compatibility aliases are listed in `home_link_aliases`; currently `~/.gitignore` points to `~/.config/git/ignore`.
 - Existing target files are backed up with `.backup.YYYYMMDD-HHMMSS`; never deleted.
 - Ghostty config uses the current filename:
 
@@ -120,25 +127,32 @@ Tests configure command behavior by writing files under a temp behavior director
 ## Current managed files
 
 ```text
+home_symlinks/.config/gh/config.yml
+home_symlinks/.config/git/ignore
 home_symlinks/.config/ghostty/config.ghostty
+home_symlinks/.config/mise/config.toml
+home_symlinks/.config/nvim/init.vim
 home_symlinks/.gitconfig
-home_symlinks/.gitignore
 home_symlinks/.tmux.conf
 home_symlinks/.tmux.mac.conf
+home_symlinks/.vimrc
+home_symlinks/.zprofile
 home_symlinks/.zshrc
+
+home_link_aliases creates:
+
+~/.gitignore -> ~/.config/git/ignore
 ```
 
 ## Next likely milestones
 
 1. Add one-liner bootstrap support (`curl ... | bash`) by teaching `bootstrap` to clone the repo when not already running from a checkout.
-2. Review `Brewfile` package list and decide what belongs there.
-3. Add local override support if missing/desired:
-   - `~/.gitconfig.local`
-   - `~/.zshrc.local`
+2. Continue reviewing `Brewfile` package list and decide what belongs there.
+3. Add `~/.zshrc.local` support if desired.
 4. Consider splitting zsh config into aliases/functions.
 5. Add TPM installation/management for tmux, or document manual plugin install.
 6. Add SSH key generation and GitHub upload as an explicit opt-in command.
-7. Add minimal non-LazyVim Neovim config.
+7. Add Vim/Neovim plugin installation/management.
 8. Add opt-in macOS defaults.
 
 ## Future linker considerations

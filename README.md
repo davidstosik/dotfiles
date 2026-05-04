@@ -20,6 +20,7 @@ Bootstrap the machine and link dotfiles:
 6. install/use `mise`
 7. install Ruby 4.x from `.mise.toml`
 8. run the Ruby dotfile linker
+9. install global npm packages from `npm-global-packages.txt` using mise-managed Node 24
 
 Preview the bootstrap steps without changing the system:
 
@@ -45,18 +46,22 @@ For unattended automation, add `--non-interactive`; commands that would prompt i
 
 ## Dotfile linking
 
-Files under `home_symlinks/` are linked into the same relative path under `$HOME`.
+Files under `home_symlinks/` are linked into the same relative path under `$HOME`. Aliases in `home_link_aliases` create compatibility links such as `~/.gitignore -> ~/.config/git/ignore`.
 
 Examples:
 
 ```text
 home_symlinks/.gitconfig                         -> ~/.gitconfig
-home_symlinks/.gitignore                         -> ~/.gitignore
+home_symlinks/.vimrc                             -> ~/.vimrc
 home_symlinks/.zprofile                          -> ~/.zprofile
 home_symlinks/.zshrc                             -> ~/.zshrc
 home_symlinks/.tmux.conf                         -> ~/.tmux.conf
 home_symlinks/.tmux.mac.conf                     -> ~/.tmux.mac.conf
+home_symlinks/.config/gh/config.yml              -> ~/.config/gh/config.yml
+home_symlinks/.config/git/ignore                 -> ~/.config/git/ignore
 home_symlinks/.config/ghostty/config.ghostty     -> ~/.config/ghostty/config.ghostty
+home_symlinks/.config/mise/config.toml           -> ~/.config/mise/config.toml
+home_symlinks/.config/nvim/init.vim              -> ~/.config/nvim/init.vim
 ```
 
 Existing files are never deleted. If a target already exists and is not the expected symlink, it is moved aside first:
@@ -120,12 +125,15 @@ TART_SSH_PASSWORD=admin
 
 ## Current contents
 
-- `bootstrap` — shell bootstrap for Homebrew, mise, and Ruby
-- `Brewfile` — macOS packages/apps
-- `.mise.toml` — Ruby 4.x configured for precompiled installs
+- `bootstrap` — shell bootstrap for Homebrew, mise, Ruby, and global npm packages
+- `Brewfile` — target macOS packages/apps
+- `Brewfile.dev` — repo development/test packages
+- `.mise.toml` — repo Ruby 4.x configured for precompiled installs
+- `npm-global-packages.txt` — global npm packages installed with mise-managed Node
 - `dotfiles` — Ruby CLI entrypoint
 - `lib/dotfiles/app.rb` — `Dotfiles::App` implementation
 - `home_symlinks/` — files linked into `$HOME`
+- `home_link_aliases` — additional HOME-relative symlink aliases
 - `test/dotfiles/app_test.rb` — minitest coverage for linker behavior
 - `test/dotfiles/bootstrap_test.rb` — minitest coverage for bootstrap command flow using fake commands
 - `test/support/fake_bin/_fake_command` — shared fake executable used by bootstrap tests
@@ -135,6 +143,5 @@ TART_SSH_PASSWORD=admin
 
 ## Not done yet
 
-- Neovim config
 - SSH key generation/GitHub upload
 - macOS defaults

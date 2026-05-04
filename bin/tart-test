@@ -96,8 +96,13 @@ def ssh_command(ip, command)
   ["ssh", *SSH_OPTIONS, "#{SSH_USER}@#{ip}", command]
 end
 
+def remote_bash_command(command)
+  encoded = [command].pack("m0")
+  "printf %s #{encoded.shellescape} | /usr/bin/base64 -D | /bin/bash"
+end
+
 def expect_ssh_command(ip, command)
-  ssh = ssh_command(ip, command).shelljoin
+  ssh = ssh_command(ip, remote_bash_command(command)).shelljoin
   script = <<~EXPECT
     set timeout -1
     spawn /bin/sh -c #{ssh.shellescape}
@@ -121,7 +126,8 @@ def ssh(ip, command)
   else
     raise "TART_SSH_PASSWORD is set, but expect is not available" unless expect_available?
 
-    run({ "TART_SSH_PASSWORD" => SSH_PASSWORD }, *expect_ssh_command(ip, command))
+    log "ssh #{SSH_USER}@#{ip} <remote script>"
+    system({ "TART_SSH_PASSWORD" => SSH_PASSWORD }, *expect_ssh_command(ip, command)) || raise("command failed: ssh #{SSH_USER}@#{ip} <remote script>")
   end
 end
 

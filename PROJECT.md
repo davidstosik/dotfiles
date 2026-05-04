@@ -141,6 +141,12 @@ home_symlinks/.zshrc
 7. Add minimal non-LazyVim Neovim config.
 8. Add opt-in macOS defaults.
 
+## Future linker considerations
+
+Current linker behavior discovers every file under `home_symlinks/` and links each file individually into the matching `$HOME` path. That is fine for the current managed files.
+
+Later, if managing whole config directories becomes desirable (for example `~/.vim` or `~/.tmux`), add explicit directory-symlink support instead of relying on per-file links for large directory trees.
+
 ## Open questions
 
 - What should the one-liner install location be? Current candidate: `~/.dotfiles`.

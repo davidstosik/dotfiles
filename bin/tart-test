@@ -65,10 +65,13 @@ def ensure_base_vm
 end
 
 def wait_for_ip(vm)
-  120.times do
+  log "Waiting for #{vm} IP..."
+
+  120.times do |attempt|
     ip = capture("tart", "ip", vm).strip
     return ip unless ip.empty?
   rescue StandardError
+    puts "  still waiting for IP... (#{attempt + 1}/120)" if (attempt + 1) % 10 == 0
     sleep 2
   end
 
@@ -112,13 +115,16 @@ def ssh(ip, command)
 end
 
 def wait_for_ssh(ip)
-  120.times do
+  log "Waiting for SSH on #{ip}..."
+
+  120.times do |attempt|
     if SSH_PASSWORD.empty?
       return if system(*ssh_command(ip, "true"), out: File::NULL, err: File::NULL)
     elsif expect_available?
       return if system({ "TART_SSH_PASSWORD" => SSH_PASSWORD }, *expect_ssh_command(ip, "true"), out: File::NULL, err: File::NULL)
     end
 
+    puts "  still waiting for SSH... (#{attempt + 1}/120)" if (attempt + 1) % 10 == 0
     sleep 2
   end
 

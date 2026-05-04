@@ -21,8 +21,15 @@ module Dotfiles
         assert_includes fake.commands, ["mise", "trust", File.join(ROOT, ".mise.toml")]
         assert_includes fake.commands, ["mise", "install", "--cd", ROOT]
         assert_includes fake.commands, ["mise", "exec", "--cd", ROOT, "--", "ruby", File.join(ROOT, "dotfiles"), "link"]
-        assert_includes fake.commands, ["mise", "install", "node@24"]
-        assert_includes fake.commands, ["mise", "exec", "--", "npm", "install", "-g", "@mariozechner/pi-coding-agent"]
+      end
+    end
+
+    def test_defaults_to_install_command
+      with_fake_system do |fake|
+        result = run_bootstrap(fake)
+
+        assert_success result
+        assert_includes fake.commands, ["mise", "exec", "--cd", ROOT, "--", "ruby", File.join(ROOT, "dotfiles")]
       end
     end
 
@@ -69,8 +76,6 @@ module Dotfiles
         assert_includes result[:stdout], "+ brew install mise"
         assert_includes result[:stdout], "+ mise install --cd #{ROOT}"
         assert_includes result[:stdout], "+ mise exec --cd #{ROOT} -- ruby #{File.join(ROOT, "dotfiles")} link"
-        assert_includes result[:stdout], "+ mise install node@24"
-        assert_includes result[:stdout], "+ mise exec -- npm install -g @mariozechner/pi-coding-agent"
       end
     end
 
@@ -150,7 +155,8 @@ module Dotfiles
         "FAKE_COMMAND_LOG" => fake.log,
         "PATH" => fake.path,
       }
-      stdout, stderr, status = Open3.capture3(env, File.join(ROOT, "bootstrap"), *args, chdir: ROOT)
+      bootstrap = File.join(ROOT, "bootstrap")
+      stdout, stderr, status = Open3.capture3(env, [bootstrap, bootstrap], *args, chdir: ROOT)
       { stdout: stdout, stderr: stderr, status: status }
     end
 

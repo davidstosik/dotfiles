@@ -41,7 +41,6 @@ module Dotfiles
         expected_links.each do |target, source|
           assert_symlink File.join(home, target), source
         end
-        assert_symlink File.join(home, ".gitignore"), File.join(home, ".config/git/ignore")
       end
     end
 
@@ -81,6 +80,25 @@ module Dotfiles
       end
     end
 
+    def test_install_installs_global_npm_packages
+      Dir.mktmpdir do |home|
+        stdout, = capture_io { App.new(["--home", home, "--dry-run", "--verbose", "install"]).run }
+
+        assert_includes stdout, "Installing global npm packages..."
+        assert_includes stdout, "+ mise install node@24"
+        assert_includes stdout, "+ mise exec -- npm install -g @mariozechner/pi-coding-agent"
+      end
+    end
+
+    def test_link_does_not_install_global_npm_packages
+      Dir.mktmpdir do |home|
+        stdout, = capture_io { App.new(["--home", home, "--dry-run", "--verbose", "link"]).run }
+
+        refute_includes stdout, "Installing global npm packages..."
+        refute_includes stdout, "npm install"
+      end
+    end
+
     private
 
     def expected_links
@@ -88,7 +106,7 @@ module Dotfiles
         next if File.directory?(source)
 
         target = source.delete_prefix("#{SYMLINK_ROOT}/")
-        links[target] = source
+        links[target] = File.symlink?(source) ? File.readlink(source) : source
       end
     end
 

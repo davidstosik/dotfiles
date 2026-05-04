@@ -4,7 +4,13 @@ Personal dotfiles and local macOS bootstrap.
 
 ## Install
 
-Bootstrap the machine and link dotfiles:
+Bootstrap the machine, link dotfiles, and install managed tools:
+
+```sh
+./bootstrap
+```
+
+Bootstrap and only link dotfiles:
 
 ```sh
 ./bootstrap link
@@ -46,7 +52,7 @@ For unattended automation, add `--non-interactive`; commands that would prompt i
 
 ## Dotfile linking
 
-Files under `home_symlinks/` are linked into the same relative path under `$HOME`. Aliases in `home_link_aliases` create compatibility links such as `~/.gitignore -> ~/.config/git/ignore`.
+Files under `home_symlinks/` are linked into the same relative path under `$HOME`. Symlinks in `home_symlinks/` are mirrored as symlinks in `$HOME`, so `home_symlinks/.gitignore -> .config/git/ignore` creates `~/.gitignore -> .config/git/ignore`.
 
 Examples:
 
@@ -72,7 +78,13 @@ Existing files are never deleted. If a target already exists and is not the expe
 
 ## Commands
 
-Run the Ruby linker directly:
+Run the full Ruby installer directly:
+
+```sh
+./dotfiles install
+```
+
+Run only the Ruby linker directly:
 
 ```sh
 ./dotfiles link
@@ -132,8 +144,7 @@ TART_SSH_PASSWORD=admin
 - `npm-global-packages.txt` — global npm packages installed with mise-managed Node
 - `dotfiles` — Ruby CLI entrypoint
 - `lib/dotfiles/app.rb` — `Dotfiles::App` implementation
-- `home_symlinks/` — files linked into `$HOME`
-- `home_link_aliases` — additional HOME-relative symlink aliases
+- `home_symlinks/` — files and symlinks linked into `$HOME`
 - `test/dotfiles/app_test.rb` — minitest coverage for linker behavior
 - `test/dotfiles/bootstrap_test.rb` — minitest coverage for bootstrap command flow using fake commands
 - `test/support/fake_bin/_fake_command` — shared fake executable used by bootstrap tests

@@ -26,8 +26,7 @@ bootstrap                  # small shell bootstrap
 
 dotfiles                   # Ruby executable
 lib/dotfiles/app.rb        # Dotfiles::App
-home_symlinks/             # files linked into $HOME
-home_link_aliases          # additional HOME-relative symlink aliases
+home_symlinks/             # files and symlinks linked into $HOME
 npm-global-packages.txt    # global npm package list
 test/                      # minitest coverage
 bin/test                   # test entrypoint
@@ -44,7 +43,7 @@ bin/tart-test              # end-to-end Tart VM test suite runner
 - Global npm packages are listed in `npm-global-packages.txt` and installed with mise-managed Node.
 - Ruby code uses `Dotfiles` namespace, currently `Dotfiles::App`.
 - Dotfiles are discovered from `home_symlinks/` and linked into matching `$HOME` paths.
-- Compatibility aliases are listed in `home_link_aliases`; currently `~/.gitignore` points to `~/.config/git/ignore`.
+- Symlinks in `home_symlinks/` are mirrored into `$HOME`; currently `home_symlinks/.gitignore` points to `.config/git/ignore`.
 - Existing target files are backed up with `.backup.YYYYMMDD-HHMMSS`; never deleted.
 - Ghostty config uses the current filename:
 
@@ -139,9 +138,9 @@ home_symlinks/.vimrc
 home_symlinks/.zprofile
 home_symlinks/.zshrc
 
-home_link_aliases creates:
+home_symlinks/.gitignore is a symlink that creates:
 
-~/.gitignore -> ~/.config/git/ignore
+~/.gitignore -> .config/git/ignore
 ```
 
 ## Next likely milestones

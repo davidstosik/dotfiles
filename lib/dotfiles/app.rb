@@ -14,10 +14,10 @@ module Dotfiles
       @dry_run = ENV["DOTFILES_DRY_RUN"] == "1"
       @verbose = ENV["DOTFILES_VERBOSE"] == "1"
       @non_interactive = ENV["DOTFILES_NON_INTERACTIVE"] == "1"
-      @command = "link"
+      @command = "install"
 
       parser = OptionParser.new do |opts|
-        opts.banner = "Usage: ./dotfiles [options] [command]"
+        opts.banner = "Usage: ./dotfiles [options] [command]\n\nCommands:\n  install  Link dotfiles and install managed tools (default)\n  link     Link dotfiles only\n  doctor   Check basic prerequisites\n  help     Show help"
         opts.on("--dry-run", "Do not execute commands that change the system") { @dry_run = true }
         opts.on("--verbose", "Print commands before executing them, or before skipping them in dry-run") { @verbose = true }
         opts.on("--non-interactive", "Never prompt") { @non_interactive = true }
@@ -32,6 +32,7 @@ module Dotfiles
 
     def run
       case @command
+      when "install" then install
       when "link" then link
       when "doctor" then doctor
       when "help" then puts @parser
@@ -57,7 +58,8 @@ module Dotfiles
       source = File.expand_path(source)
       target = File.expand_path(target)
 
-      return if expected_link?(target, source)
+      link_target = link_target_for(source)
+      return if expected_link?(target, link_target)
 
       parent = File.dirname(target)
       action("mkdir", "-p", parent) unless Dir.exist?(parent)
@@ -67,15 +69,24 @@ module Dotfiles
         action("mv", target, backup)
       end
 
-      action("ln", "-s", source, target)
+      action("ln", "-s", link_target, target)
     end
 
-    def expected_link?(target, source)
-      File.symlink?(target) && File.readlink(target) == source
+    def link_target_for(source)
+      File.symlink?(source) ? File.readlink(source) : source
+    end
+
+    def expected_link?(target, link_target)
+      File.symlink?(target) && File.readlink(target) == link_target
     end
 
     def backup_path(path)
       "#{path}.backup.#{Time.now.strftime("%Y%m%d-%H%M%S")}"
+    end
+
+    def install
+      link
+      install_npm_global_packages
     end
 
     def link
@@ -90,23 +101,21 @@ module Dotfiles
         link_one(source, target)
       end
 
-      link_aliases
       warn_about_stale_managed_symlinks(symlink_root)
     end
 
-    def link_aliases
-      alias_file = File.join(ROOT, "home_link_aliases")
-      return unless File.exist?(alias_file)
+    def install_npm_global_packages
+      package_file = File.join(ROOT, "npm-global-packages.txt")
+      return unless File.exist?(package_file)
 
-      File.readlines(alias_file, chomp: true).each do |line|
-        line = line.strip
-        next if line.empty? || line.start_with?("#")
+      packages = File.readlines(package_file, chomp: true)
+        .map(&:strip)
+        .reject { it.empty? || it.start_with?("#") }
+      return if packages.empty?
 
-        source, target = line.split(/\s+/, 2)
-        raise "invalid home link alias: #{line}" unless source && target
-
-        link_one(File.join(@home, source), File.join(@home, target))
-      end
+      say "Installing global npm packages..."
+      action("mise", "install", "node@24")
+      action("mise", "exec", "--", "npm", "install", "-g", *packages)
     end
 
     def warn_about_stale_managed_symlinks(symlink_root)

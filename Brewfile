@@ -1,6 +1,8 @@
 # Core CLI tools
 brew "git"
 brew "gh"
+brew "bat"
+brew "watch"
 brew "tmux"
 brew "neovim"
 brew "fzf"
@@ -18,4 +20,5 @@ brew "autoconf"
 cask "font-monaspace-nerd-font"
 
 # Apps
+cask "1password-cli"
 cask "ghostty"

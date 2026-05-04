@@ -87,9 +87,10 @@ def ssh_command(ip, command)
 end
 
 def expect_ssh_command(ip, command)
+  ssh = ssh_command(ip, command).shelljoin
   script = <<~EXPECT
     set timeout -1
-    spawn {*}$argv
+    spawn /bin/sh -c #{ssh.shellescape}
     expect {
       -nocase "password:" {
         send -- "$env(TART_SSH_PASSWORD)\r"
@@ -101,7 +102,7 @@ def expect_ssh_command(ip, command)
     exit [lindex $result 3]
   EXPECT
 
-  ["expect", "-c", script, *ssh_command(ip, command)]
+  ["expect", "-c", script]
 end
 
 def ssh(ip, command)

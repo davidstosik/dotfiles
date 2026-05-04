@@ -93,7 +93,7 @@ def expect_available?
 end
 
 def ssh_command(ip, command)
-  ["ssh", *SSH_OPTIONS, "#{SSH_USER}@#{ip}", command]
+  ["ssh", "-tt", *SSH_OPTIONS, "#{SSH_USER}@#{ip}", command]
 end
 
 def remote_bash_command(command)

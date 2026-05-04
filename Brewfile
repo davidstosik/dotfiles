@@ -2,6 +2,7 @@
 brew "git"
 brew "gh"
 brew "bat"
+brew "fd"
 brew "watch"
 brew "tmux"
 brew "neovim"

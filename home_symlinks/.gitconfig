@@ -2,6 +2,9 @@
 	name = David Stosik
 	email = 816901+davidstosik@users.noreply.github.com
 
+[include]
+	path = ~/.gitconfig.local
+
 [core]
 	autocrlf = input
 	safecrlf = false

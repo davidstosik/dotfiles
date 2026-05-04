@@ -31,6 +31,7 @@ npm-global-packages.txt    # global npm package list
 test/                      # minitest coverage
 bin/test                   # test entrypoint
 bin/tart-test              # end-to-end Tart VM test suite runner
+bin/tart-shell             # manual Tart VM shell for debugging
 ```
 
 ## Important decisions
@@ -90,6 +91,8 @@ Run tests:
 `bin/test` re-execs under mise when available, so tests run with Ruby 4.x.
 
 `bin/tart-test` runs the complete bootstrap chain in disposable Tart VMs. It ensures `TART_BASE_VM` exists (default: `clean-tahoe`), clones a per-run suite base from it, then clones one VM per E2E case. Current cases cover dry-run behavior and full install/idempotency. It deletes VMs on success and keeps them on failure unless `TART_KEEP_VM=1` is set.
+
+`bin/tart-shell` clones/starts a manual Tart VM from the same base assumptions, shares the repo into it, and SSHes in for debugging.
 
 Minitest files:
 

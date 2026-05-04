@@ -1,0 +1,116 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require "open3"
+require "shellwords"
+require "time"
+
+ROOT = File.expand_path("..", __dir__)
+RUN_ID = Time.now.strftime("%Y%m%d%H%M%S")
+BASE_VM = ENV.fetch("TART_BASE_VM", "clean-tahoe")
+BASE_IMAGE = ENV.fetch("TART_BASE_IMAGE", "ghcr.io/cirruslabs/macos-tahoe-vanilla:latest")
+VM = ARGV.first || ENV.fetch("TART_MANUAL_VM", "dotfiles-manual-#{RUN_ID}")
+SHARE_NAME = ENV.fetch("TART_SHARE_NAME", "dotfiles-next")
+SSH_USER = ENV.fetch("TART_SSH_USER", "admin")
+NO_GRAPHICS = ENV.fetch("TART_NO_GRAPHICS", "1") != "0"
+SSH_OPTIONS = %w[
+  -o StrictHostKeyChecking=no
+  -o UserKnownHostsFile=/dev/null
+  -o LogLevel=ERROR
+]
+
+def log(message)
+  puts "== #{message} =="
+end
+
+def run(*cmd)
+  log cmd.shelljoin
+  system(*cmd) || raise("command failed: #{cmd.shelljoin}")
+end
+
+def capture(*cmd)
+  stdout, stderr, status = Open3.capture3(*cmd)
+  raise "command failed: #{cmd.shelljoin}\n#{stderr}" unless status.success?
+
+  stdout
+end
+
+def local_vms
+  capture("tart", "list", "--source", "local", "--quiet").lines.map(&:chomp)
+end
+
+def vm_exists?(name)
+  local_vms.include?(name)
+end
+
+def ensure_base_vm
+  return if vm_exists?(BASE_VM)
+
+  run "tart", "clone", BASE_IMAGE, BASE_VM
+end
+
+def ensure_manual_vm
+  if vm_exists?(VM)
+    log "Using existing VM: #{VM}"
+  else
+    ensure_base_vm
+    run "tart", "clone", BASE_VM, VM
+  end
+end
+
+def wait_for_ip
+  log "Waiting for #{VM} IP..."
+
+  120.times do |attempt|
+    ip = capture("tart", "ip", VM).strip
+    return ip unless ip.empty?
+  rescue StandardError
+    puts "  still waiting for IP... (#{attempt + 1}/120)" if (attempt + 1) % 10 == 0
+    sleep 2
+  end
+
+  raise "timed out waiting for #{VM} IP"
+end
+
+def wait_for_ssh(ip)
+  log "Waiting for SSH on #{ip}..."
+
+  120.times do |attempt|
+    return if system("ssh", *SSH_OPTIONS, "#{SSH_USER}@#{ip}", "true", out: File::NULL, err: File::NULL)
+
+    puts "  still waiting for SSH... (#{attempt + 1}/120)" if (attempt + 1) % 10 == 0
+    sleep 2
+  end
+
+  raise "timed out waiting for SSH on #{ip}"
+end
+
+def start_vm
+  args = ["tart", "run"]
+  args << "--no-graphics" if NO_GRAPHICS
+  args << "--dir=#{SHARE_NAME}:#{ROOT}"
+  args << VM
+
+  log args.shelljoin
+  log_path = File.join(ROOT, "tmp-tart-#{VM}.log")
+  log "VM log: #{log_path}"
+  log_file = File.open(log_path, "a")
+  pid = spawn(*args, out: log_file, err: [:child, :out])
+  Process.detach(pid)
+end
+
+begin
+  run "tart", "--version"
+  ensure_manual_vm
+  start_vm
+  ip = wait_for_ip
+  wait_for_ssh(ip)
+
+  log "Shared repo path in VM: /Volumes/My Shared Files/#{SHARE_NAME}"
+  log "SSH password is usually: admin"
+  log "When done, stop/delete with: tart stop #{VM.shellescape}; tart delete #{VM.shellescape}"
+  exec "ssh", "-tt", *SSH_OPTIONS, "#{SSH_USER}@#{ip}"
+rescue StandardError => e
+  warn e.message
+  exit 1
+end

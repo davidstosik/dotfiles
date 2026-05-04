@@ -120,6 +120,12 @@ Run the full bootstrap flow in disposable Tart VMs:
 ./bin/tart-test
 ```
 
+Clone/start a manual Tart VM and SSH into it for debugging:
+
+```sh
+./bin/tart-shell
+```
+
 Useful overrides:
 
 ```sh
@@ -151,6 +157,7 @@ TART_SSH_PASSWORD=admin
 - `test/support/fake_bin/` — committed fake command symlinks copied by bootstrap tests
 - `bin/test` — test entrypoint
 - `bin/tart-test` — end-to-end Tart VM test suite runner
+- `bin/tart-shell` — manual Tart VM shell for debugging
 
 ## Not done yet
 

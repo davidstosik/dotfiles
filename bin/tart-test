@@ -105,14 +105,19 @@ def expect_ssh_command(ip, command)
   ssh = ssh_command(ip, remote_bash_command(command)).shelljoin
   script = <<~EXPECT
     set timeout -1
+    log_user 0
     spawn /bin/sh -c #{ssh.shellescape}
     expect {
       -nocase "password:" {
         send -- "$env(TART_SSH_PASSWORD)\r"
-        exp_continue
+        log_user 1
       }
-      eof
+      eof {
+        catch wait result
+        exit [lindex $result 3]
+      }
     }
+    expect eof
     catch wait result
     exit [lindex $result 3]
   EXPECT
@@ -180,7 +185,7 @@ def sudo_prewarm_script
 
   <<~SH
     echo '== remote: validate sudo =='
-    printf '%s\n' #{SSH_PASSWORD.shellescape} | sudo -S -v
+    printf '%s\n' #{SSH_PASSWORD.shellescape} | sudo -S -p '' -v
   SH
 end
 

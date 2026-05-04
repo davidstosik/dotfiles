@@ -28,7 +28,7 @@ lib/dotfiles/app.rb   # Dotfiles::App
 home_symlinks/        # files linked into $HOME
 test/                 # minitest coverage
 bin/test              # test entrypoint
-bin/tart-test         # end-to-end Tart VM test runner
+bin/tart-test         # end-to-end Tart VM test suite runner
 ```
 
 ## Important decisions
@@ -83,7 +83,7 @@ Run tests:
 
 `bin/test` re-execs under mise when available, so tests run with Ruby 4.x.
 
-`bin/tart-test` runs the complete bootstrap chain in a disposable Tart VM. It clones `TART_BASE_VM` (default: `clean-tahoe`), starts the clone with this repo shared in, waits for SSH, runs bootstrap, runs `bin/test`, and verifies key symlinks/tools. It deletes the VM on success and keeps it on failure unless `TART_KEEP_VM=1` is set.
+`bin/tart-test` runs the complete bootstrap chain in disposable Tart VMs. It ensures `TART_BASE_VM` exists (default: `clean-tahoe`), clones a per-run suite base from it, then clones one VM per E2E case. Current cases cover dry-run behavior and full install/idempotency. It deletes VMs on success and keeps them on failure unless `TART_KEEP_VM=1` is set.
 
 Minitest files:
 

@@ -77,7 +77,7 @@ Run tests:
 ./bin/test
 ```
 
-Run the full bootstrap flow in a disposable Tart VM:
+Run the full bootstrap flow in disposable Tart VMs:
 
 ```sh
 ./bin/tart-test
@@ -109,7 +109,7 @@ TART_SSH_PASSWORD=admin
 - `test/support/fake_bin/_fake_command` — shared fake executable used by bootstrap tests
 - `test/support/fake_bin/` — committed fake command symlinks copied by bootstrap tests
 - `bin/test` — test entrypoint
-- `bin/tart-test` — end-to-end Tart VM test runner
+- `bin/tart-test` — end-to-end Tart VM test suite runner
 
 ## Not done yet
 

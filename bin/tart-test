@@ -6,9 +6,11 @@ require "shellwords"
 require "time"
 
 ROOT = File.expand_path("..", __dir__)
+RUN_ID = Time.now.strftime("%Y%m%d%H%M%S")
 BASE_VM = ENV.fetch("TART_BASE_VM", "clean-tahoe")
 BASE_IMAGE = ENV.fetch("TART_BASE_IMAGE", "ghcr.io/cirruslabs/macos-tahoe-vanilla:latest")
-TEST_VM = ENV.fetch("TART_TEST_VM", "dotfiles-test-#{Time.now.strftime("%Y%m%d%H%M%S")}")
+SUITE_BASE_VM = ENV.fetch("TART_SUITE_BASE_VM", "dotfiles-suite-base-#{RUN_ID}")
+TEST_VM_PREFIX = ENV.fetch("TART_TEST_VM_PREFIX", "dotfiles-test-#{RUN_ID}")
 SSH_USER = ENV.fetch("TART_SSH_USER", "admin")
 SSH_PASSWORD = ENV.fetch("TART_SSH_PASSWORD", "admin")
 SHARE_NAME = ENV.fetch("TART_SHARE_NAME", "dotfiles-next")
@@ -22,7 +24,8 @@ SSH_OPTIONS = %w[
   -o LogLevel=ERROR
 ]
 
-$vm_started = false
+$created_vms = []
+$running_vms = []
 $failed = false
 
 def log(message)
@@ -58,10 +61,17 @@ def vm_exists?(name)
   local_vms.include?(name)
 end
 
+def clone_vm(source, destination)
+  raise "VM already exists: #{destination}" if vm_exists?(destination)
+
+  run "tart", "clone", source, destination
+  $created_vms << destination
+end
+
 def ensure_base_vm
   return if vm_exists?(BASE_VM)
 
-  run "tart", "clone", BASE_IMAGE, BASE_VM
+  clone_vm(BASE_IMAGE, BASE_VM)
 end
 
 def wait_for_ip(vm)
@@ -132,32 +142,88 @@ def wait_for_ssh(ip)
   raise "timed out waiting for SSH on #{ip}"
 end
 
-def remote_script
+def start_vm(vm)
+  run_args = ["tart", "run"]
+  run_args << "--no-graphics" if NO_GRAPHICS
+  run_args << "--dir=#{SHARE_NAME}:#{ROOT}"
+  run_args << vm
+
+  log run_args.shelljoin
+  vm_log = File.open(File.join(ROOT, "tmp-tart-#{vm}.log"), "w")
+  spawn(*run_args, out: vm_log, err: [:child, :out])
+  $running_vms << vm
+
+  ip = wait_for_ip(vm)
+  log "#{vm} IP: #{ip}"
+  wait_for_ssh(ip)
+  ip
+end
+
+def stop_vm(vm)
+  system("tart", "stop", vm, out: File::NULL, err: File::NULL)
+  $running_vms.delete(vm)
+end
+
+def delete_vm(vm)
+  system("tart", "delete", vm, out: File::NULL, err: File::NULL)
+  $created_vms.delete(vm)
+end
+
+def sudo_prewarm_script
+  return "" if SSH_PASSWORD.empty?
+
   <<~SH
-    set -euo pipefail
+    echo '== remote: validate sudo =='
+    printf '%s\n' #{SSH_PASSWORD.shellescape} | sudo -S -v
+  SH
+end
 
-    cd #{REMOTE_REPO.shellescape}
-
-    echo '== remote: dry-run preview =='
-    ./bootstrap --dry-run --verbose link
-
-    if [ -n #{SSH_PASSWORD.shellescape} ]; then
-      echo '== remote: validate sudo =='
-      printf '%s\n' #{SSH_PASSWORD.shellescape} | sudo -S -v
-    fi
-
-    echo '== remote: install =='
-    ./bootstrap #{BOOTSTRAP_INSTALL_FLAGS} link
-
-    echo '== remote: load Homebrew shellenv for verification =='
+def shellenv_script
+  <<~SH
     if [ -x /opt/homebrew/bin/brew ]; then
       eval "$(/opt/homebrew/bin/brew shellenv)"
     elif [ -x /usr/local/bin/brew ]; then
       eval "$(/usr/local/bin/brew shellenv)"
     fi
+  SH
+end
+
+def dry_run_script
+  <<~SH
+    set -euo pipefail
+    cd #{REMOTE_REPO.shellescape}
+
+    echo '== remote: dry-run preview =='
+    ./bootstrap --dry-run --verbose link
+
+    echo '== remote: verify dry-run did not link dotfiles =='
+    test ! -L "$HOME/.zprofile"
+    test ! -L "$HOME/.gitconfig"
+    test ! -L "$HOME/.config/ghostty/config.ghostty"
+  SH
+end
+
+def full_install_script
+  <<~SH
+    set -euo pipefail
+    cd #{REMOTE_REPO.shellescape}
+
+    #{sudo_prewarm_script}
+
+    echo '== remote: install =='
+    ./bootstrap #{BOOTSTRAP_INSTALL_FLAGS} link
+
+    echo '== remote: load Homebrew shellenv for verification =='
+    #{shellenv_script}
 
     echo '== remote: tests =='
     ./bin/test
+
+    echo '== remote: doctor after install =='
+    ./bootstrap doctor
+
+    echo '== remote: idempotency rerun =='
+    ./bootstrap #{BOOTSTRAP_INSTALL_FLAGS} link
 
     echo '== remote: verification =='
     command -v brew
@@ -173,16 +239,30 @@ def remote_script
   SH
 end
 
+def run_case(name, script)
+  vm = "#{TEST_VM_PREFIX}-#{name}"
+  clone_vm(SUITE_BASE_VM, vm)
+  ip = start_vm(vm)
+  ssh(ip, script)
+  stop_vm(vm)
+  delete_vm(vm) unless KEEP_VM
+  log "Tart case passed: #{name}"
+rescue StandardError
+  $failed = true
+  warn "Keeping #{vm} for debugging."
+  raise
+end
+
 def cleanup
-  return if KEEP_VM || !$vm_started
+  return if KEEP_VM
 
   if $failed
-    warn "Keeping #{TEST_VM} for debugging because the test failed."
+    warn "Keeping Tart VMs for debugging: #{$created_vms.join(", ")}" unless $created_vms.empty?
     return
   end
 
-  system("tart", "stop", TEST_VM, out: File::NULL, err: File::NULL)
-  system("tart", "delete", TEST_VM, out: File::NULL, err: File::NULL)
+  $running_vms.dup.each { stop_vm(it) }
+  $created_vms.reverse_each { delete_vm(it) }
 end
 
 at_exit { cleanup }
@@ -190,27 +270,12 @@ at_exit { cleanup }
 begin
   run "tart", "--version"
   ensure_base_vm
+  clone_vm(BASE_VM, SUITE_BASE_VM)
 
-  raise "test VM already exists: #{TEST_VM}" if vm_exists?(TEST_VM)
+  run_case("dry-run", dry_run_script)
+  run_case("full-install", full_install_script)
 
-  run "tart", "clone", BASE_VM, TEST_VM
-
-  run_args = ["tart", "run"]
-  run_args << "--no-graphics" if NO_GRAPHICS
-  run_args << "--dir=#{SHARE_NAME}:#{ROOT}"
-  run_args << TEST_VM
-
-  log run_args.shelljoin
-  vm_log = File.open(File.join(ROOT, "tmp-tart-#{TEST_VM}.log"), "w")
-  spawn(*run_args, out: vm_log, err: [:child, :out])
-  $vm_started = true
-
-  ip = wait_for_ip(TEST_VM)
-  log "#{TEST_VM} IP: #{ip}"
-  wait_for_ssh(ip)
-  ssh(ip, remote_script)
-
-  log "Tart test passed"
+  log "Tart test suite passed"
 rescue StandardError => e
   $failed = true
   warn e.message

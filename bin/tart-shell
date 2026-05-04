@@ -12,6 +12,7 @@ BASE_IMAGE = ENV.fetch("TART_BASE_IMAGE", "ghcr.io/cirruslabs/macos-tahoe-vanill
 VM = ARGV.first || ENV.fetch("TART_MANUAL_VM", "dotfiles-manual-#{RUN_ID}")
 SHARE_NAME = ENV.fetch("TART_SHARE_NAME", "dotfiles-next")
 SSH_USER = ENV.fetch("TART_SSH_USER", "admin")
+SSH_PASSWORD = ENV.fetch("TART_SSH_PASSWORD", "admin")
 NO_GRAPHICS = ENV.fetch("TART_NO_GRAPHICS", "1") != "0"
 SSH_OPTIONS = %w[
   -o StrictHostKeyChecking=no
@@ -72,11 +73,53 @@ def wait_for_ip
   raise "timed out waiting for #{VM} IP"
 end
 
+def expect_available?
+  system("command -v expect >/dev/null 2>&1")
+end
+
+def ssh_command(ip, command = nil)
+  command ? ["ssh", "-tt", *SSH_OPTIONS, "#{SSH_USER}@#{ip}", command] : ["ssh", "-tt", *SSH_OPTIONS, "#{SSH_USER}@#{ip}"]
+end
+
+def expect_ssh_command(ip, command = nil)
+  ssh = ssh_command(ip, command).shelljoin
+  script = <<~EXPECT
+    set timeout -1
+    log_user 0
+    spawn /bin/sh -c #{ssh.shellescape}
+    expect {
+      -nocase "password:" {
+        send -- "$env(TART_SSH_PASSWORD)\r"
+        log_user 1
+      }
+      eof {
+        catch wait result
+        exit [lindex $result 3]
+      }
+    }
+    interact
+    catch wait result
+    exit [lindex $result 3]
+  EXPECT
+
+  ["expect", "-c", script]
+end
+
+def ssh_system(ip, command = nil, **kwargs)
+  if SSH_PASSWORD.empty?
+    system(*ssh_command(ip, command), **kwargs)
+  else
+    raise "TART_SSH_PASSWORD is set, but expect is not available" unless expect_available?
+
+    system({ "TART_SSH_PASSWORD" => SSH_PASSWORD }, *expect_ssh_command(ip, command), **kwargs)
+  end
+end
+
 def wait_for_ssh(ip)
   log "Waiting for SSH on #{ip}..."
 
   120.times do |attempt|
-    return if system("ssh", *SSH_OPTIONS, "#{SSH_USER}@#{ip}", "true", out: File::NULL, err: File::NULL)
+    return if ssh_system(ip, "true", out: File::NULL, err: File::NULL)
 
     puts "  still waiting for SSH... (#{attempt + 1}/120)" if (attempt + 1) % 10 == 0
     sleep 2
@@ -107,9 +150,14 @@ begin
   wait_for_ssh(ip)
 
   log "Shared repo path in VM: /Volumes/My Shared Files/#{SHARE_NAME}"
-  log "SSH password is usually: admin"
+  log "SSH user: #{SSH_USER}"
   log "When done, stop/delete with: tart stop #{VM.shellescape}; tart delete #{VM.shellescape}"
-  exec "ssh", "-tt", *SSH_OPTIONS, "#{SSH_USER}@#{ip}"
+
+  if SSH_PASSWORD.empty?
+    exec(*ssh_command(ip))
+  else
+    exec({ "TART_SSH_PASSWORD" => SSH_PASSWORD }, *expect_ssh_command(ip))
+  end
 rescue StandardError => e
   warn e.message
   exit 1

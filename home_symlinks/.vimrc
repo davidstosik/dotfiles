@@ -20,11 +20,10 @@ if v:progname =~? "evim"
   finish
 endif
 
-" Bail out if something that ran earlier, e.g. a system wide vimrc, does not
-" want Vim to use these default values.
-if exists('skip_defaults_vim')
-  finish
-endif
+" If something that ran earlier, e.g. a system wide vimrc, does not want Vim to
+" use default settings, skip only this copied defaults section, not the rest of
+" this personal vimrc.
+if !exists('skip_defaults_vim')
 
 " Use Vim settings, rather than Vi settings (much better!).
 " This must be first, because it changes other options as a side effect.
@@ -135,8 +134,10 @@ if has('langmap') && exists('+langremap')
   set nolangremap
 endif
 
+endif " !exists('skip_defaults_vim')
 
-" === Ends the default vimrc file ===
+
+" === Ends the default vimrc defaults section ===
 
 
 " Initialize plugin system

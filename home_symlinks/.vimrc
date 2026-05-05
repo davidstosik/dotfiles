@@ -1,47 +1,281 @@
 scriptencoding utf-8
 set encoding=utf-8
 
-set nocompatible
-set backspace=indent,eol,start
-set history=200
-set ruler
-set showcmd
-set wildmenu
-set ttimeout
-set ttimeoutlen=100
-set display=truncate
-set scrolloff=5
-set nrformats-=octal
-set nolangremap
 
-filetype plugin indent on
-syntax on
+" Copied from $VIMRUNTIME/defaults.vim
 
-augroup vimStartup
-  autocmd!
-  autocmd BufReadPost * if line("'\"") >= 1 && line("'\"") <= line("$") && &ft !~# 'commit' | execute "normal! g`\"" | endif
-  autocmd VimResized * exe "normal \<c-w>="
-augroup END
 
-if !exists(":DiffOrig")
-  command DiffOrig vert new | set bt=nofile | r ++edit # | 0d_ | diffthis | wincmd p | diffthis
+" The default vimrc file.
+"
+" Maintainer:	Bram Moolenaar <Bram@vim.org>
+" Last change:	2020 Sep 30
+"
+" This is loaded if no vimrc file was found.
+" Except when Vim is run with "-u NONE" or "-C".
+" Individual settings can be reverted with ":set option&".
+" Other commands can be reverted as mentioned below.
+
+" When started as "evim", evim.vim will already have done these settings.
+if v:progname =~? "evim"
+  finish
 endif
 
+" Bail out if something that ran earlier, e.g. a system wide vimrc, does not
+" want Vim to use these default values.
+if exists('skip_defaults_vim')
+  finish
+endif
+
+" Use Vim settings, rather than Vi settings (much better!).
+" This must be first, because it changes other options as a side effect.
+" Avoid side effects when it was already reset.
+if &compatible
+  set nocompatible
+endif
+
+" When the +eval feature is missing, the set command above will be skipped.
+" Use a trick to reset compatible only when the +eval feature is missing.
+silent! while 0
+  set nocompatible
+silent! endwhile
+
+" Allow backspacing over everything in insert mode.
+set backspace=indent,eol,start
+
+set history=200		" keep 200 lines of command line history
+set ruler		" show the cursor position all the time
+set showcmd		" display incomplete commands
+set wildmenu		" display completion matches in a status line
+
+set ttimeout		" time out for key codes
+set ttimeoutlen=100	" wait up to 100ms after Esc for special key
+
+" Show @@@ in the last line if it is truncated.
+set display=truncate
+
+" Show a few lines of context around the cursor.  Note that this makes the
+" text scroll if you mouse-click near the start or end of the window.
+set scrolloff=5
+
+" Do incremental searching when it's possible to timeout.
+if has('reltime')
+  set incsearch
+endif
+
+" Do not recognize octal numbers for Ctrl-A and Ctrl-X, most users find it
+" confusing.
+set nrformats-=octal
+
+" For Win32 GUI: remove 't' flag from 'guioptions': no tearoff menu entries.
+if has('win32')
+  set guioptions-=t
+endif
+
+" Don't use Ex mode, use Q for formatting.
+" Revert with ":unmap Q".
+map Q gq
+
+" CTRL-U in insert mode deletes a lot.  Use CTRL-G u to first break undo,
+" so that you can undo CTRL-U after inserting a line break.
+" Revert with ":iunmap <C-U>".
+inoremap <C-U> <C-G>u<C-U>
+
+" Only do this part when Vim was compiled with the +eval feature.
+if 1
+
+  " Enable file type detection.
+  " Use the default filetype settings, so that mail gets 'tw' set to 72,
+  " 'cindent' is on in C files, etc.
+  " Also load indent files, to automatically do language-dependent indenting.
+  " Revert with ":filetype off".
+  filetype plugin indent on
+
+  " Put these in an autocmd group, so that you can revert them with:
+  " ":augroup vimStartup | au! | augroup END"
+  augroup vimStartup
+    au!
+
+    " When editing a file, always jump to the last known cursor position.
+    " Don't do it when the position is invalid, when inside an event handler
+    " (happens when dropping a file on gvim) and for a commit message (it's
+    " likely a different one than last time).
+    autocmd BufReadPost *
+      \ if line("'\"") >= 1 && line("'\"") <= line("$") && &ft !~# 'commit'
+      \ |   exe "normal! g`\""
+      \ | endif
+
+  augroup END
+
+endif
+
+" Switch syntax highlighting on when the terminal has colors or when using the
+" GUI (which always has colors).
+if &t_Co > 2 || has("gui_running")
+  " Revert with ":syntax off".
+  syntax on
+
+  " I like highlighting strings inside C comments.
+  " Revert with ":unlet c_comment_strings".
+  let c_comment_strings=1
+endif
+
+" Convenient command to see the difference between the current buffer and the
+" file it was loaded from, thus the changes you made.
+" Only define it when not defined already.
+" Revert with: ":delcommand DiffOrig".
+if !exists(":DiffOrig")
+  command DiffOrig vert new | set bt=nofile | r ++edit # | 0d_ | diffthis
+		  \ | wincmd p | diffthis
+endif
+
+if has('langmap') && exists('+langremap')
+  " Prevent that the langmap option applies to characters that result from a
+  " mapping.  If set (default), this may break plugins (but it's backward
+  " compatible).
+  set nolangremap
+endif
+
+
+" === Ends the default vimrc file ===
+
+
+" Initialize plugin system
+call plug#begin('$HOME/.vim/plugged')
+
+" Plugin manager
+Plug 'junegunn/vim-plug'
+" Sensible defaults
+Plug 'tpope/vim-sensible'
+" Automatic indentation detection
+Plug 'tpope/vim-sleuth'
+" Git tools
+Plug 'tpope/vim-fugitive'
+" GitHub tools
+Plug 'tpope/vim-rhubarb'
+" `end` blocks
+Plug 'tpope/vim-endwise'
+" comment code
+Plug 'tpope/vim-commentary'
+" Ruby on Rails
+Plug 'tpope/vim-rails'
+" File commands in vim (:Delete, :Rename, etc)
+Plug 'tpope/vim-eunuch'
+"  " Parens, brackets, quotes in pairs
+"  "Plug 'jiangmiao/auto-pairs'
+"  " YAML syntax/indent
+"  Plug 'mrk21/yaml-vim'
+"  " :YamlGoToKey, :YamlGetFullPath
+"  Plug 'lmeijvogel/vim-yaml-helper'
+" Advanced CtrlP
+" FIXME load from modules/000-fzf?
+Plug 'junegunn/fzf'
+Plug 'junegunn/fzf.vim'
+" Explore the undo tree
+Plug 'mbbill/undotree'
+"  " JSONNET syntax highlighting
+"  Plug 'google/vim-jsonnet'
+"  
+"  " JS autoformatting (TODO: move to modules/000-prettier)
+"  "Plug 'prettier/vim-prettier', {
+"  "  \ 'do': 'yarn install',
+"  "  \ 'for': ['javascript', 'typescript', 'css', 'less', 'scss', 'json', 'graphql', 'markdown', 'vue', 'yaml']
+"  "  \ }
+"  
+"  " Sync editor with browser
+"  "Plug 'raghur/vim-ghost', {'do': ':GhostInstall'}
+"  " Only enabled for Vim 8 (not for Neovim).
+"  "Plug 'roxma/nvim-yarp', v:version >= 800 && !has('nvim') ? {} : { 'on': [], 'for': [] }
+"  "Plug 'roxma/vim-hug-neovim-rpc', v:version >= 800 && !has('nvim') ? {} : { 'on': [], 'for': [] }
+Plug 'dense-analysis/ale'
+Plug 'github/copilot.vim'
+" colorschemes
+Plug 'EdenEast/nightfox.nvim'
+Plug 'folke/tokyonight.nvim'
+
+call plug#end()
+
+" Automatically source vimrc on save.
+autocmd! bufwritepost $MYVIMRC source $MYVIMRC
+
+" vim-plug is added to plugins above, so updates itself with :PlugUpdate
+delc PlugUpgrade
+
+" Allow vim-sensible overrides
+runtime! plugin/sensible.vim
+
+" Display invisible characters
 set list
 set listchars=eol:↵,tab:»\ ,trail:·,extends:>,precedes:<,nbsp:%
 highlight NonText ctermfg=2
 highlight SpecialKey ctermfg=2
 
-set gdefault
-set ignorecase smartcase
-set hlsearch
-set background=dark
-set number
-set updatetime=500
+" Search
+set gdefault             " Set the g (global) flag by default on search and replace
+set ignorecase smartcase " Ignore case unless search term contains upper case
+set hlsearch             " Highlight results
+
+" === FZF ===
+" CtrlP shortcut
+nmap <C-P> :FZF<CR>
+
+let g:fzf_preview_window = ['right:50%', 'ctrl-_']
+
+" Use my default AG options for :Ag
+" See https://github.com/junegunn/fzf.vim/issues/1225
+command! -bang -nargs=* Ag call fzf#vim#ag(<q-args>, $AG_DEFAULT_OPTIONS, call('fzf#vim#with_preview', g:fzf_preview_window), <bang>0)
+
+let g:fzf_history_dir = '~/.local/share/fzf-history'
+
+"  " Yank in/paste from macOS's clipboard
+"  " FIXME doesn't work in tmux? (+ what about other OSes?)
+"  set clipboard=unnamed
 
 let mapleader = ","
 
-map Q gq
-inoremap <C-U> <C-G>u<C-U>
+"  " Split vertically for diffs
+"  "set diffopt+=vertical
+
+"  " leader+M opens notes
+"  noremap <silent> <leader>m          :10split ~/notes.md <CR>
+
+" Force a dark background because Vim misbehaves in tmux
+set background=dark
+
+" Equalize viewports on resize (eg. Tmux zoom in/out)
+autocmd VimResized * exe "normal \<c-w>="
+
+" Display line numbers
+set number
+
+"  " Run Prettier on save if a config file is present
+"  let g:prettier#autoformat_require_pragma = 0
+"  let g:prettier#autoformat_config_present = 1
+"  let g:prettier#autoformat_config_files = [".prettierrc.json"]
+
+"  " Rails Runner
+"  noremap <silent> <leader>r :w !rails runner -<CR>
+"  " Ruby runner
+"  noremap <silent> <leader>R :w !ruby<CR>
+
+" Tab switching
 nnoremap L gt
 nnoremap H gT
+
+"  " For GhostText autoswitching
+"  let g:ghost_darwin_app = 'Terminal'
+"  let g:ghost_cmd = 'tabedit'
+
+"  " GhostText filetype
+"  augroup ghost
+"  au!
+"  autocmd BufNewFile,BufRead ghost-* set filetype=markdown
+"  augroup END
+
+" ALE
+let g:ale_completion_enabled = 1
+let g:ale_hover_to_preview = 1
+let g:ale_ruby_rubocop_executable = 'bundle'
+let g:ale_history_enabled = 1
+set updatetime=500
+set omnifunc=ale#completion#OmniFunc
+silent! helptags ALL

@@ -216,7 +216,7 @@ set hlsearch             " Highlight results
 
 " === FZF ===
 " CtrlP shortcut
-nmap <C-P> :FZF<CR>
+nmap <C-P> :Files<CR>
 
 let g:fzf_preview_window = ['right:50%', 'ctrl-_']
 

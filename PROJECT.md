@@ -23,12 +23,14 @@ bootstrap                  # small shell bootstrap
   -> install Ruby 4.x
   -> run Ruby CLI
   -> install vim-plug
+  -> restore Vim plugins from vim-plug snapshot
   -> install global npm packages with mise-managed Node 24
 
 dotfiles                   # Ruby executable
 lib/dotfiles/app.rb        # Dotfiles::App
 home_symlinks/             # files and symlinks linked into $HOME
 npm-global-packages.txt    # global npm package list
+vim-plug-snapshot.vim      # pinned Vim plugin snapshot
 test/                      # minitest coverage
 bin/test                   # test entrypoint
 bin/tart-test              # end-to-end Tart VM test suite runner
@@ -55,7 +57,7 @@ bin/tart-shell             # manual Tart VM shell for debugging
 
 - No LazyVim.
 - Vim and Neovim share `~/.vimrc`; Neovim sources it from `~/.config/nvim/init.vim`.
-- Vim plugins are declared with vim-plug in `~/.vimrc`.
+- Vim plugins are declared with vim-plug in `~/.vimrc` and restored from `vim-plug-snapshot.vim`.
 
 ## Current commands
 

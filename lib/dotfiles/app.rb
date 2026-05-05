@@ -87,6 +87,7 @@ module Dotfiles
     def install
       link
       install_vim_plug
+      install_vim_plugins
       install_npm_global_packages
     end
 
@@ -117,6 +118,14 @@ module Dotfiles
         "--create-dirs",
         "https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim"
       )
+    end
+
+    def install_vim_plugins
+      snapshot = File.join(ROOT, "vim-plug-snapshot.vim")
+      return unless File.exist?(snapshot)
+
+      say "Installing Vim plugins..."
+      action("vim", "-S", snapshot, "+qall")
     end
 
     def install_npm_global_packages

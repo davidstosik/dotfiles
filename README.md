@@ -27,7 +27,8 @@ Bootstrap and only link dotfiles:
 7. install Ruby 4.x from `.mise.toml`
 8. run the Ruby dotfile linker
 9. install vim-plug for Vim/Neovim plugin management
-10. install global npm packages from `npm-global-packages.txt` using mise-managed Node 24
+10. install Vim plugins from `vim-plug-snapshot.vim`
+11. install global npm packages from `npm-global-packages.txt` using mise-managed Node 24
 
 Preview the bootstrap steps without changing the system:
 
@@ -149,6 +150,7 @@ TART_SSH_PASSWORD=admin
 - `Brewfile.dev` — repo development/test packages
 - `.mise.toml` — repo Ruby 4.x configured for precompiled installs
 - `npm-global-packages.txt` — global npm packages installed with mise-managed Node
+- `vim-plug-snapshot.vim` — pinned Vim plugin snapshot restored by `./dotfiles install`
 - `dotfiles` — Ruby CLI entrypoint
 - `lib/dotfiles/app.rb` — `Dotfiles::App` implementation
 - `home_symlinks/` — files and symlinks linked into `$HOME`

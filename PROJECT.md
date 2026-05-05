@@ -22,6 +22,7 @@ bootstrap                  # small shell bootstrap
   -> install/use mise
   -> install Ruby 4.x
   -> run Ruby CLI
+  -> install vim-plug
   -> install global npm packages with mise-managed Node 24
 
 dotfiles                   # Ruby executable
@@ -53,6 +54,8 @@ bin/tart-shell             # manual Tart VM shell for debugging
   ```
 
 - No LazyVim.
+- Vim and Neovim share `~/.vimrc`; Neovim sources it from `~/.config/nvim/init.vim`.
+- Vim plugins are declared with vim-plug in `~/.vimrc`.
 
 ## Current commands
 

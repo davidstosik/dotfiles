@@ -86,6 +86,7 @@ module Dotfiles
 
     def install
       link
+      install_vim_plug
       install_npm_global_packages
     end
 
@@ -102,6 +103,20 @@ module Dotfiles
       end
 
       warn_about_stale_managed_symlinks(symlink_root)
+    end
+
+    def install_vim_plug
+      target = File.join(@home, ".vim/autoload/plug.vim")
+      return if File.exist?(target)
+
+      say "Installing vim-plug..."
+      action(
+        "curl",
+        "-fLo",
+        target,
+        "--create-dirs",
+        "https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim"
+      )
     end
 
     def install_npm_global_packages

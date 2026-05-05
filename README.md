@@ -26,7 +26,8 @@ Bootstrap and only link dotfiles:
 6. install/use `mise`
 7. install Ruby 4.x from `.mise.toml`
 8. run the Ruby dotfile linker
-9. install global npm packages from `npm-global-packages.txt` using mise-managed Node 24
+9. install vim-plug for Vim/Neovim plugin management
+10. install global npm packages from `npm-global-packages.txt` using mise-managed Node 24
 
 Preview the bootstrap steps without changing the system:
 

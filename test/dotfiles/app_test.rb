@@ -84,6 +84,8 @@ module Dotfiles
       Dir.mktmpdir do |home|
         stdout, = capture_io { App.new(["--home", home, "--dry-run", "--verbose", "install"]).run }
 
+        assert_includes stdout, "Installing vim-plug..."
+        assert_includes stdout, "+ curl -fLo #{File.join(home, ".vim/autoload/plug.vim")} --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim"
         assert_includes stdout, "Installing global npm packages..."
         assert_includes stdout, "+ mise install node@24"
         assert_includes stdout, "+ mise exec -- npm install -g @mariozechner/pi-coding-agent"

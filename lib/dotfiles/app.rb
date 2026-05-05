@@ -125,7 +125,7 @@ module Dotfiles
       return unless File.exist?(snapshot)
 
       say "Installing Vim plugins..."
-      action("vim", "-S", snapshot, "+qall")
+      action("vim", "-Nu", File.join(@home, ".vimrc"), "-S", snapshot, "+qall")
     end
 
     def install_npm_global_packages

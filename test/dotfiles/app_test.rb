@@ -87,7 +87,7 @@ module Dotfiles
         assert_includes stdout, "Installing vim-plug..."
         assert_includes stdout, "+ curl -fLo #{File.join(home, ".vim/autoload/plug.vim")} --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim"
         assert_includes stdout, "Installing Vim plugins..."
-        assert_includes stdout, "+ vim -S #{File.join(ROOT, "vim-plug-snapshot.vim")} +qall"
+        assert_includes stdout, "+ vim -Nu #{File.join(home, ".vimrc")} -S #{File.join(ROOT, "vim-plug-snapshot.vim")} +qall"
         assert_includes stdout, "Installing global npm packages..."
         assert_includes stdout, "+ mise install node@24"
         assert_includes stdout, "+ mise exec -- npm install -g @mariozechner/pi-coding-agent"

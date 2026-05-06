@@ -248,6 +248,16 @@ autocmd VimResized * exe "normal \<c-w>="
 " Display line numbers
 set number
 
+" Keep undo history across Vim/Neovim sessions.
+if has('persistent_undo')
+  set undofile
+  let s:undo_dir = has('nvim') ? expand('~/.local/state/nvim/undo') : expand('~/.vim/undo')
+  if !isdirectory(s:undo_dir)
+    call mkdir(s:undo_dir, 'p', 0700)
+  endif
+  execute 'set undodir^=' . fnameescape(s:undo_dir)
+endif
+
 "  " Run Prettier on save if a config file is present
 "  let g:prettier#autoformat_require_pragma = 0
 "  let g:prettier#autoformat_config_present = 1

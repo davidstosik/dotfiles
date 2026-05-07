@@ -19,7 +19,7 @@ brew "readline"
 brew "autoconf"
 
 # Fonts
-cask "font-monaspace-nerd-font"
+cask "font-monaspice-nerd-font"
 
 # Apps
 cask "1password-cli"

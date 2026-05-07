@@ -87,6 +87,8 @@ module Dotfiles
 
     def install
       link
+      install_tpm
+      install_tmux_plugins
       install_vim_plug
       install_vim_plugins
       install_mise_global_tools
@@ -105,6 +107,23 @@ module Dotfiles
       end
 
       warn_about_stale_managed_symlinks(symlink_root)
+    end
+
+    def install_tpm
+      target = File.join(@home, ".tmux/plugins/tpm")
+      return if Dir.exist?(target)
+
+      say "Installing TPM..."
+      action("mkdir", "-p", File.dirname(target))
+      action("git", "clone", "https://github.com/tmux-plugins/tpm", target)
+    end
+
+    def install_tmux_plugins
+      installer = File.join(@home, ".tmux/plugins/tpm/bin/install_plugins")
+      return unless File.exist?(installer) || @dry_run
+
+      say "Installing tmux plugins..."
+      action("env", "HOME=#{@home}", installer)
     end
 
     def install_vim_plug

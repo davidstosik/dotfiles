@@ -26,9 +26,11 @@ Bootstrap and only link dotfiles:
 6. install/use `mise`
 7. install Ruby 4.x from `.mise.toml`
 8. run the Ruby dotfile linker
-9. install vim-plug for Vim/Neovim plugin management
-10. install Vim plugins from `vim-plug-snapshot.vim`
-11. install global Mise tools from `mise-global-tools.txt`
+9. install TPM for tmux plugin management
+10. install tmux plugins declared in `~/.tmux.conf`
+11. install vim-plug for Vim/Neovim plugin management
+12. install Vim plugins from `vim-plug-snapshot.vim`
+13. install global Mise tools from `mise-global-tools.txt`
 
 Preview the bootstrap steps without changing the system:
 

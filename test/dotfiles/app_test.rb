@@ -84,6 +84,11 @@ module Dotfiles
       Dir.mktmpdir do |home|
         stdout, = capture_io { App.new(["--home", home, "--dry-run", "--verbose", "install"]).run }
 
+        assert_includes stdout, "Installing TPM..."
+        assert_includes stdout, "+ mkdir -p #{File.join(home, ".tmux/plugins")}"
+        assert_includes stdout, "+ git clone https://github.com/tmux-plugins/tpm #{File.join(home, ".tmux/plugins/tpm")}"
+        assert_includes stdout, "Installing tmux plugins..."
+        assert_includes stdout, "+ env HOME=#{home} #{File.join(home, ".tmux/plugins/tpm/bin/install_plugins")}"
         assert_includes stdout, "Installing vim-plug..."
         assert_includes stdout, "+ curl -fLo #{File.join(home, ".vim/autoload/plug.vim")} --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim"
         assert_includes stdout, "Installing Vim plugins..."
@@ -95,10 +100,12 @@ module Dotfiles
       end
     end
 
-    def test_link_does_not_install_global_mise_tools
+    def test_link_does_not_install_managed_tools
       Dir.mktmpdir do |home|
         stdout, = capture_io { App.new(["--home", home, "--dry-run", "--verbose", "link"]).run }
 
+        refute_includes stdout, "Installing TPM..."
+        refute_includes stdout, "Installing tmux plugins..."
         refute_includes stdout, "Installing global mise tools..."
         refute_includes stdout, "mise use -g"
       end

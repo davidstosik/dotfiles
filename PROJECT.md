@@ -24,12 +24,12 @@ bootstrap                  # small shell bootstrap
   -> run Ruby CLI
   -> install vim-plug
   -> restore Vim plugins from vim-plug snapshot
-  -> install global npm packages with mise-managed Node 24
+  -> install global tools with mise
 
 dotfiles                   # Ruby executable
 lib/dotfiles/app.rb        # Dotfiles::App
 home_symlinks/             # files and symlinks linked into $HOME
-npm-global-packages.txt    # global npm package list
+mise-global-tools.txt       # global mise tool list
 vim-plug-snapshot.vim      # pinned Vim plugin snapshot
 test/                      # minitest coverage
 bin/test                   # test entrypoint
@@ -44,7 +44,7 @@ bin/tart-shell             # manual Tart VM shell for debugging
 - `Brewfile.dev` contains repo development/test packages such as Tart.
 - Ruby is managed by mise, pinned to Ruby 4.x in `.mise.toml`.
 - Global Node is managed by mise, pinned to Node 24 in `~/.config/mise/config.toml`.
-- Global npm packages are listed in `npm-global-packages.txt` and installed with mise-managed Node.
+- Global CLI tools are listed in `mise-global-tools.txt` and installed with `mise use -g`; npm-backed CLIs should use `npm:<package>@<version>` instead of `npm install -g`.
 - Ruby code uses `Dotfiles` namespace, currently `Dotfiles::App`.
 - Dotfiles are discovered from `home_symlinks/` and linked into matching `$HOME` paths.
 - Symlinks in `home_symlinks/` are mirrored into `$HOME`; currently `home_symlinks/.gitignore` points to `.config/git/ignore`.

@@ -88,7 +88,7 @@ module Dotfiles
       link
       install_vim_plug
       install_vim_plugins
-      install_npm_global_packages
+      install_mise_global_tools
     end
 
     def link
@@ -128,18 +128,18 @@ module Dotfiles
       action("vim", "-Nu", File.join(@home, ".vimrc"), "-S", snapshot, "+qall")
     end
 
-    def install_npm_global_packages
-      package_file = File.join(ROOT, "npm-global-packages.txt")
-      return unless File.exist?(package_file)
+    def install_mise_global_tools
+      tool_file = File.join(ROOT, "mise-global-tools.txt")
+      return unless File.exist?(tool_file)
 
-      packages = File.readlines(package_file, chomp: true)
+      tools = File.readlines(tool_file, chomp: true)
         .map(&:strip)
         .reject { it.empty? || it.start_with?("#") }
-      return if packages.empty?
+      return if tools.empty?
 
-      say "Installing global npm packages..."
-      action("mise", "install", "node@24")
-      action("mise", "exec", "--", "npm", "install", "-g", *packages)
+      say "Installing global mise tools..."
+      action("mise", "use", "-g", *tools)
+      action("mise", "reshim")
     end
 
     def warn_about_stale_managed_symlinks(symlink_root)

@@ -80,7 +80,7 @@ module Dotfiles
       end
     end
 
-    def test_install_installs_global_npm_packages
+    def test_install_installs_global_mise_tools
       Dir.mktmpdir do |home|
         stdout, = capture_io { App.new(["--home", home, "--dry-run", "--verbose", "install"]).run }
 
@@ -88,18 +88,18 @@ module Dotfiles
         assert_includes stdout, "+ curl -fLo #{File.join(home, ".vim/autoload/plug.vim")} --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim"
         assert_includes stdout, "Installing Vim plugins..."
         assert_includes stdout, "+ vim -Nu #{File.join(home, ".vimrc")} -S #{File.join(ROOT, "vim-plug-snapshot.vim")} +qall"
-        assert_includes stdout, "Installing global npm packages..."
-        assert_includes stdout, "+ mise install node@24"
-        assert_includes stdout, "+ mise exec -- npm install -g @mariozechner/pi-coding-agent"
+        assert_includes stdout, "Installing global mise tools..."
+        assert_includes stdout, "+ mise use -g npm:@mariozechner/pi-coding-agent@latest"
+        assert_includes stdout, "+ mise reshim"
       end
     end
 
-    def test_link_does_not_install_global_npm_packages
+    def test_link_does_not_install_global_mise_tools
       Dir.mktmpdir do |home|
         stdout, = capture_io { App.new(["--home", home, "--dry-run", "--verbose", "link"]).run }
 
-        refute_includes stdout, "Installing global npm packages..."
-        refute_includes stdout, "npm install"
+        refute_includes stdout, "Installing global mise tools..."
+        refute_includes stdout, "mise use -g"
       end
     end
 

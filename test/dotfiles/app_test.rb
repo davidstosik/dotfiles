@@ -89,6 +89,7 @@ module Dotfiles
         assert_includes stdout, "Installing Vim plugins..."
         assert_includes stdout, "+ vim -Nu #{File.join(home, ".vimrc")} -S #{File.join(ROOT, "vim-plug-snapshot.vim")} +qall"
         assert_includes stdout, "Installing global mise tools..."
+        assert_includes stdout, "+ mise install node@24"
         assert_includes stdout, "+ mise use -g npm:@mariozechner/pi-coding-agent@latest"
         assert_includes stdout, "+ mise reshim"
       end

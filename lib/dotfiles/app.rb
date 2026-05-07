@@ -8,6 +8,7 @@ require "time"
 module Dotfiles
   class App
     ROOT = File.expand_path("../..", __dir__)
+    GLOBAL_MISE_CONFIG = File.join(ROOT, "home_symlinks/.config/mise/config.toml")
 
     def initialize(argv)
       @home = ENV.fetch("DOTFILES_HOME", Dir.home)
@@ -138,8 +139,27 @@ module Dotfiles
       return if tools.empty?
 
       say "Installing global mise tools..."
+      if npm_backed_tools?(tools) && !node_tool?(tools)
+        action("mise", "install", global_node_tool)
+      end
       action("mise", "use", "-g", *tools)
       action("mise", "reshim")
+    end
+
+    def node_tool?(tools)
+      tools.any? { |tool| tool == "node" || tool.start_with?("node@") }
+    end
+
+    def global_node_tool
+      config = File.read(GLOBAL_MISE_CONFIG)
+      match = config.match(/^node\s*=\s*["']([^"']+)["']/)
+      raise "node version missing from #{GLOBAL_MISE_CONFIG}" unless match
+
+      "node@#{match[1]}"
+    end
+
+    def npm_backed_tools?(tools)
+      tools.any? { |tool| tool.start_with?("npm:") }
     end
 
     def warn_about_stale_managed_symlinks(symlink_root)

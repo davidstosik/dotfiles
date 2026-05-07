@@ -1,5 +1,6 @@
 [tools]
 node = "24"
+"npm:@mariozechner/pi-coding-agent" = "latest"
 ruby = "4"
 
 [settings]

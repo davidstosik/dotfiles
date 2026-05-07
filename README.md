@@ -4,7 +4,15 @@ Personal dotfiles and local macOS bootstrap.
 
 ## Install
 
-Bootstrap the machine, link dotfiles, and install managed tools:
+Bootstrap the machine, link dotfiles, and install managed tools from a fresh machine:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/davidstosik/dotfiles-next/main/bootstrap | bash
+```
+
+The downloaded bootstrap installs minimal prerequisites, clones this repository to `~/.dotfiles`, then continues from the checkout.
+
+From an already-cloned checkout, run the same full install with:
 
 ```sh
 ./bootstrap
@@ -21,16 +29,17 @@ Bootstrap and only link dotfiles:
 1. ensure it is running on macOS
 2. install/load Homebrew if needed
 3. update Homebrew
-4. install packages from `Brewfile`
-5. upgrade Homebrew packages
-6. install/use `mise`
-7. install Ruby 4.x from `.mise.toml`
-8. run the Ruby dotfile linker
-9. install TPM for tmux plugin management
-10. install tmux plugins declared in `~/.tmux.conf`
-11. install vim-plug for Vim/Neovim plugin management
-12. install Vim plugins from `vim-plug-snapshot.vim`
-13. install global Mise tools from `mise-global-tools.txt`
+4. clone/update this repository at `~/.dotfiles` if needed
+5. install packages from `Brewfile`
+6. upgrade Homebrew packages
+7. install/use `mise`
+8. install Ruby 4.x from `.mise.toml`
+9. run the Ruby dotfile installer
+10. install TPM for tmux plugin management
+11. install tmux plugins declared in `~/.tmux.conf`
+12. install vim-plug for Vim/Neovim plugin management
+13. install Vim plugins from `vim-plug-snapshot.vim`
+14. install global Mise tools from `mise-global-tools.txt`
 
 Preview the bootstrap steps without changing the system:
 
@@ -147,7 +156,7 @@ TART_SSH_PASSWORD=admin
 
 ## Current contents
 
-- `bootstrap` — shell bootstrap for Homebrew, mise, Ruby, and global Mise tools
+- `bootstrap` — curl-pipe friendly bootstrap for Homebrew, the repo checkout, mise, Ruby, and the Ruby installer
 - `Brewfile` — target macOS packages/apps
 - `Brewfile.dev` — repo development/test packages
 - `.mise.toml` — repo Ruby 4.x configured for precompiled installs

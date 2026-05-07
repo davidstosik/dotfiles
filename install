@@ -1,4 +1,10 @@
 #!/usr/bin/env sh
 set -eu
 
-exec "$(dirname -- "$0")/bootstrap" "$@"
+script_dir=$(CDPATH= cd -- "$(dirname -- "$0")" 2>/dev/null && pwd || pwd)
+
+if [ -x "$script_dir/bootstrap" ]; then
+  exec "$script_dir/bootstrap" "$@"
+fi
+
+curl -fsSL "${DOTFILES_BOOTSTRAP_URL:-https://raw.githubusercontent.com/davidstosik/dotfiles-next/main/bootstrap}" | sh -s -- "$@"

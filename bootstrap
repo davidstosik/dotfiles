@@ -1,11 +1,14 @@
 #!/usr/bin/env sh
 set -eu
 
-ROOT=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+DEFAULT_REPO_URL="https://github.com/davidstosik/dotfiles-next.git"
+DEFAULT_REPO_REF="main"
+
 DRY_RUN=0
 NON_INTERACTIVE=0
 SKIP_BREW_BUNDLE=0
 VERBOSE=0
+ROOT=
 
 usage() {
   cat <<EOF
@@ -28,6 +31,10 @@ EOF
 }
 
 log() { printf '%s\n' "$*"; }
+fail() {
+  log "bootstrap: $*" >&2
+  exit 1
+}
 command_exists() { command -v "$1" >/dev/null 2>&1; }
 is_dry_run() { [ "$DRY_RUN" -eq 1 ]; }
 is_non_interactive() { [ "$NON_INTERACTIVE" -eq 1 ]; }
@@ -40,6 +47,33 @@ run() {
   if ! is_dry_run; then
     "$@"
   fi
+}
+
+find_checkout_root() {
+  script_dir=
+  case "$0" in
+    */*) script_dir=$(CDPATH= cd -- "$(dirname -- "$0")" 2>/dev/null && pwd || true) ;;
+  esac
+
+  if [ -n "$script_dir" ] && [ -f "$script_dir/dotfiles" ]; then
+    ROOT=$script_dir
+    return 0
+  fi
+
+  if [ -n "${DOTFILES_ROOT:-}" ] && [ -f "$DOTFILES_ROOT/dotfiles" ]; then
+    ROOT=$DOTFILES_ROOT
+    return 0
+  fi
+
+  if command_exists git; then
+    git_root=$(git rev-parse --show-toplevel 2>/dev/null || true)
+    if [ -n "$git_root" ] && [ -f "$git_root/dotfiles" ]; then
+      ROOT=$git_root
+      return 0
+    fi
+  fi
+
+  return 1
 }
 
 load_macos_homebrew_shellenv() {
@@ -111,6 +145,48 @@ update_homebrew() {
   run brew update
 }
 
+ensure_git() {
+  log "Ensuring git is installed..."
+
+  if ! command_exists git; then
+    run brew install git
+  fi
+}
+
+ensure_checkout() {
+  if find_checkout_root; then
+    return 0
+  fi
+
+  : "${HOME:?HOME is required}"
+  repo_url=${DOTFILES_REPO_URL:-$DEFAULT_REPO_URL}
+  repo_ref=${DOTFILES_REPO_REF:-$DEFAULT_REPO_REF}
+  install_dir=${DOTFILES_INSTALL_DIR:-"$HOME/.dotfiles"}
+
+  ensure_git
+
+  if is_dry_run; then
+    log "Dry-run: repository was not cloned, so bootstrap cannot continue from a checkout."
+    exit 0
+  fi
+
+  if [ -d "$install_dir/.git" ]; then
+    log "Updating dotfiles repository in $install_dir..."
+    git -C "$install_dir" fetch --prune origin "$repo_ref"
+    git -C "$install_dir" checkout "$repo_ref"
+    git -C "$install_dir" reset --hard "origin/$repo_ref"
+  else
+    [ ! -e "$install_dir" ] || fail "$install_dir already exists and is not a git checkout"
+
+    log "Cloning dotfiles repository into $install_dir..."
+    mkdir -p "$(dirname -- "$install_dir")"
+    git clone --branch "$repo_ref" "$repo_url" "$install_dir"
+  fi
+
+  ROOT=$install_dir
+  [ -x "$ROOT/bootstrap" ] || fail "dotfiles checkout does not contain an executable bootstrap"
+}
+
 install_packages() {
   log "Installing packages from Brewfile..."
   run brew bundle --file "$ROOT/Brewfile"
@@ -167,8 +243,11 @@ doctor() {
     return 1
   fi
 
-  log "Checking Ruby and dotfiles app..."
-  run mise exec --cd "$ROOT" -- ruby "$ROOT/dotfiles" doctor
+  log "Checking Ruby..."
+  if ! command_exists ruby; then
+    log "Ruby is not installed."
+    return 1
+  fi
 }
 
 run_dotfiles() {
@@ -194,6 +273,7 @@ case "${1:-install}" in
     ;;
   *)
     install_homebrew
+    ensure_checkout
     if [ "$SKIP_BREW_BUNDLE" -eq 0 ]; then
       install_packages
       upgrade_packages

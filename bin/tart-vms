@@ -1,0 +1,245 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require "json"
+require "open3"
+require "optparse"
+require "shellwords"
+
+ROOT = File.expand_path("..", __dir__)
+SSH_USER = ENV.fetch("TART_SSH_USER", "admin")
+SSH_PASSWORD = ENV.fetch("TART_SSH_PASSWORD", "admin")
+SSH_OPTIONS = %w[
+  -o StrictHostKeyChecking=no
+  -o UserKnownHostsFile=/dev/null
+  -o LogLevel=ERROR
+]
+
+CommandError = Class.new(StandardError)
+
+module TartVms
+  module_function
+
+  def usage
+    <<~USAGE
+      Usage: #{File.basename($PROGRAM_NAME)} <command> [options]
+
+      Commands:
+        list, ls                         List local VMs with stable numbers
+        name <number>                    Print VM name by number
+        delete, rm [--force] <number>    Delete VM by number; --force stops it first
+        ssh <number> [-- <ssh args>]     SSH into VM by number
+        restart <number> [options]       Stop then start VM by number
+
+      Restart options:
+        --graphics                       Start with graphics
+        --no-graphics                    Start headless (default)
+        --dir [name:]path                Mount a directory (default: current directory)
+        --no-dir                         Start without mounting a directory
+
+      Environment:
+        TART_SSH_USER                    SSH user (default: admin)
+        TART_SSH_PASSWORD                SSH password for expect (default: admin; set empty for key auth)
+    USAGE
+  end
+
+  def run(*cmd, **kwargs)
+    system(*cmd, **kwargs) || raise(CommandError, "command failed: #{cmd.shelljoin}")
+  end
+
+  def capture(*cmd)
+    stdout, stderr, status = Open3.capture3(*cmd)
+    raise CommandError, "command failed: #{cmd.shelljoin}\n#{stderr}" unless status.success?
+
+    stdout
+  end
+
+  def local_vms
+    JSON.parse(capture("tart", "list", "--source", "local", "--format", "json"))
+        .sort_by { |vm| vm.fetch("Name") }
+  end
+
+  def numbered_vms
+    local_vms.each_with_index.map { |vm, index| [index + 1, vm] }
+  end
+
+  def print_list
+    rows = numbered_vms
+    if rows.empty?
+      puts "No local Tart VMs."
+      return
+    end
+
+    number_width = rows.last.first.to_s.length
+    name_width = rows.map { |(_, vm)| vm.fetch("Name").length }.max
+
+    rows.each do |number, vm|
+      state = vm["State"] || (vm["Running"] ? "running" : "stopped")
+      size = vm["Size"] ? "#{vm['Size']}GB" : "?"
+      disk = vm["Disk"] ? "#{vm['Disk']}GB" : "?"
+      puts format("%*d  %-#{name_width}s  %-8s  size:%-6s disk:%s", number_width, number, vm.fetch("Name"), state, size, disk)
+    end
+  end
+
+  def vm_by_number(number_text)
+    raise CommandError, "missing VM number" if number_text.nil?
+
+    number = Integer(number_text, exception: false)
+    raise CommandError, "invalid VM number: #{number_text.inspect}" if number.nil? || number < 1
+
+    rows = numbered_vms
+    found = rows.find { |candidate_number, _| candidate_number == number }
+    raise CommandError, "no VM numbered #{number}; run `#{File.basename($PROGRAM_NAME)} list`" unless found
+
+    found.last
+  end
+
+  def expect_available?
+    system("command -v expect >/dev/null 2>&1")
+  end
+
+  def ssh_command(ip, extra_args)
+    ["ssh", "-tt", *SSH_OPTIONS, *extra_args, "#{SSH_USER}@#{ip}"]
+  end
+
+  def expect_ssh_command(ip, extra_args)
+    ssh = ssh_command(ip, extra_args).shelljoin
+    script = <<~EXPECT
+      set timeout -1
+      log_user 0
+      spawn /bin/sh -c #{ssh.shellescape}
+      expect {
+        -nocase "password:" {
+          send -- "$env(TART_SSH_PASSWORD)\r"
+          log_user 1
+        }
+        eof {
+          catch wait result
+          exit [lindex $result 3]
+        }
+      }
+      interact
+      catch wait result
+      exit [lindex $result 3]
+    EXPECT
+
+    ["expect", "-c", script]
+  end
+
+  def vm_ip(name)
+    capture("tart", "ip", name).strip
+  end
+
+  def ssh(number_text, extra_args)
+    vm = vm_by_number(number_text)
+    ip = vm_ip(vm.fetch("Name"))
+    raise CommandError, "#{vm.fetch('Name')} has no IP; start it with `#{File.basename($PROGRAM_NAME)} restart #{number_text}`" if ip.empty?
+
+    if SSH_PASSWORD.empty?
+      exec(*ssh_command(ip, extra_args))
+    else
+      raise CommandError, "TART_SSH_PASSWORD is set, but expect is not available" unless expect_available?
+
+      exec({ "TART_SSH_PASSWORD" => SSH_PASSWORD }, *expect_ssh_command(ip, extra_args))
+    end
+  end
+
+  def delete(number_text, force: false)
+    vm = vm_by_number(number_text)
+    name = vm.fetch("Name")
+
+    if vm["Running"] && !force
+      raise CommandError, "#{name} is running; use --force to stop it before deleting"
+    end
+
+    run("tart", "stop", name) if force && vm["Running"]
+    run("tart", "delete", name)
+    puts "Deleted #{name}."
+  end
+
+  def default_share_name(path)
+    name = File.basename(File.expand_path(path)).gsub(/[^A-Za-z0-9_.-]/, "-")
+    name.empty? ? "cwd" : name
+  end
+
+  def dir_share_arg(path)
+    return path if path.include?(":")
+
+    "#{default_share_name(path)}:#{File.expand_path(path)}"
+  end
+
+  def restart(number_text, graphics: false, dir: Dir.pwd)
+    vm = vm_by_number(number_text)
+    name = vm.fetch("Name")
+
+    run("tart", "stop", name) if vm["Running"]
+
+    args = ["tart", "run"]
+    args << "--no-graphics" unless graphics
+    args << "--dir=#{dir_share_arg(dir)}" if dir
+    args << name
+
+    log_path = File.join(ROOT, "tmp-tart-#{name}.log")
+    log_file = File.open(log_path, "a")
+
+    puts "Starting #{name}: #{args.shelljoin}"
+    puts "Log: #{log_path}"
+    pid = spawn(*args, out: log_file, err: [:child, :out])
+    Process.detach(pid)
+    puts "Started #{name} (pid #{pid})."
+  end
+
+  def parse_delete(argv)
+    force = false
+    parser = OptionParser.new do |opts|
+      opts.on("-f", "--force") { force = true }
+    end
+    parser.parse!(argv)
+    [argv.shift, force]
+  end
+
+  def parse_restart(argv)
+    graphics = false
+    dir = Dir.pwd
+    parser = OptionParser.new do |opts|
+      opts.on("--graphics") { graphics = true }
+      opts.on("--no-graphics") { graphics = false }
+      opts.on("--dir DIR") { |value| dir = value }
+      opts.on("--no-dir") { dir = nil }
+    end
+    parser.parse!(argv)
+    [argv.shift, graphics, dir]
+  end
+
+  def main(argv)
+    command = argv.shift
+
+    case command
+    when nil, "help", "--help", "-h"
+      puts usage
+    when "list", "ls"
+      print_list
+    when "name"
+      puts vm_by_number(argv.shift).fetch("Name")
+    when "delete", "rm"
+      number, force = parse_delete(argv)
+      delete(number, force: force)
+    when "ssh"
+      number = argv.shift
+      argv.shift if argv.first == "--"
+      ssh(number, argv)
+    when "restart"
+      number, graphics, dir = parse_restart(argv)
+      restart(number, graphics: graphics, dir: dir)
+    else
+      raise CommandError, "unknown command: #{command}\n\n#{usage}"
+    end
+  end
+end
+
+begin
+  TartVms.main(ARGV)
+rescue OptionParser::ParseError, CommandError, Errno::ENOENT => e
+  warn e.message
+  exit 1
+end

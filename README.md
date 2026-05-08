@@ -18,50 +18,27 @@ From an already-cloned checkout, run the same full install with:
 ./bootstrap
 ```
 
-Bootstrap and only link dotfiles:
-
-```sh
-./bootstrap link
-```
-
 `bootstrap` will:
 
-1. ensure it is running on macOS
-2. install/load Homebrew if needed
-3. update Homebrew
-4. clone/update this repository at `~/.dotfiles` if needed
-5. install packages from `Brewfile`
-6. upgrade Homebrew packages
-7. install/use `mise`
-8. install Ruby 4.x from `.mise.toml`
-9. run the Ruby dotfile installer
-10. install TPM for tmux plugin management
-11. install tmux plugins declared in `~/.tmux.conf`
-12. install vim-plug for Vim/Neovim plugin management
-13. install Vim plugins from `vim-plug-snapshot.vim`
-14. install global Mise tools from `mise-global-tools.txt`
+1. request sudo credentials with `sudo -v`
+2. ensure it is running on macOS
+3. install/load Homebrew if needed
+4. update Homebrew
+5. install bootstrap tools with `brew install git mise`
+6. clone/update this repository at `~/.dotfiles` if needed
+7. install Ruby 4.x from `.mise.toml` using mise
+8. run the Ruby dotfile installer
 
-Preview the bootstrap steps without changing the system:
+The Ruby installer will:
 
-```sh
-./bootstrap --dry-run --verbose link
-```
-
-In bootstrap dry-run mode, mutating commands are skipped and the Ruby linker is not executed. To preview linker-specific actions, run the Ruby CLI directly:
-
-```sh
-./dotfiles --dry-run --verbose link
-```
-
-If you want the bootstrap path but do not want to install the full `Brewfile` yet:
-
-```sh
-./bootstrap --skip-brew-bundle link
-```
-
-This still ensures Homebrew, mise, and Ruby are available. To run only the linker, use `./dotfiles link`.
-
-For unattended automation, add `--non-interactive`; commands that would prompt instead use non-interactive flags or fail.
+1. install packages from `Brewfile`
+2. upgrade Homebrew packages
+3. link dotfiles
+4. install TPM for tmux plugin management
+5. install tmux plugins declared in `~/.tmux.conf`
+6. install vim-plug for Vim/Neovim plugin management
+7. install Vim plugins from `vim-plug-snapshot.vim`
+8. install global Mise tools from `mise-global-tools.txt`
 
 ## Dotfile linking
 
@@ -90,36 +67,6 @@ Existing files are never deleted. If a target already exists and is not the expe
 ```
 
 ## Commands
-
-Run the full Ruby installer directly:
-
-```sh
-./dotfiles install
-```
-
-Run only the Ruby linker directly:
-
-```sh
-./dotfiles link
-```
-
-Use a temporary/alternate home:
-
-```sh
-./dotfiles --home /tmp/dotfiles-home link
-```
-
-Run basic Ruby app checks:
-
-```sh
-./dotfiles doctor
-```
-
-Run bootstrap prerequisite checks without installing anything:
-
-```sh
-./bootstrap doctor
-```
 
 Run tests:
 
@@ -161,7 +108,7 @@ TART_SSH_PASSWORD=admin
 - `Brewfile.dev` — repo development/test packages
 - `.mise.toml` — repo Ruby 4.x configured for precompiled installs
 - `mise-global-tools.txt` — global tools installed with `mise use -g`, including npm-backed CLIs
-- `vim-plug-snapshot.vim` — pinned Vim plugin snapshot restored by `./dotfiles install`
+- `vim-plug-snapshot.vim` — pinned Vim plugin snapshot restored by `./dotfiles`
 - `dotfiles` — Ruby CLI entrypoint
 - `lib/dotfiles/app.rb` — `Dotfiles::App` implementation
 - `home_symlinks/` — files and symlinks linked into `$HOME`

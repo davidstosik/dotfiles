@@ -12,42 +12,59 @@ module Dotfiles
     ROOT = File.expand_path("../..", __dir__)
     SYMLINK_ROOT = File.join(ROOT, "home_symlinks")
 
-    def test_dry_run_does_not_create_files
-      Dir.mktmpdir do |home|
-        stdout, = capture_io { App.new(["--home", home, "--dry-run", "link"]).run }
+    class TestApp < App
+      attr_reader :commands
 
-        assert_includes stdout, "Linking dotfiles..."
-        refute_includes stdout, "+ ln -s"
-        refute File.exist?(File.join(home, ".gitconfig")), "dry-run created .gitconfig"
-        refute File.exist?(File.join(home, ".gitignore")), "dry-run created .gitignore"
-        refute File.exist?(File.join(home, ".config")), "dry-run created .config"
+      def initialize
+        @commands = []
+        super
       end
-    end
 
-    def test_dry_run_verbose_prints_commands_without_creating_files
-      Dir.mktmpdir do |home|
-        stdout, = capture_io { App.new(["--home", home, "--dry-run", "--verbose", "link"]).run }
+      private
 
-        assert_includes stdout, "Linking dotfiles..."
-        assert_includes stdout, "+ ln -s"
-        refute File.exist?(File.join(home, ".gitconfig")), "dry-run created .gitconfig"
-      end
-    end
+      def action(*cmd)
+        @commands << cmd
+        puts "+ #{cmd.join(" ")}"
 
-    def test_link_creates_expected_symlinks
-      Dir.mktmpdir do |home|
-        capture_io { App.new(["--home", home, "link"]).run }
-
-        expected_links.each do |target, source|
-          assert_symlink File.join(home, target), source
+        case cmd.first
+        when "mkdir", "mv", "ln"
+          system(*cmd) || raise("command failed: #{cmd.join(" ")}")
+        when "git"
+          if cmd[1] == "clone" && cmd[2] == "https://github.com/tmux-plugins/tpm"
+            FileUtils.mkdir_p(File.join(cmd[3], "bin"))
+            File.write(File.join(cmd[3], "bin/install_plugins"), "#!/bin/sh\n")
+          end
+        when "curl"
+          target = cmd[2]
+          FileUtils.mkdir_p(File.dirname(target))
+          File.write(target, "")
         end
       end
     end
 
-    def test_link_is_idempotent
+    def test_run_installs_packages_links_dotfiles_and_installs_tools
       Dir.mktmpdir do |home|
-        capture_io { App.new(["--home", home, "link"]).run }
-        capture_io { App.new(["--home", home, "link"]).run }
+        app = run_app_silently(home)
+
+        assert_includes app.commands, ["brew", "bundle", "--file", File.join(ROOT, "Brewfile")]
+        assert_includes app.commands, ["brew", "upgrade"]
+        expected_links.each do |target, source|
+          assert_symlink File.join(home, target), source
+        end
+        assert_includes app.commands, ["git", "clone", "https://github.com/tmux-plugins/tpm", File.join(home, ".tmux/plugins/tpm")]
+        assert_includes app.commands, ["env", "HOME=#{home}", File.join(home, ".tmux/plugins/tpm/bin/install_plugins")]
+        assert_includes app.commands, ["curl", "-fLo", File.join(home, ".vim/autoload/plug.vim"), "--create-dirs", "https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim"]
+        assert_includes app.commands, ["vim", "-Nu", File.join(home, ".vimrc"), "-S", File.join(ROOT, "vim-plug-snapshot.vim"), "+qall"]
+        assert_includes app.commands, ["mise", "install", "node@24"]
+        assert_includes app.commands, ["mise", "use", "-g", "npm:@mariozechner/pi-coding-agent@latest"]
+        assert_includes app.commands, ["mise", "reshim"]
+      end
+    end
+
+    def test_linking_is_idempotent
+      Dir.mktmpdir do |home|
+        run_app_silently(home)
+        run_app_silently(home)
 
         assert_symlink File.join(home, ".gitconfig"), File.join(SYMLINK_ROOT, ".gitconfig")
         assert_empty Dir.glob(File.join(home, ".gitconfig.backup.*"))
@@ -58,7 +75,7 @@ module Dotfiles
       Dir.mktmpdir do |home|
         File.write(File.join(home, ".gitconfig"), "existing\n")
 
-        capture_io { App.new(["--home", home, "link"]).run }
+        run_app_silently(home)
 
         assert_symlink File.join(home, ".gitconfig"), File.join(SYMLINK_ROOT, ".gitconfig")
         backups = Dir.glob(File.join(home, ".gitconfig.backup.*"))
@@ -73,45 +90,30 @@ module Dotfiles
         FileUtils.mkdir_p(File.dirname(stale))
         FileUtils.ln_s(File.join(SYMLINK_ROOT, ".config/ghostty/old"), stale)
 
-        stdout, = capture_io { App.new(["--home", home, "link"]).run }
+        stdout, = capture_io { run_app(home) }
 
-        assert_includes stdout, "warning: stale managed symlink: #{stale} -> #{File.join(SYMLINK_ROOT, ".config/ghostty/old")}" 
+        assert_includes stdout, "warning: stale managed symlink: #{stale} -> #{File.join(SYMLINK_ROOT, ".config/ghostty/old")}"
         assert File.symlink?(stale), "expected stale symlink to be left in place"
       end
     end
 
-    def test_install_installs_global_mise_tools
-      Dir.mktmpdir do |home|
-        stdout, = capture_io { App.new(["--home", home, "--dry-run", "--verbose", "install"]).run }
-
-        assert_includes stdout, "Installing TPM..."
-        assert_includes stdout, "+ mkdir -p #{File.join(home, ".tmux/plugins")}"
-        assert_includes stdout, "+ git clone https://github.com/tmux-plugins/tpm #{File.join(home, ".tmux/plugins/tpm")}"
-        assert_includes stdout, "Installing tmux plugins..."
-        assert_includes stdout, "+ env HOME=#{home} #{File.join(home, ".tmux/plugins/tpm/bin/install_plugins")}"
-        assert_includes stdout, "Installing vim-plug..."
-        assert_includes stdout, "+ curl -fLo #{File.join(home, ".vim/autoload/plug.vim")} --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim"
-        assert_includes stdout, "Installing Vim plugins..."
-        assert_includes stdout, "+ vim -Nu #{File.join(home, ".vimrc")} -S #{File.join(ROOT, "vim-plug-snapshot.vim")} +qall"
-        assert_includes stdout, "Installing global mise tools..."
-        assert_includes stdout, "+ mise install node@24"
-        assert_includes stdout, "+ mise use -g npm:@mariozechner/pi-coding-agent@latest"
-        assert_includes stdout, "+ mise reshim"
-      end
-    end
-
-    def test_link_does_not_install_managed_tools
-      Dir.mktmpdir do |home|
-        stdout, = capture_io { App.new(["--home", home, "--dry-run", "--verbose", "link"]).run }
-
-        refute_includes stdout, "Installing TPM..."
-        refute_includes stdout, "Installing tmux plugins..."
-        refute_includes stdout, "Installing global mise tools..."
-        refute_includes stdout, "mise use -g"
-      end
-    end
-
     private
+
+    def run_app_silently(home)
+      app = nil
+      capture_io { app = run_app(home) }
+      app
+    end
+
+    def run_app(home)
+      previous_home = ENV["DOTFILES_HOME"]
+      ENV["DOTFILES_HOME"] = home
+      app = TestApp.new
+      app.run
+      app
+    ensure
+      ENV["DOTFILES_HOME"] = previous_home
+    end
 
     def expected_links
       Find.find(SYMLINK_ROOT).each_with_object({}) do |source, links|

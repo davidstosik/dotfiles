@@ -1,34 +1,18 @@
 #!/usr/bin/env sh
+
+if (return 0 2>/dev/null); then
+  printf '%s\n' "bootstrap: do not source this script; run it as ./bootstrap or sh ./bootstrap" >&2
+  return 1
+fi
+
 set -eu
 
 DEFAULT_REPO_URL="https://github.com/davidstosik/dotfiles-next.git"
 DEFAULT_REPO_REF="main"
 
-DRY_RUN=0
-NON_INTERACTIVE=0
-SKIP_BREW_BUNDLE=0
-VERBOSE=0
+export HOMEBREW_NO_AUTO_UPDATE=1
+
 ROOT=
-
-usage() {
-  cat <<EOF
-Usage: ./bootstrap [bootstrap-options] [dotfiles-options] [command]
-
-Commands:
-  install   Link dotfiles and install managed tools (default)
-  link      Link dotfiles into HOME
-  doctor    Check basic prerequisites
-  help      Show Ruby CLI help
-
-Bootstrap options:
-  --skip-brew-bundle   Do not run brew bundle before Ruby installer
-  --dry-run            Do not execute commands that change the system
-  --verbose            Print commands before executing them, or before skipping them in dry-run
-  --non-interactive    Never prompt; fail instead
-
-All other options/commands are passed to ./dotfiles.
-EOF
-}
 
 log() { printf '%s\n' "$*"; }
 fail() {
@@ -36,44 +20,20 @@ fail() {
   exit 1
 }
 command_exists() { command -v "$1" >/dev/null 2>&1; }
-is_dry_run() { [ "$DRY_RUN" -eq 1 ]; }
-is_non_interactive() { [ "$NON_INTERACTIVE" -eq 1 ]; }
-is_verbose() { [ "$VERBOSE" -eq 1 ]; }
 run() {
-  if is_verbose; then
-    log "+ $*"
-  fi
-
-  if ! is_dry_run; then
-    "$@"
-  fi
+  log "+ $*"
+  "$@"
 }
 
 find_checkout_root() {
-  script_dir=
-  case "$0" in
-    */*) script_dir=$(CDPATH= cd -- "$(dirname -- "$0")" 2>/dev/null && pwd || true) ;;
-  esac
+  [ -f "$0" ] || return 1
 
-  if [ -n "$script_dir" ] && [ -f "$script_dir/dotfiles" ]; then
-    ROOT=$script_dir
-    return 0
-  fi
+  git_root=$(git -C "$(dirname -- "$0")" rev-parse --show-toplevel 2>/dev/null || true)
+  [ -n "$git_root" ] || return 1
+  [ -x "$git_root/bootstrap" ] || return 1
+  [ -f "$git_root/dotfiles" ] || return 1
 
-  if [ -n "${DOTFILES_ROOT:-}" ] && [ -f "$DOTFILES_ROOT/dotfiles" ]; then
-    ROOT=$DOTFILES_ROOT
-    return 0
-  fi
-
-  if command_exists git; then
-    git_root=$(git rev-parse --show-toplevel 2>/dev/null || true)
-    if [ -n "$git_root" ] && [ -f "$git_root/dotfiles" ]; then
-      ROOT=$git_root
-      return 0
-    fi
-  fi
-
-  return 1
+  ROOT=$git_root
 }
 
 load_macos_homebrew_shellenv() {
@@ -92,65 +52,36 @@ load_macos_homebrew_shellenv() {
 
 ensure_sudo() {
   log "Validating sudo credentials..."
+  run sudo -v
+}
 
-  if is_non_interactive; then
-    run sudo -n -v || {
-      log "sudo credentials are required but are not available in --non-interactive mode."
-      return 1
-    }
-  else
-    run sudo -v
+ensure_macos() {
+  if [ "$(uname -s)" != "Darwin" ]; then
+    fail "This bootstrap is for macOS."
   fi
 }
 
 install_homebrew() {
   log "Ensuring Homebrew is installed..."
 
-  if [ "$(uname -s)" != "Darwin" ]; then
-    log "This bootstrap is for macOS."
-    return 1
-  fi
-
   if load_macos_homebrew_shellenv; then
-    update_homebrew
+    run brew update
     return 0
   fi
-
-  ensure_sudo
 
   installer=$(mktemp)
   trap 'rm -f "$installer"' EXIT
   run curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh -o "$installer"
-
-  if is_non_interactive; then
-    run env NONINTERACTIVE=1 /bin/bash "$installer"
-  else
-    run /bin/bash "$installer"
-  fi
-
+  run env NONINTERACTIVE=1 /bin/bash "$installer"
   rm -f "$installer"
   trap - EXIT
 
-  if is_dry_run; then
-    update_homebrew
-    return 0
-  fi
-
-  load_macos_homebrew_shellenv
-  update_homebrew
+  load_macos_homebrew_shellenv || fail "Homebrew installed but could not be loaded"
 }
 
-update_homebrew() {
-  log "Updating Homebrew..."
-  run brew update
-}
-
-ensure_git() {
-  log "Ensuring git is installed..."
-
-  if ! command_exists git; then
-    run brew install git
-  fi
+install_bootstrap_tools() {
+  log "Installing bootstrap tools..."
+  run brew install git mise
 }
 
 ensure_checkout() {
@@ -163,125 +94,42 @@ ensure_checkout() {
   repo_ref=${DOTFILES_REPO_REF:-$DEFAULT_REPO_REF}
   install_dir=${DOTFILES_INSTALL_DIR:-"$HOME/.dotfiles"}
 
-  ensure_git
-
-  if is_dry_run; then
-    log "Dry-run: repository was not cloned, so bootstrap cannot continue from a checkout."
-    exit 0
-  fi
-
   if [ -d "$install_dir/.git" ]; then
     log "Updating dotfiles repository in $install_dir..."
-    git -C "$install_dir" fetch --prune origin "$repo_ref"
-    git -C "$install_dir" checkout "$repo_ref"
-    git -C "$install_dir" reset --hard "origin/$repo_ref"
+    run git -C "$install_dir" fetch --prune origin "$repo_ref"
+    run git -C "$install_dir" checkout "$repo_ref"
+    run git -C "$install_dir" reset --hard "origin/$repo_ref"
   else
     [ ! -e "$install_dir" ] || fail "$install_dir already exists and is not a git checkout"
 
     log "Cloning dotfiles repository into $install_dir..."
-    mkdir -p "$(dirname -- "$install_dir")"
-    git clone --branch "$repo_ref" "$repo_url" "$install_dir"
+    run mkdir -p "$(dirname -- "$install_dir")"
+    run git clone --branch "$repo_ref" "$repo_url" "$install_dir"
   fi
 
   ROOT=$install_dir
   [ -x "$ROOT/bootstrap" ] || fail "dotfiles checkout does not contain an executable bootstrap"
 }
 
-install_packages() {
-  log "Installing packages from Brewfile..."
-  run brew bundle --file "$ROOT/Brewfile"
-}
-
-upgrade_packages() {
-  log "Upgrading Homebrew packages..."
-  run brew upgrade
-}
-
-ensure_mise() {
-  log "Ensuring mise is installed..."
-
-  if ! command_exists mise; then
-    run brew install mise
-  fi
-}
-
 install_ruby() {
   log "Ensuring Ruby is installed..."
-
-  if ! command_exists mise; then
-    if ! is_dry_run; then
-      log "mise is required."
-      exit 1
-    fi
-  fi
-
-  if is_non_interactive; then
-    run mise trust -y "$ROOT/.mise.toml"
-    run mise install -y --cd "$ROOT"
-  else
-    run mise trust "$ROOT/.mise.toml"
-    run mise install --cd "$ROOT"
-  fi
-}
-
-doctor() {
-  log "Checking macOS..."
-  if [ "$(uname -s)" != "Darwin" ]; then
-    log "This bootstrap is for macOS."
-    return 1
-  fi
-
-  log "Checking Homebrew..."
-  if ! load_macos_homebrew_shellenv; then
-    log "Homebrew is not installed."
-    return 1
-  fi
-
-  log "Checking mise..."
-  if ! command_exists mise; then
-    log "mise is not installed."
-    return 1
-  fi
-
-  log "Checking Ruby..."
-  if ! command_exists ruby; then
-    log "Ruby is not installed."
-    return 1
-  fi
+  run mise trust -y "$ROOT/.mise.toml"
+  run mise install -y --cd "$ROOT"
 }
 
 run_dotfiles() {
-  log "Running dotfiles command..."
-  run mise exec --cd "$ROOT" -- ruby "$ROOT/dotfiles" "$@"
+  log "Running dotfiles..."
+  run mise exec --cd "$ROOT" -- ruby "$ROOT/dotfiles"
 }
 
-while [ "$#" -gt 0 ]; do
-  case "$1" in
-    --dry-run) DRY_RUN=1; export DOTFILES_DRY_RUN=1 ;;
-    --verbose) VERBOSE=1; export DOTFILES_VERBOSE=1 ;;
-    --non-interactive) NON_INTERACTIVE=1; export DOTFILES_NON_INTERACTIVE=1 ;;
-    --skip-brew-bundle) SKIP_BREW_BUNDLE=1 ;;
-    -h|--help) usage; exit 0 ;;
-    *) break ;;
-  esac
-  shift
-done
+main() {
+  ensure_sudo
+  ensure_macos
+  install_homebrew
+  install_bootstrap_tools
+  ensure_checkout
+  install_ruby
+  run_dotfiles
+}
 
-case "${1:-install}" in
-  doctor)
-    doctor
-    ;;
-  *)
-    install_homebrew
-    ensure_checkout
-    if [ "$SKIP_BREW_BUNDLE" -eq 0 ]; then
-      install_packages
-      upgrade_packages
-    else
-      log "Skipping Brewfile packages."
-    fi
-    ensure_mise
-    install_ruby
-    run_dotfiles "$@"
-    ;;
-esac
+main

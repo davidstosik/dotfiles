@@ -3,4 +3,4 @@
 
 require_relative "lib/dotfiles/app"
 
-Dotfiles::App.new(ARGV).run
+Dotfiles::App.new.run

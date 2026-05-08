@@ -2,7 +2,6 @@
 
 require "find"
 require "fileutils"
-require "optparse"
 require "time"
 
 module Dotfiles
@@ -10,38 +9,18 @@ module Dotfiles
     ROOT = File.expand_path("../..", __dir__)
     GLOBAL_MISE_CONFIG = File.join(ROOT, "home_symlinks/.config/mise/config.toml")
 
-    def initialize(argv)
+    def initialize
       @home = ENV.fetch("DOTFILES_HOME", Dir.home)
-      @dry_run = ENV["DOTFILES_DRY_RUN"] == "1"
-      @verbose = ENV["DOTFILES_VERBOSE"] == "1"
-      @non_interactive = ENV["DOTFILES_NON_INTERACTIVE"] == "1"
-      @command = "install"
-
-      parser = OptionParser.new do |opts|
-        opts.banner = "Usage: ./dotfiles [options] [command]\n\nCommands:\n  install  Link dotfiles and install managed tools (default)\n  link     Link dotfiles only\n  doctor   Check basic prerequisites\n  help     Show help"
-        opts.on("--dry-run", "Do not execute commands that change the system") { @dry_run = true }
-        opts.on("--verbose", "Print commands before executing them, or before skipping them in dry-run") { @verbose = true }
-        opts.on("--non-interactive", "Never prompt") { @non_interactive = true }
-        opts.on("--home PATH", "Use PATH instead of HOME") { |path| @home = path }
-        opts.on("-h", "--help", "Show help") { @command = "help" }
-      end
-
-      rest = parser.parse(argv)
-      @command = rest.first if rest.first
-      @parser = parser
     end
 
     def run
-      case @command
-      when "install" then install
-      when "link" then link
-      when "doctor" then doctor
-      when "help" then puts @parser
-      else
-        warn "Unknown command: #{@command}"
-        puts @parser
-        exit 2
-      end
+      install_homebrew_packages
+      link_dotfiles
+      install_tpm
+      install_tmux_plugins
+      install_vim_plug
+      install_vim_plugins
+      install_mise_global_tools
     end
 
     private
@@ -51,8 +30,31 @@ module Dotfiles
     end
 
     def action(*cmd)
-      say "+ #{cmd.join(" ")}" if @verbose
-      system(*cmd) || raise("command failed: #{cmd.join(" ")}") unless @dry_run
+      say "+ #{cmd.join(" ")}"
+      system(*cmd) || raise("command failed: #{cmd.join(" ")}")
+    end
+
+    def install_homebrew_packages
+      say "Installing packages from Brewfile..."
+      action("brew", "bundle", "--file", File.join(ROOT, "Brewfile"))
+
+      say "Upgrading Homebrew packages..."
+      action("brew", "upgrade")
+    end
+
+    def link_dotfiles
+      say "Linking dotfiles..."
+
+      symlink_root = File.join(ROOT, "home_symlinks")
+
+      Find.find(symlink_root) do |source|
+        next if File.directory?(source)
+
+        target = File.join(@home, source.delete_prefix("#{symlink_root}/"))
+        link_one(source, target)
+      end
+
+      warn_about_stale_managed_symlinks(symlink_root)
     end
 
     def link_one(source, target)
@@ -85,30 +87,6 @@ module Dotfiles
       "#{path}.backup.#{Time.now.strftime("%Y%m%d-%H%M%S")}"
     end
 
-    def install
-      link
-      install_tpm
-      install_tmux_plugins
-      install_vim_plug
-      install_vim_plugins
-      install_mise_global_tools
-    end
-
-    def link
-      say "Linking dotfiles..."
-
-      symlink_root = File.join(ROOT, "home_symlinks")
-
-      Find.find(symlink_root) do |source|
-        next if File.directory?(source)
-
-        target = File.join(@home, source.delete_prefix("#{symlink_root}/"))
-        link_one(source, target)
-      end
-
-      warn_about_stale_managed_symlinks(symlink_root)
-    end
-
     def install_tpm
       target = File.join(@home, ".tmux/plugins/tpm")
       return if Dir.exist?(target)
@@ -120,7 +98,7 @@ module Dotfiles
 
     def install_tmux_plugins
       installer = File.join(@home, ".tmux/plugins/tpm/bin/install_plugins")
-      return unless File.exist?(installer) || @dry_run
+      return unless File.exist?(installer)
 
       say "Installing tmux plugins..."
       action("env", "HOME=#{@home}", installer)
@@ -207,16 +185,6 @@ module Dotfiles
     def symlink_target(path)
       target = File.readlink(path)
       File.expand_path(target, File.dirname(path))
-    end
-
-    def doctor
-      missing = %w[git ruby].reject { |cmd| system("command -v #{cmd}", out: File::NULL, err: File::NULL) }
-      if missing.empty?
-        say "doctor: ok"
-      else
-        missing.each { |cmd| warn "missing: #{cmd}" }
-        exit 1
-      end
     end
   end
 end

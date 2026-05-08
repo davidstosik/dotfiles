@@ -12,6 +12,7 @@ bindkey "^[[3~" delete-char # restore Delete key in tmux
 
 alias g=git
 alias hist='fc -lt "%F %T"'
+alias vim=nvim
 
 # Colourise directory listings by default on macOS/BSD ls.
 export CLICOLOR=1

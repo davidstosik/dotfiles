@@ -10,18 +10,6 @@ export EDITOR=vim
 bindkey -e # for emacs keys in shell despite EDITOR
 bindkey "^[[3~" delete-char # restore Delete key in tmux
 
-insert-space() {
-  LBUFFER+=" "
-}
-zle -N insert-space
-
-# Ghostty/tmux may send CSI-u sequences for modified keys; make common ones
-# behave normally at the shell prompt instead of printing fragments like ";2u".
-bindkey "^[[32;2u" insert-space           # Shift+Space
-bindkey "^[[127;2u" backward-delete-char  # Shift+Delete/Backspace on MacBook keyboards
-bindkey "^[[27;2u" delete-char            # Shift+Delete
-bindkey "^[[3;2~" delete-char             # Shift+Delete fallback
-
 alias g=git
 alias hist='fc -lt "%F %T"'
 alias vim=nvim

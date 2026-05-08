@@ -20,8 +20,8 @@ From an already-cloned checkout, run the same full install with:
 
 `bootstrap` will:
 
-1. request sudo credentials with `sudo -v`
-2. ensure it is running on macOS
+1. ensure it is running on macOS
+2. request sudo credentials with `sudo -v`
 3. install/load Homebrew if needed
 4. update Homebrew
 5. install bootstrap tools with `brew install git mise`

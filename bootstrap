@@ -123,8 +123,8 @@ run_dotfiles() {
 }
 
 main() {
-  ensure_sudo
   ensure_macos
+  ensure_sudo
   install_homebrew
   install_bootstrap_tools
   ensure_checkout

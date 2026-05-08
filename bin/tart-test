@@ -111,13 +111,13 @@ def expect_ssh_command(ip, command)
       -nocase "password:" {
         send -- "$env(TART_SSH_PASSWORD)\r"
         log_user 1
+        exp_continue
       }
       eof {
         catch wait result
         exit [lindex $result 3]
       }
     }
-    expect eof
     catch wait result
     exit [lindex $result 3]
   EXPECT
